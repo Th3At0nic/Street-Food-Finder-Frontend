@@ -1,6 +1,7 @@
 'use client';
 // components/PostCard.tsx
 import { MapPin, Star, ArrowUp, ArrowDown, MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 type VoteType = "up" | "down" | null;
@@ -28,7 +29,8 @@ export default function PostCard() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+    <Link href={`/spots/1`}>
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
         {/* // spot image will be here  */}
       <div className="h-48 bg-gray-200 rounded-t-lg"></div>
       <div className="p-4">
@@ -84,5 +86,6 @@ export default function PostCard() {
         </div>
       </div>
     </div>
+    </Link>
   );
 }
