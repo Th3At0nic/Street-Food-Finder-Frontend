@@ -1,5 +1,6 @@
 "use client";
 
+import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,6 +19,7 @@ import { toast } from "sonner";
 import { registerUser } from "@/components/services/AuthService";
 import { registrationSchema } from "./registerValidation";
 import { Utensils } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 
 export default function RegisterForm() {
@@ -35,11 +37,11 @@ export default function RegisterForm() {
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     const registerData = {
-        name:data.name,
-        email:data.email,
-        password:data.password
+      name: data.name,
+      email: data.email,
+      password: data.password
     }
-    
+
     try {
       const res = await registerUser(registerData);
       console.log(res);
@@ -56,7 +58,7 @@ export default function RegisterForm() {
   return (
     <div className="border-2 border-gray-300 rounded-xl flex-grow max-w-md w-full p-5">
       <div className="flex items-center space-x-4 ">
-      <Link
+        <Link
           href="/"
           className="flex items-center gap-2 text-orange-600 font-bold text-xl"
         >
@@ -138,9 +140,19 @@ export default function RegisterForm() {
             {isSubmitting ? "Registering...." : "Register"}
           </Button>
         </form>
+        <div className="my-4 relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+          <span className="relative z-10 bg-background px-2 text-muted-foreground">
+            Or
+          </span>
+        </div>
+        <Button onClick={() => signIn('google',)} variant="outline" className="w-full">
+          <FcGoogle />
+          Login with Google
+        </Button>
       </Form>
+
       <p className="text-sm text-gray-600 text-center my-3">
-        Already have an account ?
+        Already have an account? {' '}
         <Link href="/login" className="text-primary">
           Login
         </Link>
