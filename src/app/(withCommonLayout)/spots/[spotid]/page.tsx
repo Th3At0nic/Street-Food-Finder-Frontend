@@ -48,7 +48,7 @@ export default function FoodSpotPage() {
           {/* Back Navigation */}
       <nav>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/" className="text-orange-600 hover:text-orange-700 flex items-center">
+          <Link href="/spots" className="text-orange-600 hover:text-orange-700 flex items-center">
             ← Back to all spots
           </Link>
         </div>

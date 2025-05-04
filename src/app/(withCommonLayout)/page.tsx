@@ -1,5 +1,6 @@
 // app/page.tsx
 import PostCard from "@/components/modules/post/PostCard";
+import SearchBox from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,39 +21,14 @@ export default function HomePage() {
           </p>
 
           {/* Search Form */}
-          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-2 flex flex-col md:flex-row gap-2">
-            <div className="flex-1 flex items-center gap-2">
-              <Search className="h-5 w-5 text-gray-400 ml-3" />
-              <Input
-                placeholder="Search for tacos, dumplings, churros..."
-                className="border-0 shadow-none focus-visible:ring-0"
-              />
-            </div>
-            
-            <Select>
-              <SelectTrigger className="w-[180px] border-0">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="snacks">Snacks</SelectItem>
-                <SelectItem value="meals">Meals</SelectItem>
-                <SelectItem value="sweets">Sweets</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button className="bg-orange-600 hover:bg-orange-700">
-              Search
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
+       <SearchBox/>
         </div>
 
         {/* Trending Spots */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-gray-900">Trending Spots</h2>
-            <Link href="#" className="text-orange-600 hover:text-orange-700 flex items-center">
+            <Link href="/spots" className="text-orange-600 hover:text-orange-700 flex items-center">
               See all
               <ChevronRight className="h-4 w-4 ml-1" />
             </Link>
