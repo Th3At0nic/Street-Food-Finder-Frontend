@@ -21,6 +21,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { loginSchema } from "./loginValidation";
 import { Utensils } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import config from '@/config';
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -49,7 +50,7 @@ export default function LoginForm() {
         // Redirect to dashboard or home page after successful login
         router.push("/admin");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     }
   };
@@ -112,13 +113,16 @@ export default function LoginForm() {
         </div>
         <Button onClick={() => signIn(
           'google',
+          {
+            callbackUrl: `${config.public_url}/${redirect || 'admin'}`
+          }
         )} variant="outline" className="w-full">
           <FcGoogle />
           Login with Google
         </Button>
       </Form>
       <p className="text-sm text-gray-600 text-center my-3">
-        Don't have an account? {' '}
+        {"Don't have an account? "}
         <Link href="/signup" className="text-primary">
           Sign Up
         </Link>

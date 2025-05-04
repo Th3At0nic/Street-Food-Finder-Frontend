@@ -11,6 +11,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async authorize(credentials, req) {
         const res = await fetch(`${config.backend_url}/auth/login`, {
           method: "POST",
@@ -40,6 +41,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
+      console.log({ user, account });
       if (account?.provider === "credentials") return true;
       const accountData = {
         email: user.email,
@@ -48,6 +50,7 @@ export const authOptions: NextAuthOptions = {
         provider: account?.provider,
         password: `${account?.provider}${account?.access_token}`
       };
+      console.log({ accountData });
       const formData = new FormData();
       formData.append("data", JSON.stringify(accountData));
       try {
