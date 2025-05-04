@@ -54,6 +54,7 @@ export default function LoginForm() {
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       const res = await loginUser(data);
+ 
       if (res?.success) {
         toast.success(res?.message);
         if (redirect) {
@@ -132,7 +133,7 @@ export default function LoginForm() {
       </Form>
       <p className="text-sm text-gray-600 text-center my-3">
         Do not have any account ?
-        <Link href="/register" className="text-primary">
+        <Link href="/signup" className="text-primary">
           Register
         </Link>
       </p>

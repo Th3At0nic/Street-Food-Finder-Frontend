@@ -18,9 +18,13 @@ import { toast } from "sonner";
 import { registerUser } from "@/components/services/AuthService";
 import { registrationSchema } from "./registerValidation";
 import { Utensils } from "lucide-react";
-
+import { useState } from "react";
+import ImagePreviewer from "@/components/ui/core/streetImageUploader";
+import StreetImageUploader from "@/components/ui/core/streetImage";
 
 export default function RegisterForm() {
+  const [imageFiles, setImageFiles] = useState<File[] | []>([]);
+  const [imagePreview, setImagePreview] = useState<string[] | []>([]);
   const form = useForm({
     resolver: zodResolver(registrationSchema),
   });
@@ -35,14 +39,13 @@ export default function RegisterForm() {
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     const registerData = {
-        name:data.name,
-        email:data.email,
-        password:data.password
-    }
-    
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    };
+
     try {
       const res = await registerUser(registerData);
-      console.log(res);
       if (res?.success) {
         toast.success(res?.message);
       } else {
@@ -56,7 +59,7 @@ export default function RegisterForm() {
   return (
     <div className="border-2 border-gray-300 rounded-xl flex-grow max-w-md w-full p-5">
       <div className="flex items-center space-x-4 ">
-      <Link
+        <Link
           href="/"
           className="flex items-center gap-2 text-orange-600 font-bold text-xl"
         >
@@ -129,6 +132,26 @@ export default function RegisterForm() {
               </FormItem>
             )}
           />
+
+          <div className="flex items-center justify-between mt-2">
+            {imagePreview.length > 0 ? (
+              <ImagePreviewer
+                setImageFiles={setImageFiles}
+                imagePreview={imagePreview}
+                setImagePreview={setImagePreview}
+                className="mt-8"
+              />
+            ) : (
+              <div className="mt-8">
+                <StreetImageUploader
+                  imageFiles={imageFiles}
+                  setImageFiles={setImageFiles}
+                  setImagePreview={setImagePreview}
+                  label="Upload your photo"
+                />
+              </div>
+            )}
+          </div>
 
           <Button
             disabled={!!passwordConfirm && password !== passwordConfirm}
