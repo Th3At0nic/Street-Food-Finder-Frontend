@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
         const userDecoded = jwtDecode(result.data.accessToken);
         if (userDecoded) {
           console.log({ userDecoded });
-          return userDecoded as User;
+          return { ...(userDecoded as User), accessToken: result.data.accessToken };
         }
         return null;
       }
@@ -63,6 +63,13 @@ export const authOptions: NextAuthOptions = {
         }
         // save server token
         user.accessToken = result.data.accessToken;
+        const userDecoded = jwtDecode(result.data.accessToken) as User;
+        if (userDecoded) {
+          user.id = userDecoded.id;
+          user.email = userDecoded.email;
+          user.role = userDecoded.role;
+          user.name = userDecoded.name;
+        }
         // save the cookie by calling the setRefreshCookie function
         await fetch(`${config.public_url}/api/auth/set-refresh-cookie`, {
           method: "POST",
@@ -75,12 +82,27 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
-    async jwt({ token, user, account, profile }) {
-      console.log(token);
-      if (account) {
-        token.accessToken = account.access_token;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
+        token.accessToken = user.accessToken;
+        token.role = user.role;
       }
       return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string | null;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.image = token.image as string | null;
+        session.user.accessToken = token.accessToken;
+        session.user.role = token.role;
+      }
+      return session;
     }
   },
   pages: {
