@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { signOutUser } from "@/lib/auth/signOutUser";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const { status } = useSession();
@@ -16,7 +17,7 @@ export default function Navbar() {
           href="/"
           className="flex items-center gap-2 text-orange-600 font-bold text-xl"
         >
-          <Utensils className="h-6 w-6" />
+          <Logo className="w-8 h-8" />
           StreetBites
         </Link>
         <div className="flex items-center gap-4">
