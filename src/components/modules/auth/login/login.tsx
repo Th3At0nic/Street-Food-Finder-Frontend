@@ -111,7 +111,7 @@ export default function LoginForm() {
           </span>
         </div>
         <Button onClick={() => signIn(
-          'google',
+          'google',{callbackUrl:`${process.env.NEXT_PUBLIC_URL}/admin`},
         )} variant="outline" className="w-full">
           <FcGoogle />
           Login with Google
