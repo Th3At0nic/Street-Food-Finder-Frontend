@@ -20,35 +20,42 @@ export function AdminSidebar() {
     const { isOpen, toggleSidebar } = useSidebar();
     const navItems = [
         {
+            title: "Dashboard",
+            href: "/admin/dashboard",
+            icon: <List className="h-4 w-4" />,
+          
+            count: 5 // Pending items
+        },
+        {
             title: "Moderation",
-            href: "/admin/moderation",
+            href: "/admin/dashboard/moderation",
             icon: <Shield className="h-4 w-4" />,
             count: 5 // Pending items
         },
         {
             title: "User Management",
-            href: "/admin/users",
+            href: "/admin/dashboard/users",
             icon: <Users className="h-4 w-4" />
         },
         {
             title: "Content Audit",
-            href: "/admin/audit",
+            href: "/admin/dashboard/audit",
             icon: <FileText className="h-4 w-4" />
         },
         {
             title: "Reports",
-            href: "/admin/reports",
+            href: "/admin/dashboard/analytics",
             icon: <AlertCircle className="h-4 w-4" />,
             count: 3
         },
         {
             title: "Permissions",
-            href: "/admin/permissions",
+            href: "/admin/dashboard/permissions",
             icon: <Lock className="h-4 w-4" />
         },
         {
             title: "Admin Settings",
-            href: "/admin/settings",
+            href: "/admin/dashboard/settings",
             icon: <Settings className="h-4 w-4" />
         }
     ];
