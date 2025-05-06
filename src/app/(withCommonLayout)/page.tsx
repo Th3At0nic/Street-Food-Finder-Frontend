@@ -2,9 +2,7 @@
 import PostCard from "@/components/modules/post/PostCard";
 import SearchBox from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Utensils, Candy, MapPin, Star, ChevronRight, Sparkles } from "lucide-react";
+import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -21,7 +19,7 @@ export default function HomePage() {
           </p>
 
           {/* Search Form */}
-       <SearchBox/>
+          <SearchBox />
         </div>
 
         {/* Trending Spots */}
@@ -36,7 +34,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {[1, 2, 3].map((item) => (
-            <PostCard key={item} />
+              <PostCard key={item} />
             ))}
           </div>
         </section>
@@ -47,7 +45,7 @@ export default function HomePage() {
             <Sparkles className="h-8 w-8 text-orange-600" />
             <h2 className="text-2xl font-semibold text-gray-900">Premium Spots</h2>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center gap-4 mb-4">
@@ -64,7 +62,7 @@ export default function HomePage() {
                 Unlock Premium Spot
               </Button>
             </div>
-            
+
             <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
               <h3 className="text-xl font-semibold mb-2">Become a Premium Food Explorer</h3>
               <p className="text-sm mb-4 opacity-90">

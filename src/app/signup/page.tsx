@@ -6,9 +6,16 @@ import { useRouter } from "next/navigation";
 
 const RegisterPage = () => {
 
-  const session = useSession();
+  const { data: userData, status } = useSession();
   const router = useRouter();
-  console.log({ session });
+
+  if (status === 'authenticated') {
+    if (userData.user.role === 'ADMIN') {
+      router.push('/admin/dashboard')
+    } else {
+      router.push('/home')
+    }
+  }
 
   return (
     <div className="h-screen w-screen flex justify-center items-center">

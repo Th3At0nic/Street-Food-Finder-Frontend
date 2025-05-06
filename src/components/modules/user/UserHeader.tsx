@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/context/sidebar-context";
 import { signOutUser } from "@/lib/auth/signOutUser";
-import { LogOut, ShieldAlert, Menu, X } from "lucide-react";
+import { LogOut, Menu, X, User } from "lucide-react";
 
 
-export function AdminHeader() {
+export function UserHeader() {
   const { isOpen, toggleSidebar } = useSidebar();
 
   return (
@@ -21,9 +21,9 @@ export function AdminHeader() {
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <div className="flex items-center gap-2 text-red-600">
-            <ShieldAlert className="h-6 w-6" />
-            <span className="font-semibold hidden sm:inline">Admin Dashboard</span>
-            <span className="font-semibold sm:hidden">Admin</span>
+            <User className="h-6 w-6" />
+            <span className="font-semibold hidden sm:inline">User Dashboard</span>
+            <span className="font-semibold sm:hidden">User</span>
           </div>
         </div>
 

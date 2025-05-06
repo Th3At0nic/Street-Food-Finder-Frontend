@@ -19,9 +19,9 @@ import { toast } from "sonner";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { loginSchema } from "./loginValidation";
-import { Utensils } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import config from '@/config';
+import Logo from '@/components/shared/Logo';
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -57,14 +57,17 @@ export default function LoginForm() {
 
   return (
     <div className="border-2 border-gray-300 rounded-xl flex-grow max-w-md w-full p-5">
-      <div className="flex items-center space-x-4 ">
+
+      <div className="flex justify-center items-center">
         <Link
           href="/"
           className="flex items-center gap-2 text-orange-600 font-bold text-xl"
         >
-          <Utensils className="h-6 w-6" />
+          <Logo className="w-8 h-8" />
           StreetBites
         </Link>
+      </div>
+      <div className="flex items-center space-x-4 my-4">
         <div>
           <h1 className="text-xl font-semibold">Login</h1>
           <p className="font-extralight text-sm text-gray-600">Welcome back!</p>

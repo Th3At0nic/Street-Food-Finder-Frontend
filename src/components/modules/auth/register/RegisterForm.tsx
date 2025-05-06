@@ -18,8 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { registerUser } from "@/components/services/AuthService";
 import { registrationSchema } from "./registerValidation";
-import { Utensils } from "lucide-react";
 import { signIn } from "next-auth/react";
+import Logo from "@/components/shared/Logo";
 
 
 export default function RegisterForm() {
@@ -57,14 +57,16 @@ export default function RegisterForm() {
 
   return (
     <div className="border-2 border-gray-300 rounded-xl flex-grow max-w-md w-full p-5">
-      <div className="flex items-center space-x-4 ">
+      <div className="flex justify-center items-center">
         <Link
           href="/"
           className="flex items-center gap-2 text-orange-600 font-bold text-xl"
         >
-          <Utensils className="h-6 w-6" />
+          <Logo className="w-8 h-8" />
           StreetBites
         </Link>
+      </div>
+      <div className="flex items-center space-x-4 my-4">
         <div>
           <h1 className="text-xl font-semibold">Register</h1>
           <p className="font-extralight text-sm text-gray-600">
