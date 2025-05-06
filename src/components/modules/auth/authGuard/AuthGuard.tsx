@@ -5,9 +5,9 @@ import { TRole } from "@/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AdminSidebar } from "@/components/modules/admin/AdminSideBar";
 import Header from "@/components/modules/common/Header";
 import { SidebarProvider } from "@/context/sidebar-context";
+import { SideBar } from "../../common/SideBar";
 
 
 export default function AuthGuard({ role, children }: { role: TRole, children: React.ReactNode }) {
@@ -31,7 +31,7 @@ export default function AuthGuard({ role, children }: { role: TRole, children: R
             <div className="min-h-screen bg-gray-50">
                 <Header role={data!.user!.role!} />
                 <div className="flex flex-col md:flex-row">
-                    <AdminSidebar />
+                    <SideBar role={data!.user!.role!} />
                     {children}
                 </div>
             </div>

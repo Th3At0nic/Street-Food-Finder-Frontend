@@ -1,9 +1,11 @@
 'use client';
 
+import Logo from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/context/sidebar-context";
 import { signOutUser } from "@/lib/auth/signOutUser";
 import { LogOut, Menu, X, User } from "lucide-react";
+import Link from "next/link";
 
 
 export function UserHeader() {
@@ -26,6 +28,14 @@ export function UserHeader() {
             <span className="font-semibold sm:hidden">User</span>
           </div>
         </div>
+
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-orange-600 font-bold text-xl"
+        >
+          <Logo className="w-8 h-8" />
+          StreetBites
+        </Link>
 
         <div className="flex items-center gap-4">
           <Button

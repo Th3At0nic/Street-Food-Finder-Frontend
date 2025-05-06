@@ -1,9 +1,11 @@
 'use client';
 
+import Logo from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/context/sidebar-context";
 import { signOutUser } from "@/lib/auth/signOutUser";
 import { LogOut, ShieldAlert, Menu, X } from "lucide-react";
+import Link from "next/link";
 
 
 export function AdminHeader() {
@@ -20,12 +22,21 @@ export function AdminHeader() {
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
+
           <div className="flex items-center gap-2 text-red-600">
             <ShieldAlert className="h-6 w-6" />
             <span className="font-semibold hidden sm:inline">Admin Dashboard</span>
             <span className="font-semibold sm:hidden">Admin</span>
           </div>
         </div>
+
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-orange-600 font-bold text-xl"
+        >
+          <Logo className="w-8 h-8" />
+          StreetBites
+        </Link>
 
         <div className="flex items-center gap-4">
           <Button
