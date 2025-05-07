@@ -9,79 +9,83 @@ import {
     Settings,
     FileText,
     Lock,
-    Menu,
-    X
 } from "lucide-react";
-import { useState } from "react";
-import Image from "next/image";
 import { useSidebar } from "@/context/sidebar-context";
+import { TRole } from "@/types";
 
-export function AdminSidebar() {
+
+
+const adminNavItems = [
+    {
+        title: "Dashboard",
+        href: "/admin/dashboard",
+        icon: <List className="h-4 w-4" />,
+
+        count: 5 // Pending items
+    },
+    {
+        title: "Moderation",
+        href: "/admin/dashboard/moderation",
+        icon: <Shield className="h-4 w-4" />,
+        count: 5 // Pending items
+    },
+    {
+        title: "User Management",
+        href: "/admin/dashboard/users",
+        icon: <Users className="h-4 w-4" />
+    },
+    {
+        title: "Content Audit",
+        href: "/admin/dashboard/audit",
+        icon: <FileText className="h-4 w-4" />
+    },
+    {
+        title: "Reports",
+        href: "/admin/dashboard/analytics",
+        icon: <AlertCircle className="h-4 w-4" />,
+        count: 3
+    },
+    {
+        title: "Permissions",
+        href: "/admin/dashboard/permissions",
+        icon: <Lock className="h-4 w-4" />
+    },
+    {
+        title: "Admin Settings",
+        href: "/admin/dashboard/settings",
+        icon: <Settings className="h-4 w-4" />
+    }
+];
+
+const userNavItems = [
+    {
+        title: "Dashboard",
+        href: "/admin/dashboard",
+        icon: <List className="h-4 w-4" />,
+
+        count: 5 // Pending items
+    },
+    {
+        title: "Profile Settings",
+        href: "/admin/dashboard/settings",
+        icon: <Settings className="h-4 w-4" />
+    }
+]
+
+
+export function SideBar({ role }: { role: TRole }) {
     const { isOpen, toggleSidebar } = useSidebar();
-    const navItems = [
-        {
-            title: "Dashboard",
-            href: "/admin/dashboard",
-            icon: <List className="h-4 w-4" />,
-          
-            count: 5 // Pending items
-        },
-        {
-            title: "Moderation",
-            href: "/admin/dashboard/moderation",
-            icon: <Shield className="h-4 w-4" />,
-            count: 5 // Pending items
-        },
-        {
-            title: "User Management",
-            href: "/admin/dashboard/users",
-            icon: <Users className="h-4 w-4" />
-        },
-        {
-            title: "Content Audit",
-            href: "/admin/dashboard/audit",
-            icon: <FileText className="h-4 w-4" />
-        },
-        {
-            title: "Reports",
-            href: "/admin/dashboard/analytics",
-            icon: <AlertCircle className="h-4 w-4" />,
-            count: 3
-        },
-        {
-            title: "Permissions",
-            href: "/admin/dashboard/permissions",
-            icon: <Lock className="h-4 w-4" />
-        },
-        {
-            title: "Admin Settings",
-            href: "/admin/dashboard/settings",
-            icon: <Settings className="h-4 w-4" />
-        }
-    ];
 
     return (
         <>
-
-
             <nav className={cn(
                 "fixed md:relative md:translate-x-0 z-50 w-64 h-screen bg-white border-r transform transition-transform duration-300 ease-in-out",
                 isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             )}>
                 <div className="p-4 h-full overflow-y-auto">
-                    {/* Logo */}
-                    <div className="mb-8 px-3 hidden md:block">
-                        <Image
-                            src="/admin-logo.svg"
-                            width={160}
-                            height={40}
-                            alt="Admin Logo"
-                            className="h-10 w-auto"
-                        />
-                    </div>
 
                     <div className="space-y-1">
-                        {navItems.map((item) => (
+                        {(role === 'ADMIN' ? adminNavItems : userNavItems).map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
