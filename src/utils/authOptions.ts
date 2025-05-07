@@ -3,6 +3,7 @@ import { NextAuthOptions, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
+import { TRole } from "@/types";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -103,7 +104,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.image = token.image as string | null;
         session.user.accessToken = token.accessToken;
-        session.user.role = token.role;
+        session.user.role = token.role as TRole;
       }
       return session;
     }
