@@ -6,7 +6,7 @@ import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
   page: number,
   limit: number = 5,
-  status: PostStatus = PostStatus.APPROVED,
+  status: PostStatus = PostStatus.APPROVED
 ): Promise<{
   posts: Post[];
   hasMore: boolean;
@@ -85,6 +85,26 @@ export async function createPost(postFormData: FormData) {
         Authorization: `Bearer ${session?.user.accessToken}`
       },
       body: postFormData
+    });
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// voting
+export async function voteOnPost(params: { postId: string; vType: string }) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/votes`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(params)
     });
     const result = await response.json();
     console.log({ result });

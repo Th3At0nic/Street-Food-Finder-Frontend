@@ -21,11 +21,11 @@ interface PostCardFeedProps {
 }
 
 export function PostCardFeed({ post }: PostCardFeedProps) {
-    console.log({post});
+    console.log({ post });
     const [isCommenting, setIsCommenting] = useState(false);
     const [commentText, setCommentText] = useState('');
     const { data: session } = useSession();
-    const { toggleVote, isVoted, upVoteCount, downVoteCount } = useVote(post);
+    const { toggleVote, isUpVoted, isDownVoted, upVoteCount, downVoteCount } = useVote(post);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -138,22 +138,22 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                 <div className="flex justify-between w-full">
                     <div className="flex items-center space-x-4 text-sm">
                         <Button
-                            variant={isVoted ? "default" : "ghost"}
+                            variant={isUpVoted ? "default" : "ghost"}
                             size="sm"
                             className="flex-1"
                             onClick={() => toggleVote(VoteType.UPVOTE)}
                         >
-                            <ArrowBigUp className={`h-4 w-4 ${isVoted ? "text-white" : ""}`} />
+                            <ArrowBigUp className={`h-4 w-4 ${isUpVoted ? "text-white" : ""}`} />
                             Upvote
                         </Button>
                         <Separator orientation="vertical" />
                         <Button
-                            variant={isVoted ? "default" : "ghost"}
+                            variant={isDownVoted ? "default" : "ghost"}
                             size="sm"
                             className="flex-1"
-                            onClick={() => toggleVote(VoteType.UPVOTE)}
+                            onClick={() => toggleVote(VoteType.DOWNVOTE)}
                         >
-                            <ArrowBigDown className={`h-4 w-4 ${isVoted ? "text-white" : ""}`} />
+                            <ArrowBigDown className={`h-4 w-4 ${isDownVoted ? "text-white" : ""}`} />
                             Downvote
                         </Button>
                     </div>
