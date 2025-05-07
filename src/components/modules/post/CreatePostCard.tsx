@@ -82,23 +82,21 @@ export function CreatePostCard() {
             });
 
             const response = await createPost(postFormData)
+            console.log({ response });
+            if (response.success) {
+                toast.success("Your post has been submitted for review", { id: toastId });
 
-            if (!response.ok) {
-                throw new Error(response.message);
-            }
-
-            toast.success("Your post has been submitted for review", { id: toastId });
-
-            setIsDialogOpen(false);
-            setFormData({
-                title: '',
-                description: '',
-                categoryId: '',
-                location: '',
-                priceRangeStart: '',
-                priceRangeEnd: '',
-                images: []
-            });
+                setIsDialogOpen(false);
+                setFormData({
+                    title: '',
+                    description: '',
+                    categoryId: '',
+                    location: '',
+                    priceRangeStart: '',
+                    priceRangeEnd: '',
+                    images: []
+                });
+            } else throw new Error(response.message);
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message || 'Failed to create post. Please try again.', { id: toastId });
