@@ -1,10 +1,12 @@
 "use server";
-
-import { Post, PostCategory, PostsResponse } from "@/types";
+import { getServerSession } from "next-auth";
+import { Post, PostCategory, PostsResponse, PostStatus } from "@/types";
 import config from "@/config";
+import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
   page: number,
-  limit: number = 5
+  limit: number = 5,
+  status: PostStatus = PostStatus.APPROVED,
 ): Promise<{
   posts: Post[];
   hasMore: boolean;
@@ -13,8 +15,10 @@ export async function fetchPosts(
   totalPages: number;
 }> {
   try {
-    const response = await fetch(`${config.backend_url}/posts?page=${page}&limit=${limit}`);
-
+    const session = await getServerSession(authOptions);
+    console.log({ session });
+    const response = await fetch(`${config.backend_url}/posts?status=${status}&page=${page}&limit=${limit}`);
+    console.log({ response });
     if (!response.ok) {
       throw new Error(`Failed to fetch posts: ${response.status}`);
     }
@@ -68,6 +72,24 @@ export async function fetchPostCategories(
     return { categories: data, meta };
   } catch (error) {
     console.error("Error fetching categories:", error);
+    throw error;
+  }
+}
+
+export async function createPost(postFormData: FormData) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/posts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`
+      },
+      body: postFormData
+    });
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
     throw error;
   }
 }

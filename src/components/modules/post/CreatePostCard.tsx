@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ImageIcon, MapPinIcon, DollarSignIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import {
     Dialog,
     DialogContent,
@@ -20,34 +19,20 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'sonner';
 import { PostSearchBox } from './PostSearchBox';
 import Image from 'next/image';
-import { fetchPostCategories } from '@/app/actions/post-actions';
-import { PostCategory } from '@/types';
+import { createPost } from '@/app/actions/post-actions';
 import PostCategorySelect from './PostCategorySelect';
 
 export function CreatePostCard() {
     const { data: session } = useSession();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const router = useRouter();
-    const [postCategories, setPostCategories] = useState<PostCategory[]>([]);
-
-    const fetchPC = async () => {
-        const result = await fetchPostCategories();
-        setPostCategories(result.categories);
-    }
-
-    useEffect(() => {
-        fetchPC();
-
-    }, [])
 
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        category: '',
+        categoryId: '',
         location: '',
         priceRangeStart: '',
         priceRangeEnd: '',
@@ -60,7 +45,7 @@ export function CreatePostCard() {
     };
 
     const handleCategoryChange = (value: string) => {
-        setFormData(prev => ({ ...prev, category: value }));
+        setFormData(prev => ({ ...prev, categoryId: value }));
     };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,31 +62,47 @@ export function CreatePostCard() {
             toast.error('Please log in to create a post');
             return;
         }
-
+        const toastId = toast.loading('Creating post...');
         try {
-            // In a real implementation, you would:
-            // 1. Create a FormData object for the images
-            // 2. Make an API call to your Next.js backend
-            console.log('Submitting post:', formData);
+            const postFormData = new FormData();
 
-            toast.success("Your post has been submitted for review");
+            const jsonData = {
+                title: formData.title,
+                description: formData.description,
+                categoryId: formData.categoryId,
+                location: formData.location,
+                priceRangeStart: Number(formData.priceRangeStart),
+                priceRangeEnd: Number(formData.priceRangeEnd)
+            };
+
+            postFormData.append('data', JSON.stringify(jsonData));
+
+            formData.images.forEach(image => {
+                postFormData.append('files', image);
+            });
+
+            const response = await createPost(postFormData)
+
+            if (!response.ok) {
+                throw new Error(response.message);
+            }
+
+            toast.success("Your post has been submitted for review", { id: toastId });
 
             setIsDialogOpen(false);
             setFormData({
                 title: '',
                 description: '',
-                category: '',
+                categoryId: '',
                 location: '',
                 priceRangeStart: '',
                 priceRangeEnd: '',
                 images: []
             });
-
-            // Refresh the posts feed
-            router.refresh();
-        } catch (error) {
-            console.error('Failed to create post:', error);
-            toast.error('Failed to create post. Please try again.');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message || 'Failed to create post. Please try again.', { id: toastId });
+            }
         }
     };
 
@@ -165,23 +166,8 @@ export function CreatePostCard() {
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <PostCategorySelect/>
                                         <Label htmlFor="category">Category</Label>
-                                        <Select
-                                            value={formData.category}
-                                            onValueChange={handleCategoryChange}
-                                        >
-                                            <SelectTrigger className='w-full'>
-                                                <SelectValue placeholder="Select category" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {postCategories.map(category => (
-                                                    <SelectItem key={category.catId} value={category.catId}>
-                                                        {category.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <PostCategorySelect handleCategoryChange={handleCategoryChange} />
                                     </div>
 
                                     <div className="grid gap-2">
@@ -244,7 +230,8 @@ export function CreatePostCard() {
                                                         src={URL.createObjectURL(image)}
                                                         alt={`Upload ${index + 1}`}
                                                         className="h-full w-full object-cover"
-                                                        fill
+                                                        width={40}
+                                                        height={40}
                                                     />
                                                 </div>
                                             ))}

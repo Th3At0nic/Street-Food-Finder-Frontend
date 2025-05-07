@@ -9,7 +9,11 @@ type SelectOption = {
     label: string;
 };
 
-export default function CategorySelectBox() {
+interface PostCategorySelectProps {
+    handleCategoryChange: (value: string) => void
+}
+
+export default function PostCategorySelect({ handleCategoryChange }: PostCategorySelectProps) {
     const {
         items: postCategories,
         observerRef,
@@ -48,6 +52,10 @@ export default function CategorySelectBox() {
 
     return (
         <Select
+            onChange={(newValue) => {
+                if (!newValue) return;
+                handleCategoryChange((newValue as SelectOption).value);
+            }}
             options={postCategories}
             components={{ MenuList: customMenuList }}
             placeholder="Select category"
