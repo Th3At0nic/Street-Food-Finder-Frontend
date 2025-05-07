@@ -17,6 +17,8 @@ import { useVote } from '@/hooks/useVote';
 import { commentOnPost, updateComment, deleteComment } from '@/app/actions/post-actions';
 import { toast } from 'sonner';
 import { CommentDialog } from './AllComments/CommentDialog';
+import { Rating as ReactRating } from '@smastrom/react-rating'
+import { usePostRating } from '@/hooks/ usePostRating';
 
 interface PostCardFeedProps {
     post: Post;
@@ -30,6 +32,7 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { data: session } = useSession();
     const { toggleVote, isUpVoted, isDownVoted, upVoteCount, downVoteCount } = useVote(post);
+    const { myPostRating, setMyPostRating } = usePostRating(post);
 
     // Update post state when initialPost changes
     useEffect(() => {
@@ -189,7 +192,7 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                         </div>
                         <div className="flex items-center text-sm text-gray-500">
                             <MapPin className="h-3 w-3 mr-1" />
-                            <span>{post.location}</span>
+                            <span> {post.location} </span>
                             {post.pType === 'PREMIUM' && (
                                 <Badge variant="outline" className="ml-2 bg-yellow-100 text-yellow-800 border-yellow-200">
                                     Premium
@@ -226,6 +229,7 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                         <div className='flex justify-center items-center'><ArrowBigDown className="h-4 w-4" />{downVoteCount} </div>
                     </div>
 
+                    <ReactRating style={{ maxWidth: 100 }} value={myPostRating ?? 0} onChange={setMyPostRating} />
 
                     {averageRating > -1 && (
                         <div className="flex items-center">
@@ -303,7 +307,7 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                                         src={session?.user?.image || '/api/placeholder/32/32'}
                                         alt="Your avatar"
                                     />
-                                    <AvatarFallback>YA</AvatarFallback>
+                                    <AvatarFallback>{session?.user.name?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 relative">
                                     <Input

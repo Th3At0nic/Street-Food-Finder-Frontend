@@ -26,7 +26,6 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment, onDelete, onEdit }: CommentItemProps) {
-    console.log({ comment });
     const { data } = useSession();
     const [openDelete, setOpenDelete] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);

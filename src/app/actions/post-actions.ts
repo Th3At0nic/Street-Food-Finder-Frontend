@@ -229,3 +229,62 @@ export async function getVoteCounts(params: { postId: string }) {
     throw error;
   }
 }
+
+// post rating
+export async function postRatingOnPost(postId: string, rating: number) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/post-ratings/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ postId, rating })
+    });
+    const result = await response.json();
+    console.log({ resultResult: result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// get post rating
+export async function getMyPostRating(postId: string) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/post-ratings/my-rating/${postId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+    const result = await response.json();
+    console.log({ resultResult: result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+//updating post rating
+export async function updateMyPostRating(prId: string, rating: number) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/post-ratings/${prId}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ rating })
+    });
+    const result = await response.json();
+    console.log({ resultResult: result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
