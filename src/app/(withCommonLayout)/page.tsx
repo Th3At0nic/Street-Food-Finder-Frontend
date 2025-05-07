@@ -8,6 +8,7 @@ import { Search, Utensils, Candy, MapPin, Star, ChevronRight, Sparkles } from "l
 import Link from "next/link";
 
 export default function HomePage() {
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
