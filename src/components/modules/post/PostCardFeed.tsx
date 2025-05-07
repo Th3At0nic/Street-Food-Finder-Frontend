@@ -138,6 +138,7 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                 <div className="flex justify-between w-full">
                     <div className="flex items-center space-x-4 text-sm">
                         <Button
+                            disabled={!session?.user || session?.user.role === 'ADMIN'}
                             variant={isUpVoted ? "default" : "ghost"}
                             size="sm"
                             className="flex-1"
@@ -148,6 +149,7 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                         </Button>
                         <Separator orientation="vertical" />
                         <Button
+                            disabled={!session?.user || session?.user.role === 'ADMIN'}
                             variant={isDownVoted ? "default" : "ghost"}
                             size="sm"
                             className="flex-1"
@@ -158,6 +160,7 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                         </Button>
                     </div>
                     <Button
+                        disabled={!session?.user || session?.user.role === 'ADMIN'}
                         variant="ghost"
                         size="sm"
                         className="flex-1"

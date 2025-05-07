@@ -6,7 +6,7 @@ import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
   page: number,
   limit: number = 5,
-  status: PostStatus = PostStatus.APPROVED
+  status: PostStatus | null = PostStatus.APPROVED
 ): Promise<{
   posts: Post[];
   hasMore: boolean;
@@ -17,7 +17,11 @@ export async function fetchPosts(
   try {
     const session = await getServerSession(authOptions);
     console.log({ session });
-    const response = await fetch(`${config.backend_url}/posts?status=${status}&page=${page}&limit=${limit}`);
+    let queryString = `page=${page}&limit=${limit}`;
+    if (status) {
+      queryString += `&status=${status}`;
+    }
+    const response = await fetch(`${config.backend_url}/posts?${queryString}`);
     console.log({ response });
     if (!response.ok) {
       throw new Error(`Failed to fetch posts: ${response.status}`);
@@ -85,6 +89,26 @@ export async function createPost(postFormData: FormData) {
         Authorization: `Bearer ${session?.user.accessToken}`
       },
       body: postFormData
+    });
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// commenting
+export async function commentOnPost(params: { postId: string; vType: string }) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/votes`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(params)
     });
     const result = await response.json();
     console.log({ result });
