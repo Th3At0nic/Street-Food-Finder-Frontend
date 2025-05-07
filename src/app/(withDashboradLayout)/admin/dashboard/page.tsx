@@ -1,12 +1,17 @@
 // app/admin/page.tsx
-import { getAllUsers } from "@/components/services/AuthService/UserService";
+import { fetchPosts } from "@/app/actions/post-actions";
+import { fetchUsersByRole, getAllUsers } from "@/components/services/AuthService/UserService";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { PostStatus } from "@/types";
 import { Activity, Shield, Star, UserPlus, Users } from "lucide-react";
 
-export default function AdminDashboard() {
-  
+export default async function AdminDashboard() {
+  const userData = await getAllUsers();
+  const premiumUser = await fetchUsersByRole("PREMIUM_USER")
+  const pendingModeration = await fetchPosts(1,5,PostStatus.PENDING)
+  console.log(pendingModeration.totalPosts);
   // Mock data
   const stats = {
     totalUsers: 2458,
@@ -24,14 +29,14 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Admin Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <div className="text-2xl font-bold">{userData?.meta.total}</div>
           </CardContent>
         </Card>
 
@@ -41,7 +46,7 @@ export default function AdminDashboard() {
             <Shield className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingModeration}</div>
+            <div className="text-2xl font-bold">{pendingModeration.totalPosts}</div>
           </CardContent>
         </Card>
 
@@ -51,19 +56,10 @@ export default function AdminDashboard() {
             <Star className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.premiumUsers}</div>
+            <div className="text-2xl font-bold">{premiumUser.meta.total}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium">New Users (24h)</CardTitle>
-            <UserPlus className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.newUsers}</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Recent Users Table */}

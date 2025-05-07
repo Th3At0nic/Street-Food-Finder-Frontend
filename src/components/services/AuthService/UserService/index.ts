@@ -8,8 +8,6 @@ import { revalidateTag } from "next/cache";
 
 export const getAllUsers = async () => {
     const session = await getServerSession(authOptions);
-
-
   try {
     const res = await fetch(`${config.backend_url}/users`, {
       headers: {
