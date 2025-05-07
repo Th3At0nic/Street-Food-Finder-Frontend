@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Post, VoteType } from "@/types";
 import { useSession } from "next-auth/react";
-import { voteOnPost } from "@/app/actions/post-actions";
+import { getUserVote, getVoteCounts, voteOnPost } from "@/app/actions/post-actions";
 
 /**
  * Custom hook for handling post voting
@@ -14,33 +14,37 @@ export function useVote(post: Post) {
   const [voteCount, setVoteCount] = useState(0);
   const [upVoteCount, setUpVoteCount] = useState(0);
   const [downVoteCount, setDownVoteCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Calculate initial vote count from post.votes
-    if (post.votes) {
-      const upVotes = post.votes.filter((vote) => vote.vType === VoteType.UPVOTE).length;
-      const downVotes = post.votes.filter((vote) => vote.vType === VoteType.DOWNVOTE).length;
-      setUpVoteCount(upVotes);
-      setDownVoteCount(downVotes);
-      setVoteCount(upVotes - downVotes);
+    // Initialize vote data
+    const fetchVoteData = async () => {
+      if (!post.pId) return;
 
-      // Check if current user has voted
-      if (session?.user?.id) {
-        const userVote = post.votes.find((vote) => vote.voterId === session.user.id);
-        setIsVoted(!!userVote);
-        if (userVote?.vType === VoteType.UPVOTE) {
-          setIsUpVoted(true);
-          setIsDownVoted(false);
-        } else if (userVote?.vType === VoteType.DOWNVOTE) {
-          setIsUpVoted(false);
-          setIsDownVoted(true);
-        } else {
-          setIsUpVoted(false);
-          setIsDownVoted(false);
+      try {
+        setIsLoading(true);
+        // Get vote counts for the post
+        const voteCounts = await getVoteCounts({ postId: post.pId });
+        setUpVoteCount(voteCounts.upVoteCount);
+        setDownVoteCount(voteCounts.downVoteCount);
+        setVoteCount(voteCounts.upVoteCount - voteCounts.downVoteCount);
+
+        // Check if current user has voted, but only if they're logged in
+        if (session?.user?.id) {
+          const userVote = await getUserVote({ postId: post.pId });
+          setIsVoted(!!userVote);
+          setIsUpVoted(userVote?.vType === VoteType.UPVOTE);
+          setIsDownVoted(userVote?.vType === VoteType.DOWNVOTE);
         }
+      } catch (error) {
+        console.error("Error fetching vote data:", error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [post.votes, session]);
+    };
+
+    fetchVoteData();
+  }, [post.pId, session?.user?.id]);
 
   /**
    * Toggle vote status for the current post
@@ -52,32 +56,33 @@ export function useVote(post: Post) {
     }
 
     try {
-      // Save current state for rollback if needed
       const prevIsVoted = isVoted;
       const prevIsUpVoted = isUpVoted;
       const prevIsDownVoted = isDownVoted;
       const prevUpVoteCount = upVoteCount;
       const prevDownVoteCount = downVoteCount;
+      const prevVoteCount = voteCount;
 
-      // Optimistically update UI based on current state and vote type
       if (!isVoted) {
         // Case 1: New vote (no previous vote)
         if (voteType === VoteType.UPVOTE) {
-          setUpVoteCount((prev) => prev + 1);
+          setUpVoteCount(prevUpVoteCount + 1);
+          setVoteCount(prevVoteCount + 1);
           setIsUpVoted(true);
-          setIsDownVoted(false);
-        } else if (voteType === VoteType.DOWNVOTE) {
-          setDownVoteCount((prev) => prev + 1);
-          setIsUpVoted(false);
+        } else {
+          setDownVoteCount(prevDownVoteCount + 1);
+          setVoteCount(prevVoteCount - 1);
           setIsDownVoted(true);
         }
         setIsVoted(true);
       } else if ((isUpVoted && voteType === VoteType.UPVOTE) || (isDownVoted && voteType === VoteType.DOWNVOTE)) {
         // Case 2: Remove existing vote (clicking same button)
         if (isUpVoted) {
-          setUpVoteCount((prev) => prev - 1);
-        } else if (isDownVoted) {
-          setDownVoteCount((prev) => prev - 1);
+          setUpVoteCount(prevUpVoteCount - 1);
+          setVoteCount(prevVoteCount - 1);
+        } else {
+          setDownVoteCount(prevDownVoteCount - 1);
+          setVoteCount(prevVoteCount + 1);
         }
         setIsVoted(false);
         setIsUpVoted(false);
@@ -86,35 +91,20 @@ export function useVote(post: Post) {
         // Case 3: Switching vote type
         if (isUpVoted && voteType === VoteType.DOWNVOTE) {
           // Switching from upvote to downvote
-          setUpVoteCount((prev) => prev - 1);
-          setDownVoteCount((prev) => prev + 1);
+          setUpVoteCount(prevUpVoteCount - 1);
+          setDownVoteCount(prevDownVoteCount + 1);
+          setVoteCount(prevVoteCount - 2);
           setIsUpVoted(false);
           setIsDownVoted(true);
-        } else if (isDownVoted && voteType === VoteType.UPVOTE) {
+        } else {
           // Switching from downvote to upvote
-          setDownVoteCount((prev) => prev - 1);
-          setUpVoteCount((prev) => prev + 1);
+          setDownVoteCount(prevDownVoteCount - 1);
+          setUpVoteCount(prevUpVoteCount + 1);
+          setVoteCount(prevVoteCount + 2);
           setIsDownVoted(false);
           setIsUpVoted(true);
         }
       }
-
-      // Calculate new total vote count
-      const newUpVoteCount =
-        voteType === VoteType.UPVOTE && !isUpVoted
-          ? upVoteCount + 1
-          : isUpVoted && voteType !== VoteType.UPVOTE
-          ? upVoteCount - 1
-          : upVoteCount;
-
-      const newDownVoteCount =
-        voteType === VoteType.DOWNVOTE && !isDownVoted
-          ? downVoteCount + 1
-          : isDownVoted && voteType !== VoteType.DOWNVOTE
-          ? downVoteCount - 1
-          : downVoteCount;
-
-      setVoteCount(newUpVoteCount - newDownVoteCount);
 
       // Make API call
       const response = await voteOnPost({
@@ -129,7 +119,7 @@ export function useVote(post: Post) {
         setIsDownVoted(prevIsDownVoted);
         setUpVoteCount(prevUpVoteCount);
         setDownVoteCount(prevDownVoteCount);
-        setVoteCount(prevUpVoteCount - prevDownVoteCount);
+        setVoteCount(prevVoteCount);
         console.error("Error updating vote:", response);
       }
     } catch (error) {
@@ -144,6 +134,7 @@ export function useVote(post: Post) {
     voteCount,
     upVoteCount,
     downVoteCount,
-    toggleVote
+    toggleVote,
+    isLoading
   };
 }
