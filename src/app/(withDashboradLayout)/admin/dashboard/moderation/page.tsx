@@ -1,37 +1,55 @@
-
-'use client';
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Check, X, Star, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import {
+  getAllPosts,
+  updatePost,
+} from "@/components/services/PostModerationByAdmin";
+import { fetchPosts } from "@/app/actions/post-actions";
+import { Post, PostStatus } from "@/types";
 
 // Mock data - replace with API calls
-const pendingPosts = [
-  {
-    id: 1,
-    title: "Spicy Chicken Tacos",
-    author: "user1@example.com",
-    category: "Snacks",
-    price: "$3-$8",
-    type: "normal",
-    status: "pending",
-    reported: 2
-  },
-  {
-    id: 2,
-    title: "Secret BBQ Stall",
-    author: "user2@example.com",
-    category: "Meals",
-    price: "$10-$15",
-    type: "premium",
-    status: "pending",
-    reported: 5
-  }
-];
+// const pendingPosts = [
+//   {
+//     id: 1,
+//     title: "Spicy Chicken Tacos",
+//     author: "user1@example.com",
+//     category: "Snacks",
+//     price: "$3-$8",
+//     type: "normal",
+//     status: "pending",
+//     reported: 2
+//   },
+//   {
+//     id: 2,
+//     title: "Secret BBQ Stall",
+//     author: "user2@example.com",
+//     category: "Meals",
+//     price: "$10-$15",
+//     type: "premium",
+//     status: "pending",
+//     reported: 5
+//   }
+// ];
 
 const reportedComments = [
   {
@@ -39,26 +57,46 @@ const reportedComments = [
     content: "Overrated, not worth the price!",
     author: "user3@example.com",
     post: "Spicy Chicken Tacos",
-    reports: 3
-  }
+    reports: 3,
+  },
 ];
 
 export default function ModerationPage() {
+  const [pending, setPending] = useState<Post[]>([]);
   const [filterType, setFilterType] = useState("all");
 
-  const handleApprove = (postId: number) => {
-    console.log("Approving post:", postId);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const result = await fetchPosts(1, 5, PostStatus.PENDING);
+        setPending(result.posts);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUsers(); // call the inner function
+  }, []);
+  console.log(pending);
+
+  const handleApprove = async (
+    postId: string,
+    body: {
+      status: PostStatus.APPROVED | PostStatus.PENDING | PostStatus.REJECTED;
+    }
+  ) => {
     // Add API call here
+    await updatePost(postId, body.status);
   };
 
-  const handleReject = (postId: number) => {
-    console.log("Rejecting post:", postId);
+  const handleReject = async (
+    postId: string,
+    body: {
+      status: PostStatus.APPROVED | PostStatus.PENDING | PostStatus.REJECTED;
+    }
+  ) => {
     // Add API call here
-  };
-
-  const handleMarkPremium = (postId: number) => {
-    console.log("Marking premium:", postId);
-    // Add API call here
+    await updatePost(postId, body.status);
   };
 
   return (
@@ -72,11 +110,11 @@ export default function ModerationPage() {
               Pending Posts Approval
             </CardTitle>
             <div className="text-sm text-gray-500">
-              {pendingPosts.length} posts awaiting moderation
+              {pending.length} posts awaiting moderation
             </div>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            <Select value={filterType} onValueChange={setFilterType}>
+            {/* <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
@@ -85,13 +123,10 @@ export default function ModerationPage() {
                 <SelectItem value="normal">Normal Posts</SelectItem>
                 <SelectItem value="premium">Premium Posts</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
             <div className="relative w-full sm:w-[240px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search posts..."
-                className="pl-10"
-              />
+              <Input placeholder="Search posts..." className="pl-10" />
             </div>
           </div>
         </CardHeader>
@@ -108,15 +143,21 @@ export default function ModerationPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pendingPosts.map((post) => (
-                <TableRow key={post.id}>
+              {pending?.map((post) => (
+                <TableRow key={post.pId}>
                   <TableCell className="font-medium">{post.title}</TableCell>
-                  <TableCell>{post.author}</TableCell>
-                  <TableCell>{post.category}</TableCell>
-                  <TableCell>{post.price}</TableCell>
+                  <TableCell>{post.author?.userDetails?.name}</TableCell>
+                  <TableCell>{post.category?.name}</TableCell>
                   <TableCell>
-                    <Badge 
-                      variant={post.status === 'pending' ? 'destructive' : 'outline'}
+                    {post.priceRangeStart}-{post.priceRangeEnd}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        post.status === PostStatus.PENDING
+                          ? "destructive"
+                          : "outline"
+                      }
                       className="capitalize"
                     >
                       {post.status}
@@ -126,7 +167,10 @@ export default function ModerationPage() {
                     <Button
                       size="sm"
                       variant="default"
-                      onClick={() => handleApprove(post.id)}
+                      onClick={() =>
+                        handleApprove(post.pId, { status: PostStatus.APPROVED })
+                      }
+                      className="cursor-pointer"
                     >
                       <Check className="h-4 w-4 mr-2" />
                       Approve
@@ -134,18 +178,13 @@ export default function ModerationPage() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleReject(post.id)}
+                      onClick={() =>
+                        handleReject(post.pId, { status: PostStatus.REJECTED })
+                      }
+                      className="cursor-pointer"
                     >
                       <X className="h-4 w-4 mr-2" />
                       Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="default"
-                      onClick={() => handleMarkPremium(post.id)}
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      Premium
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -205,7 +244,7 @@ export default function ModerationPage() {
       {/* Pagination Controls */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-500">
-          Showing 1-{pendingPosts.length} of {pendingPosts.length} results
+          Showing 1-{pending.length} of {pending.length} results
         </div>
         <div className="flex gap-2">
           <Button variant="outline" disabled>
