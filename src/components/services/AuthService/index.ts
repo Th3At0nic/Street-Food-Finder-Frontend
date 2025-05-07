@@ -10,6 +10,7 @@ export const registerUser = async (userData: FieldValues) => {
   try {
     console.log({ userData });
     const formData = new FormData();
+   
     formData.append("data", JSON.stringify(userData));
     const res = await fetch(`${config.backend_url}/users`, {
       method: "POST",
