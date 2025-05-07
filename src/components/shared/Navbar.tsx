@@ -1,9 +1,9 @@
 "use client";
 
-import { LogOut, Sparkles, Utensils } from "lucide-react";
+import { LogOut, Sparkles, } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { signOutUser } from "@/lib/auth/signOutUser";
 import Logo from "./Logo";
 
@@ -37,7 +37,7 @@ export default function Navbar() {
                 <Button onClick={() => signOutUser()} variant="outline"><LogOut className="h-4 w-4" /></Button>
               </div>
             ) :
-              <Link href={'/signup'}>
+              <Link href={'/login'}>
                 <Button variant="outline">Sign In</Button>
               </Link>
           }

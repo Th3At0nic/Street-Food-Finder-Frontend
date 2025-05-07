@@ -1,24 +1,51 @@
-import PostCard from "@/components/modules/post/PostCard";
-import SearchBox from "@/components/shared/Search";
+// This is the main page component
+'use client';
 
-export default function AllspotsPage() {
+import { useInView } from 'react-intersection-observer';
+import { usePostFeed } from "@/hooks/usePostFeed";
+import { PostCardFeed } from '@/components/modules/post/PostCardFeed';
+import { LoadingPosts } from '@/components/modules/post/LoadingPosts';
+import { useEffect } from 'react';
+import { CreatePostCard } from '@/components/modules/post/CreatePostCard';
+import { FcEmptyTrash } from 'react-icons/fc';
+
+export default function AllSpotsPage() {
+    const { posts, loading, loadMorePosts } = usePostFeed();
+    const { ref, inView } = useInView();
+
+    // Load more when scrolled to the bottom
+    useEffect(() => {
+        if (inView && !loading) {
+            loadMorePosts();
+        }
+    }, [inView, loading, loadMorePosts]);
+
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">All Spots</h1>
-                <p className="text-gray-600 text-lg mb-8">
-                    Explore all the street food spots
-                </p>
-                <div className="mb-8">
-                    <SearchBox />
-                </div>
-                {/* Add your content here */}
-                <div className="grid md:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((item) => (
-                        <PostCard key={item} />
+        <div className="min-h-screen bg-gray-100">
+            <main className="max-w-2xl mx-auto px-4 py-6">
+                <CreatePostCard />
+
+                <div className="space-y-4">
+
+                    {posts.map(post => (
+                        <PostCardFeed key={post.pId} post={post} />
                     ))}
+                    {posts.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
+                            <FcEmptyTrash className='h-32 w-32'/>
+                            <h2 className="text-xl font-semibold text-gray-700 mb-2">No posts yet</h2>
+                            <p className="text-sm text-gray-500 mb-4">When posts are created, they’ll show up here.</p>
+
+                        </div>
+                    )}
+
                 </div>
-            </div>
+
+                {/* Loading indicator and trigger for infinite scroll */}
+                <div ref={ref} className="py-4 flex justify-center">
+                    {loading && <LoadingPosts />}
+                </div>
+            </main>
         </div>
     );
 }
