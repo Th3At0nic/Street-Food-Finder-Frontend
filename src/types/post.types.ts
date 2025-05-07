@@ -38,6 +38,11 @@ export type Post = {
   comments?: Comment[];
   postRatings?: PostRating[];
   postImages?: PostImage[];
+  _count: {
+    comments: number;
+    votes: number;
+    postRatings: number;
+  };
 
   // Computed properties
   totalVotes?: number;
@@ -115,5 +120,29 @@ export interface CategoryResponse {
       totalPages: number;
     };
     data: PostCategory[];
+  };
+}
+
+export interface VoteCountResponse {
+  statusCode: number;
+  message: string;
+  success: boolean;
+  data: {
+    upVoteCount: number;
+    downVoteCount: number;
+  };
+}
+
+export interface VoteResponse {
+  statusCode: number;
+  message: string;
+  success: boolean;
+  data: {
+    vId: string;
+    postId: string;
+    voterId: string;
+    vType: VoteType;
+    createdAt: string;
+    updatedAt: string;
   };
 }

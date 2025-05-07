@@ -1,6 +1,6 @@
 "use server";
 import { getServerSession } from "next-auth";
-import { Post, PostCategory, PostsResponse, PostStatus } from "@/types";
+import { Post, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
@@ -22,7 +22,6 @@ export async function fetchPosts(
       queryString += `&status=${status}`;
     }
     const response = await fetch(`${config.backend_url}/posts?${queryString}`);
-    console.log({ response });
     if (!response.ok) {
       throw new Error(`Failed to fetch posts: ${response.status}`);
     }
@@ -32,9 +31,8 @@ export async function fetchPosts(
     if (!responseData.success) {
       throw new Error(`API error: ${responseData.message}`);
     }
-
     const { data, meta } = responseData.data;
-
+    console.log(data[0], meta);
     return {
       posts: data,
       hasMore: page < meta.totalPages,
@@ -99,16 +97,54 @@ export async function createPost(postFormData: FormData) {
 }
 
 // commenting
-export async function commentOnPost(params: { postId: string; vType: string }) {
+export async function commentOnPost(params: { postId: string; comment: string }) {
   const session = await getServerSession(authOptions);
   try {
-    const response = await fetch(`${config.backend_url}/votes`, {
+    const response = await fetch(`${config.backend_url}/comments/${params.postId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${session?.user.accessToken}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(params)
+      body: JSON.stringify({ comment: params.comment })
+    });
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// update comment
+export async function updateComment(params: { commentId: string; comment: string }) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/comments/${params.commentId}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ comment: params.comment })
+    });
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// delete comment
+export async function deleteComment(params: { commentId: string }) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/comments/${params.commentId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`
+      }
     });
     const result = await response.json();
     console.log({ result });
@@ -133,6 +169,42 @@ export async function voteOnPost(params: { postId: string; vType: string }) {
     const result = await response.json();
     console.log({ result });
     return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// get user vote on a post
+export async function getUserVote(params: { postId: string }) {
+  const session = await getServerSession(authOptions);
+  try {
+    const response = await fetch(`${config.backend_url}/votes/user/${params.postId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session?.user.accessToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+    const result: VoteResponse = await response.json();
+    console.log({ result });
+    return result.data;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+// get vote count on a post
+export async function getVoteCounts(params: { postId: string }) {
+  try {
+    const response = await fetch(`${config.backend_url}/votes/vote-count/${params.postId}`, {
+      method: "GET"
+    });
+    const result: VoteCountResponse = await response.json();
+    if (result.success) {
+      return result.data;
+    } else {
+      throw new Error(result.message);
+    }
   } catch (error: unknown) {
     throw error;
   }

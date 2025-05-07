@@ -1,7 +1,6 @@
-// components/feed/PostCard.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,23 +8,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { MessageCircle, Share2, Send, MapPin, DollarSign, Star, ArrowBigUp, ArrowBigDown } from 'lucide-react';
-import { Post, VoteType } from '@/types';
+import { Post, VoteType, Comment } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { useSession } from 'next-auth/react';
 import { CommentItem } from './CommentItem';
 import { ImageGallery } from './ImageGallery';
 import { useVote } from '@/hooks/useVote';
+import { commentOnPost, updateComment, deleteComment } from '@/app/actions/post-actions';
+import { toast } from 'sonner';
 
 interface PostCardFeedProps {
     post: Post;
 }
 
-export function PostCardFeed({ post }: PostCardFeedProps) {
-    console.log({ post });
+export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
+    // Use state to manage post data so we can update it after commenting
+    const [post, setPost] = useState<Post>(initialPost);
     const [isCommenting, setIsCommenting] = useState(false);
     const [commentText, setCommentText] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { data: session } = useSession();
     const { toggleVote, isUpVoted, isDownVoted, upVoteCount, downVoteCount } = useVote(post);
+
+    // Update post state when initialPost changes
+    useEffect(() => {
+        setPost(initialPost);
+    }, [initialPost]);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -45,25 +53,106 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
 
     const handleComment = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!commentText.trim()) return;
+        if (!commentText.trim() || isSubmitting) return;
 
+        setIsSubmitting(true);
         try {
-            // In a real implementation, this would call your API
-            console.log('Adding comment:', commentText);
-            // You would update the comments list after API call
+            const result = await commentOnPost({ postId: post.pId, comment: commentText });
+            console.log({ result });
+
+            if (!result.success) {
+                toast.error(result.message);
+                return;
+            }
+
+            // Add the new comment to local state
+            if (result.data) {
+                const newComment: Comment = result.data;
+
+                // Update post state with the new comment
+                setPost(prevPost => ({
+                    ...prevPost,
+                    comments: [...(prevPost.comments || []), newComment]
+                }));
+
+                toast.success("Comment added successfully");
+            }
+
             setCommentText('');
         } catch (error) {
             console.error('Failed to add comment:', error);
+            toast.error("Failed to add comment");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const averageRating = post.postRatings && post.postRatings.length > 0
-        ? post.postRatings.reduce((sum, rating) => sum + rating.rating, 0) / post.postRatings.length
-        : 0;
+    const handleCommentEdit = async (cId: string, comment: string) => {
+        const toastId = toast.loading('Updating comment...');
+        try {
+            const result = await updateComment({ commentId: cId, comment });
+
+            if (result.success) {
+                // Update the comment in local state
+                if (result.data) {
+                    const updatedComment: Comment = result.data;
+
+                    // Update post state with the edited comment
+                    setPost(prevPost => ({
+                        ...prevPost,
+                        comments: prevPost.comments?.map(c =>
+                            c.cId === cId ? updatedComment : c
+                        ) || []
+                    }));
+
+                    toast.success(result.message || "Comment updated", { id: toastId });
+                } else {
+                    // If no data returned but operation successful, update locally
+                    setPost(prevPost => ({
+                        ...prevPost,
+                        comments: prevPost.comments?.map(c =>
+                            c.cId === cId ? { ...c, comment } : c
+                        ) || []
+                    }));
+
+                    toast.success(result.message || "Comment updated", { id: toastId });
+                }
+            } else {
+                toast.error(result.message || "Some error occurred while updating", { id: toastId });
+            }
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error("Failed to update comment", { id: toastId });
+        }
+    };
+
+    const handleCommentDelete = async (cId: string) => {
+        const toastId = toast.loading('Deleting comment...');
+        try {
+            const result = await deleteComment({ commentId: cId });
+
+            if (result.success) {
+                // Remove the comment local state
+                setPost(prevPost => ({
+                    ...prevPost,
+                    comments: prevPost.comments?.filter(c => c.cId !== cId) || []
+                }));
+
+                toast.success(result.message || "Comment deleted", { id: toastId });
+            } else {
+                toast.error(result.message || "Some error occurred while deleting", { id: toastId });
+            }
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error("Failed to delete comment", { id: toastId });
+        }
+    };
+
+    const averageRating = post.averageRating ?? 0;
 
     return (
         <Card className="mb-4 shadow-sm">
-            <CardHeader className="pb-2">
+            <CardHeader className="">
                 <div className="flex items-center space-x-3">
                     <Avatar>
                         <AvatarImage
@@ -96,7 +185,7 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                 </div>
             </CardHeader>
 
-            <CardContent className="pt-2">
+            <CardContent>
                 <h2 className="text-lg font-semibold mb-2">{post.title}</h2>
                 <p className="mb-3">{post.description}</p>
 
@@ -107,13 +196,6 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                             {formatPrice(post.priceRangeStart)} - {formatPrice(post.priceRangeEnd)}
                         </span>
                     </div>
-
-                    {averageRating > 0 && (
-                        <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                            <span className="text-sm">{averageRating.toFixed(1)}</span>
-                        </div>
-                    )}
                 </div>
 
                 {post.postImages && post.postImages.length > 0 && (
@@ -128,9 +210,19 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                         <Separator orientation="vertical" />
                         <div className='flex justify-center items-center'><ArrowBigDown className="h-4 w-4" />{downVoteCount} </div>
                     </div>
+
+
+                    {averageRating > -1 && (
+                        <div className="flex items-center">
+                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                            <span className="text-sm">{averageRating.toFixed(1)}</span>
+                        </div>
+                    )}
+
                     <div>
-                        <span className="mr-2">{post.comments?.length || 0} comments</span>
+                        <span className="mr-2">{post._count.comments || 0} comments</span>
                     </div>
+
                 </div>
 
                 <Separator className="mb-2" />
@@ -145,7 +237,7 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                             onClick={() => toggleVote(VoteType.UPVOTE)}
                         >
                             <ArrowBigUp className={`h-4 w-4 ${isUpVoted ? "text-white" : ""}`} />
-                            Upvote
+                            {isUpVoted ? 'Upvoted' : 'Upvote'}
                         </Button>
                         <Separator orientation="vertical" />
                         <Button
@@ -156,7 +248,7 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                             onClick={() => toggleVote(VoteType.DOWNVOTE)}
                         >
                             <ArrowBigDown className={`h-4 w-4 ${isDownVoted ? "text-white" : ""}`} />
-                            Downvote
+                            {isDownVoted ? 'Downvoted' : 'Downvote'}
                         </Button>
                     </div>
                     <Button
@@ -193,12 +285,14 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                                         className="pr-10 rounded-full bg-gray-100"
                                         value={commentText}
                                         onChange={(e) => setCommentText(e.target.value)}
+                                        disabled={isSubmitting}
                                     />
                                     <Button
                                         type="submit"
                                         variant="ghost"
                                         size="icon"
                                         className="absolute right-1 top-1/2 transform -translate-y-1/2"
+                                        disabled={isSubmitting}
                                     >
                                         <Send className="h-4 w-4" />
                                     </Button>
@@ -211,12 +305,17 @@ export function PostCardFeed({ post }: PostCardFeedProps) {
                 {post.comments && post.comments.length > 0 && (
                     <div className="mt-4 space-y-3 w-full">
                         <Separator />
-                        {post.comments.slice(0, 3).map((comment) => (
-                            <CommentItem key={comment.cId} comment={comment} />
+                        {post.comments.map((comment) => (
+                            <CommentItem
+                                key={comment.cId}
+                                comment={comment}
+                                onEdit={handleCommentEdit}
+                                onDelete={handleCommentDelete}
+                            />
                         ))}
-                        {post.comments.length > 3 && (
+                        {post._count.comments > 3 && (
                             <Button variant="link" size="sm" className="text-sm text-gray-500">
-                                View all {post.comments.length} comments
+                                View all {post._count.comments} comments
                             </Button>
                         )}
                     </div>
