@@ -5,6 +5,43 @@ import CredentialProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
 import { TRole } from "@/types";
 
+import { cookies } from "next/headers";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const refreshAccessToken = async (token: any) => {
+  try {
+    const refreshToken = (await cookies()).get("refresh_token")?.value;
+    console.log({ refreshToken });
+    if (!refreshToken) throw new Error("Missing refresh token cookie");
+
+    const res = await fetch(`${config.backend_url}/auth/refresh-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `refreshToken=${refreshToken}`
+      }
+    });
+
+    const result = await res.json();
+    if (!res.ok || !result.success) throw result;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const decoded = jwtDecode(result.data.accessToken) as any;
+
+    return {
+      ...token,
+      accessToken: result.data.accessToken,
+      accessTokenExpires: decoded.exp * 1000
+    };
+  } catch (err) {
+    console.error("Failed to refresh access token", err);
+    return {
+      ...token,
+      error: "RefreshAccessTokenError"
+    };
+  }
+};
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialProvider({
@@ -21,12 +58,30 @@ export const authOptions: NextAuthOptions = {
           },
           body: JSON.stringify(credentials)
         });
+        const setCookieHeader = res.headers.get("set-cookie");
+
+        if (setCookieHeader) {
+          const refreshCookies = setCookieHeader.split(";");
+          const refreshTokenCookie = refreshCookies.find((cookie) => cookie.trim().startsWith("refreshToken="));
+          if (refreshTokenCookie) {
+            const refreshToken = refreshTokenCookie.split("=")[1].split(";")[0];
+            (await cookies()).set("refresh_token", refreshToken, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
+              maxAge: 60 * 60 * 24 * 7,
+              path: "/"
+            });
+          }
+        }
+
         const result = await res.json();
         if (!res.ok || !result.success) {
           console.error("User sync failed:", result);
           return null;
         }
         const userDecoded = jwtDecode(result.data.accessToken);
+
         if (userDecoded) {
           console.log({ userDecoded });
           return { ...(userDecoded as User), accessToken: result.data.accessToken };
@@ -75,10 +130,12 @@ export const authOptions: NextAuthOptions = {
           user.name = userDecoded.name;
         }
         // save the cookie by calling the setRefreshCookie function
-        await fetch(`${config.public_url}/api/auth/set-refresh-cookie`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken: result.data.refreshToken })
+        (await cookies()).set("refresh_token", result.data.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/"
         });
         return true;
       } catch (err) {
@@ -95,7 +152,11 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = user.accessToken;
         token.role = user.role;
       }
-      return token;
+      if (Date.now() < (token.accessTokenExpires as number)) {
+        return token;
+      }
+
+      return await refreshAccessToken(token);
     },
     async session({ session, token }) {
       if (token) {

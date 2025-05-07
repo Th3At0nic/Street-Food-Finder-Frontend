@@ -96,6 +96,26 @@ export async function createPost(postFormData: FormData) {
   }
 }
 
+// fetch comments of a post
+export async function fetchPostComments(params: { postId: string; page: number; limit: number }) {
+  try {
+    const response = await fetch(
+      `${config.backend_url}/comments/post/${params.postId}?page=${params.page ?? 1}&limit=${params.limit ?? 10}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
 // commenting
 export async function commentOnPost(params: { postId: string; comment: string }) {
   const session = await getServerSession(authOptions);

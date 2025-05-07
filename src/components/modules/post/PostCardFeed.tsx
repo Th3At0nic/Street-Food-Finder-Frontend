@@ -16,6 +16,7 @@ import { ImageGallery } from './ImageGallery';
 import { useVote } from '@/hooks/useVote';
 import { commentOnPost, updateComment, deleteComment } from '@/app/actions/post-actions';
 import { toast } from 'sonner';
+import { CommentDialog } from './AllComments/CommentDialog';
 
 interface PostCardFeedProps {
     post: Post;
@@ -72,7 +73,11 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                 // Update post state with the new comment
                 setPost(prevPost => ({
                     ...prevPost,
-                    comments: [...(prevPost.comments || []), newComment]
+                    comments: [...(prevPost.comments || []), newComment],
+                    _count: {
+                        ...prevPost._count,
+                        comments: (prevPost._count.comments || 0) + 1
+                    }
                 }));
 
                 toast.success("Comment added successfully");
@@ -132,10 +137,14 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
             const result = await deleteComment({ commentId: cId });
 
             if (result.success) {
-                // Remove the comment local state
+                // Remove the comment from local state
                 setPost(prevPost => ({
                     ...prevPost,
-                    comments: prevPost.comments?.filter(c => c.cId !== cId) || []
+                    comments: prevPost.comments?.filter(c => c.cId !== cId) || [],
+                    _count: {
+                        ...prevPost._count,
+                        comments: Math.max(0, (prevPost._count.comments || 0) - 1)
+                    }
                 }));
 
                 toast.success(result.message || "Comment deleted", { id: toastId });
@@ -149,6 +158,12 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
     };
 
     const averageRating = post.averageRating ?? 0;
+
+    // Determine how many comments to show in the card
+    // Usually we'd show the initial 3 comments
+    const displayedComments = post.comments?.slice(0, 3) || [];
+    const totalComments = post._count.comments || 0;
+    const hasMoreComments = totalComments > displayedComments.length;
 
     return (
         <Card className="mb-4 shadow-sm">
@@ -220,7 +235,18 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                     )}
 
                     <div>
-                        <span className="mr-2">{post._count.comments || 0} comments</span>
+                        {hasMoreComments && (
+                            <CommentDialog
+                                postId={post.pId}
+                                initialComments={displayedComments}
+                                totalComments={totalComments}
+                                onEdit={handleCommentEdit}
+                                onDelete={handleCommentDelete}
+                            >
+                                <span className="mr-2 cursor-pointer">{post._count.comments || 0} comments</span>
+                            </CommentDialog>
+                        )}
+
                     </div>
 
                 </div>
@@ -302,10 +328,10 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                     </>
                 )}
 
-                {post.comments && post.comments.length > 0 && (
+                {displayedComments.length > 0 && (
                     <div className="mt-4 space-y-3 w-full">
                         <Separator />
-                        {post.comments.map((comment) => (
+                        {displayedComments.map((comment) => (
                             <CommentItem
                                 key={comment.cId}
                                 comment={comment}
@@ -313,10 +339,19 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                                 onDelete={handleCommentDelete}
                             />
                         ))}
-                        {post._count.comments > 3 && (
-                            <Button variant="link" size="sm" className="text-sm text-gray-500">
-                                View all {post._count.comments} comments
-                            </Button>
+
+                        {hasMoreComments && (
+                            <CommentDialog
+                                postId={post.pId}
+                                initialComments={displayedComments}
+                                totalComments={totalComments}
+                                onEdit={handleCommentEdit}
+                                onDelete={handleCommentDelete}
+                            >
+                                <Button variant="link" size="sm" className="text-sm text-gray-500">
+                                    View all {totalComments} comments
+                                </Button>
+                            </CommentDialog>
                         )}
                     </div>
                 )}
