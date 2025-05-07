@@ -21,6 +21,7 @@ interface PostCardFeedProps {
 }
 
 export function PostCardFeed({ post }: PostCardFeedProps) {
+    console.log({post});
     const [isCommenting, setIsCommenting] = useState(false);
     const [commentText, setCommentText] = useState('');
     const { data: session } = useSession();

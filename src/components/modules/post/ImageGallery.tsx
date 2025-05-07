@@ -21,7 +21,9 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                     src={images[0].file_path}
                     alt="Post image"
                     className="w-full h-auto object-cover"
-                    fill
+
+                    height={200}
+                    width={200}
                 />
             </div>
         );
@@ -41,7 +43,8 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                 src={images[activeIndex].file_path}
                 alt={`Post image ${activeIndex + 1}`}
                 className="w-full h-64 object-cover"
-                fill
+                height={200}
+                width={200}
             />
 
             <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
