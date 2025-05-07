@@ -9,6 +9,7 @@ import Logo from "./Logo";
 
 export default function Navbar() {
   const { status } = useSession();
+ 
 
   return (
     <nav className="bg-white shadow-sm">

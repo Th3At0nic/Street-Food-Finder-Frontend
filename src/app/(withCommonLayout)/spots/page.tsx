@@ -11,6 +11,7 @@ import { FcEmptyTrash } from 'react-icons/fc';
 
 export default function AllSpotsPage() {
     const { posts, loading, loadMorePosts } = usePostFeed();
+   
     const { ref, inView } = useInView();
 
     // Load more when scrolled to the bottom

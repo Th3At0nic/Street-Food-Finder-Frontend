@@ -1,10 +1,12 @@
 // app/admin/page.tsx
+import { getAllUsers } from "@/components/services/AuthService/UserService";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Activity, Shield, Star, UserPlus, Users } from "lucide-react";
 
 export default function AdminDashboard() {
+  
   // Mock data
   const stats = {
     totalUsers: 2458,
@@ -12,7 +14,7 @@ export default function AdminDashboard() {
     pendingModeration: 5,
     premiumUsers: 156
   };
-
+ 
   const recentUsers = [
     { id: 1, email: "user1@example.com", status: "Active", role: "User" },
     { id: 2, email: "user2@example.com", status: "Banned", role: "Premium" },
@@ -80,7 +82,7 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentUsers.map((user) => (
+              {recentUsers?.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>

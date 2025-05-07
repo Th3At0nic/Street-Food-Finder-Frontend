@@ -17,7 +17,6 @@ export function usePostFeed() {
 
     try {
       const result = await fetchPosts(page);
-
       setPosts((prev) => [...prev, ...result.posts]);
       setPage((prev) => prev + 1);
       setHasMore(result.hasMore);
