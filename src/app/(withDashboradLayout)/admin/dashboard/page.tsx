@@ -27,7 +27,7 @@ export default async function AdminDashboard() {
   const userData = await getAllUsers();
   const premiumUser = await fetchUsersByRole("PREMIUM_USER");
   const pendingModeration = await fetchPosts(1, 5, PostStatus.PENDING);
-  console.log(pendingModeration.totalPosts);
+ 
 
   const handleChangePassword = () => {};
   return (

@@ -9,7 +9,7 @@ import {
     Settings,
     FileText,
     Lock,
-    CalendarDays,
+    BadgeDollarSign,
 } from "lucide-react";
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
@@ -68,7 +68,7 @@ const userNavItems = [
     {
         title:"Payment History",
         href:"/admin/dashboard/paymentHistory",
-        icon: <CalendarDays className="h-4 w-4"></CalendarDays>
+        icon: <BadgeDollarSign className="h-4 w-4"></BadgeDollarSign>
     },
     {
         title: "Profile Settings",

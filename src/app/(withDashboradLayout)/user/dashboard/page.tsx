@@ -1,8 +1,7 @@
 // app/admin/page.tsx
 import { fetchPosts } from "@/app/actions/post-actions";
-import {
-  getSingleUser,
-} from "@/components/services/AuthService/UserService";
+import { getSingleUser } from "@/components/services/AuthService/UserService";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
@@ -17,44 +16,206 @@ import { PostStatus, UserRole } from "@/types";
 import { Activity, Badge, Shield, Star, UserPlus, Users } from "lucide-react";
 
 export default async function AdminDashboard() {
-
   const singleUser = await getSingleUser();
-  
+
   const pendingModeration = await fetchPosts(1, 5, PostStatus.PENDING);
   console.log(pendingModeration.totalPosts);
+  const SpecificUserPosts = await fetchPosts(1, 5, null, singleUser.id);
 
+  console.log(SpecificUserPosts);
   const handleChangePassword = () => {};
   return (
     <div className="space-y-8">
       {/* Admin Stats Cards */}
-      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        
-
+      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium">
-              Pending Moderation
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Your Posts</CardTitle>
             <Shield className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {pendingModeration.totalPosts}
+              {SpecificUserPosts?.totalPosts}
             </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-medium">
+              Your Posts Type
+            </CardTitle>
+            <Shield className="h-4 w-4 text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            {SpecificUserPosts.posts.map((post) => (
+              <div key={post?.pId} className="text-xl font-bold">
+               <p> {post.pType}</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium">Premium Users</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Your Post Status
+            </CardTitle>
             <Star className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{premiumUser?.meta?.total}</div>
+            {SpecificUserPosts.posts.map((post) => (
+              <div key={post?.pId} className="text-xl font-bold">
+               <p> {post.status}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-medium">
+              Your Post Comments
+            </CardTitle>
+            <Star className="h-4 w-4 text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            {SpecificUserPosts.posts.map((post) => (
+              <div key={post?.pId} className="text-xl font-bold">
+               <p> {post._count.comments}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-medium">
+              Your Post Ratings
+            </CardTitle>
+            <Star className="h-4 w-4 text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            {SpecificUserPosts.posts.map((post) => (
+              <div key={post?.pId} className="text-xl font-bold">
+               <p> {post._count.postRatings}</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div> */}
+      <Card>
+        <CardHeader>
+          <CardTitle> Your Posts Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Posts Title</TableHead>
+                <TableHead>Post Status</TableHead>
+                <TableHead>Post Category</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>post Image</TableHead>
+                <TableHead>Counts Votes</TableHead>
+                <TableHead>Counts Comments</TableHead>
+                <TableHead>Counts Ratings</TableHead>
+                {/* <TableHead className="text-right">Actions</TableHead> */}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {SpecificUserPosts.posts?.map((post) => (
+                <TableRow key={post.pId}>
+                  <TableCell className="font-medium">{post.title}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        post.status === "APPROVED"
+                          ? "bg-green-100 text-green-800"
+                          : post.status === "PENDING"
+                          ? "bg-red-100 text-red-800"
+                          : post.status === PostStatus.REJECTED
+                          ? "bg-red-100 text-red-800"
+                          : "bg-amber-100 text-amber-800"
+                      }`}
+                    >
+                      {post.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-amber-600">
+                      {post.category?.name}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`${
+                        post.location === "BD"
+                          ? "text-amber-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {post.location}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {/* <span
+                      className={`${
+                        post.location === "BD"
+                          ? "text-amber-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {post.location}
+                    </span> */}
+                    <Avatar className="h-7 w-7">
+                      <AvatarImage
+                        src={post.postImages?.[0]?.file_path || "/default-post.png"}
+                        alt={post.title}
+                      />
 
+                      <AvatarFallback>
+                        {post.location.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`${
+                        post._count.votes > 1
+                          ? "text-amber-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {post._count.votes}
+                    </span>
+                  </TableCell>
+
+                  <TableCell>
+                    <span
+                      className={`${
+                        post._count.comments > 1
+                          ? "text-amber-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {post._count.comments}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`${
+                        post._count.postRatings > 1
+                          ? "text-amber-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {post._count.postRatings}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       {/* Recent Users Table */}
       <Card>
         <CardHeader>
@@ -115,7 +276,6 @@ export default async function AdminDashboard() {
                 </TableCell>
                 <TableCell className="text-right flex flex-col justify-end items-end gap-1.5">
                   <Button
-                 
                     variant="outline"
                     size="sm"
                     className="cursor-pointer text-blue-600 hover:text-blue-800"
