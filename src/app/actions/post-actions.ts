@@ -6,7 +6,8 @@ import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
   page: number,
   limit: number = 5,
-  status: PostStatus | null = PostStatus.APPROVED
+  status: PostStatus | null = PostStatus.APPROVED,
+  authorId?:string,
 ): Promise<{
   posts: Post[];
   hasMore: boolean;
@@ -20,6 +21,9 @@ export async function fetchPosts(
     let queryString = `page=${page}&limit=${limit}`;
     if (status) {
       queryString += `&status=${status}`;
+    }
+    if (authorId) {
+      queryString += `&authorId=${authorId}`
     }
     const response = await fetch(`${config.backend_url}/posts?${queryString}`);
     if (!response.ok) {
