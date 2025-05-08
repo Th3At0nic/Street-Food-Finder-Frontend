@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import localConfig from "./config";
+import { UserRole } from "./types";
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: localConfig.next_auth_secret });
 
   // Check if the route is protected
-  const isProtectedRoute = ["/admin", "/user/dashboard", "/subscription/verify"].some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+  const isProtectedRoute = ["/admin", "/user/dashboard", "/subscription/verify"].some(() =>
+    request.nextUrl.pathname.replace(/\/+$/, "")
   );
 
   // If it's a protected route and there's no token, redirect to login
@@ -16,7 +17,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check specific role restrictions (for admin routes)
-  if (request.nextUrl.pathname.startsWith("/admin") && token?.role !== "admin") {
+  if (request.nextUrl.pathname.startsWith("/admin") && token?.role !== UserRole.ADMIN) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -25,5 +26,5 @@ export async function middleware(request: NextRequest) {
 
 //protected routes
 export const config = {
-  matcher: ["/admin/:path*", "/user/dashboard/:path*", "/subscription/verify"]
+  matcher: ["/admin", "/admin/:path*", "/user/dashboard", "/user/dashboard/:path*", "/subscription/verify"]
 };
