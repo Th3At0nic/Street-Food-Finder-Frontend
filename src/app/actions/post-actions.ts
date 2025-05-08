@@ -220,11 +220,12 @@ export async function getVoteCounts(params: { postId: string }) {
       method: "GET"
     });
     const result: VoteCountResponse = await response.json();
+   
     if (result.success) {
-      return result.data;
-    } else {
-      throw new Error(result.message);
-    }
+      return result.data;}
+    // } else {
+    //   throw new Error(result.message);
+    // }
   } catch (error: unknown) {
     throw error;
   }

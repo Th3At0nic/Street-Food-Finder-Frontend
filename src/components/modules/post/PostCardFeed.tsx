@@ -165,7 +165,7 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
     // Determine how many comments to show in the card
     // Usually we'd show the initial 3 comments
     const displayedComments = post.comments?.slice(0, 3) || [];
-    const totalComments = post._count.comments || 0;
+     const totalComments = post?._count?.comments || 0;
     const hasMoreComments = totalComments > displayedComments.length;
 
     return (

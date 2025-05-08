@@ -1,31 +1,35 @@
 // app/admin/page.tsx
 import { fetchPosts } from "@/app/actions/post-actions";
-import { fetchUsersByRole, getAllUsers } from "@/components/services/AuthService/UserService";
+import {
+  fetchUsersByRole,
+  getAllUsers,
+  getSingleUser,
+} from "@/components/services/AuthService/UserService";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PostStatus } from "@/types";
-import { Activity, Shield, Star, UserPlus, Users } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { PostStatus, UserRole } from "@/types";
+import { authOptions } from "@/utils/authOptions";
+import { Activity, Badge, Shield, Star, UserPlus, Users } from "lucide-react";
+import { getServerSession } from "next-auth";
 
 export default async function AdminDashboard() {
+  const session = await getServerSession(authOptions);
+  const singleUser = await getSingleUser();
+  console.log({ singleUser });
   const userData = await getAllUsers();
-  const premiumUser = await fetchUsersByRole("PREMIUM_USER")
-  const pendingModeration = await fetchPosts(1,5,PostStatus.PENDING)
+  const premiumUser = await fetchUsersByRole("PREMIUM_USER");
+  const pendingModeration = await fetchPosts(1, 5, PostStatus.PENDING);
   console.log(pendingModeration.totalPosts);
-  // Mock data
-  const stats = {
-    totalUsers: 2458,
-    newUsers: 23,
-    pendingModeration: 5,
-    premiumUsers: 156
-  };
- 
-  const recentUsers = [
-    { id: 1, email: "user1@example.com", status: "Active", role: "User" },
-    { id: 2, email: "user2@example.com", status: "Banned", role: "Premium" },
-    { id: 3, email: "user3@example.com", status: "Pending", role: "User" }
-  ];
 
+  const handleChangePassword = () => {};
   return (
     <div className="space-y-8">
       {/* Admin Stats Cards */}
@@ -42,11 +46,15 @@ export default async function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium">Pending Moderation</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Moderation
+            </CardTitle>
             <Shield className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingModeration.totalPosts}</div>
+            <div className="text-2xl font-bold">
+              {pendingModeration.totalPosts}
+            </div>
           </CardContent>
         </Card>
 
@@ -56,29 +64,29 @@ export default async function AdminDashboard() {
             <Star className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{premiumUser.meta.total}</div>
+            <div className="text-2xl font-bold">{premiumUser?.meta?.total}</div>
           </CardContent>
         </Card>
-
       </div>
 
       {/* Recent Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent User Activity</CardTitle>
+          <CardTitle> User Activity | Your Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Email</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentUsers?.map((user) => (
+              {/* {recentUsers?.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>
@@ -101,7 +109,49 @@ export default async function AdminDashboard() {
                     <Button variant="ghost" size="sm">Manage</Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))} */}
+              <TableRow>
+                <TableCell>{singleUser.email}</TableCell>
+                <TableCell>{singleUser.userDetails.name}</TableCell>
+                <TableCell>{singleUser.status}</TableCell>
+                <TableCell>
+                  <span
+                    className={`${
+                      singleUser.role === UserRole.ADMIN ||
+                      UserRole.PREMIUM_USER
+                        ? "text-amber-600"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {singleUser.role}
+                    <Badge></Badge>
+                  </span>
+                </TableCell>
+                <TableCell className="text-right flex flex-col justify-end items-end gap-1.5">
+                  <Button
+                 
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer text-blue-600 hover:text-blue-800"
+                  >
+                    Change Password
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="cursor-pointer text-white hover:text-red-800"
+                  >
+                    Forget Password
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer text-green-600 hover:text-green-800"
+                  >
+                    Reset Password
+                  </Button>
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </CardContent>
