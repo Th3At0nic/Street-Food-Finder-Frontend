@@ -1,4 +1,5 @@
 // app/admin/page.tsx
+
 import { fetchPosts } from "@/app/actions/post-actions";
 import { getSingleUser } from "@/components/services/AuthService/UserService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,7 +14,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PostStatus, UserRole } from "@/types";
-import { Activity, Badge, Shield, Star, UserPlus, Users } from "lucide-react";
+import {
+  Activity,
+  Badge,
+  Shield,
+  Star,
+  Trash,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
 export default async function AdminDashboard() {
   const singleUser = await getSingleUser();
@@ -24,6 +33,11 @@ export default async function AdminDashboard() {
 
   console.log(SpecificUserPosts);
   const handleChangePassword = () => {};
+
+  // Handle Delete Work
+  const handleDelete = (id: string) => {
+    console.log(id);
+  };
   return (
     <div className="space-y-8">
       {/* Admin Stats Cards */}
@@ -117,13 +131,14 @@ export default async function AdminDashboard() {
                 <TableHead>Counts Votes</TableHead>
                 <TableHead>Counts Comments</TableHead>
                 <TableHead>Counts Ratings</TableHead>
-                {/* <TableHead className="text-right">Actions</TableHead> */}
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {SpecificUserPosts.posts?.map((post) => (
                 <TableRow key={post.pId}>
                   <TableCell className="font-medium">{post.title}</TableCell>
+
                   <TableCell>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -139,11 +154,13 @@ export default async function AdminDashboard() {
                       {post.status}
                     </span>
                   </TableCell>
+
                   <TableCell>
                     <span className="text-amber-600">
                       {post.category?.name}
                     </span>
                   </TableCell>
+
                   <TableCell>
                     <span
                       className={`${
@@ -155,6 +172,7 @@ export default async function AdminDashboard() {
                       {post.location}
                     </span>
                   </TableCell>
+
                   <TableCell>
                     {/* <span
                       className={`${
@@ -167,7 +185,9 @@ export default async function AdminDashboard() {
                     </span> */}
                     <Avatar className="h-7 w-7">
                       <AvatarImage
-                        src={post.postImages?.[0]?.file_path || "/default-post.png"}
+                        src={
+                          post.postImages?.[0]?.file_path || "/default-post.png"
+                        }
                         alt={post.title}
                       />
 
@@ -176,6 +196,7 @@ export default async function AdminDashboard() {
                       </AvatarFallback>
                     </Avatar>
                   </TableCell>
+
                   <TableCell>
                     <span
                       className={`${
@@ -199,6 +220,7 @@ export default async function AdminDashboard() {
                       {post._count.comments}
                     </span>
                   </TableCell>
+
                   <TableCell>
                     <span
                       className={`${
@@ -209,6 +231,19 @@ export default async function AdminDashboard() {
                     >
                       {post._count.postRatings}
                     </span>
+                  </TableCell>
+
+                  <TableCell className="flex justify-center items-center">
+                    <Button
+                      // onClick={() => handleDelete(post.pId)}
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer text-red-600 hover:text-green-800"
+                    >
+                      Delete your Post
+                      <Trash className="h-4 w-4"></Trash>
+                    </Button>
+                   
                   </TableCell>
                 </TableRow>
               ))}
