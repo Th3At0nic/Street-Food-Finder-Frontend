@@ -1,6 +1,6 @@
 "use server";
 import { getServerSession } from "next-auth";
-import { Post, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse } from "@/types";
+import { TPost, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
@@ -9,7 +9,7 @@ export async function fetchPosts(
   status: PostStatus | null = PostStatus.APPROVED,
   authorId?:string,
 ): Promise<{
-  posts: Post[];
+  posts: TPost[];
   hasMore: boolean;
   totalPosts: number;
   currentPage: number;

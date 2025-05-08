@@ -1,4 +1,4 @@
-import { User } from "./user.types";
+import { TUser } from "./user.types";
 
 export enum PostType {
   NORMAL = "NORMAL",
@@ -16,7 +16,7 @@ export enum VoteType {
   DOWNVOTE = "DOWNVOTE"
 }
 
-export type Post = {
+export type TPost = {
   pId: string;
   categoryId: string;
   authorId: string;
@@ -33,7 +33,7 @@ export type Post = {
 
   // Relations
   category?: PostCategory;
-  author?: User;
+  author?: TUser;
   votes?: Vote[];
   comments?: Comment[];
   postRatings?: PostRating[];
@@ -63,7 +63,7 @@ export type Vote = {
   vType: VoteType;
   createdAt: Date;
   updatedAt: Date;
-  voter?: User;
+  voter?: TUser;
 };
 
 export type Comment = {
@@ -73,7 +73,7 @@ export type Comment = {
   comment: string;
   createdAt: Date;
   updatedAt: Date;
-  commenter?: User;
+  commenter?: TUser;
 };
 
 export type PostRating = {
@@ -104,7 +104,7 @@ export interface PostsResponse {
       limit: number;
       totalPages: number;
     };
-    data: Post[];
+    data: TPost[];
   };
 }
 
