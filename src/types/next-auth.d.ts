@@ -11,11 +11,13 @@ declare module "next-auth" {
       image?: string | null;
       role?: TRole;
       accessToken?: string;
+      refreshToken?: string;
     };
   }
 
   interface User {
     accessToken?: string;
+    refreshToken?: string;
     role?: string | null;
   }
 }
@@ -23,6 +25,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string;
+    refreshToken?: string;
     role?: string | null;
   }
 }

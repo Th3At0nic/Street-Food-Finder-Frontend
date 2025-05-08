@@ -8,11 +8,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing token" }, { status: 400 });
   }
 
-  (await cookies()).set("refresh_token", refreshToken, {
+  cookies().set("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/"
   });
 

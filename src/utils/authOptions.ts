@@ -5,25 +5,37 @@ import CredentialProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
 import { TRole } from "@/types";
 
-import { cookies } from "next/headers";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const refreshAccessToken = async (token: any) => {
   try {
-    const refreshToken = (await cookies()).get("refresh_token")?.value;
+    // Use the refresh token from the token object
+    const refreshToken = token.refreshToken;
     console.log({ refreshToken });
-    if (!refreshToken) throw new Error("Missing refresh token cookie");
+    if (!refreshToken) throw new Error("Missing refresh token");
 
+    // Make API call to refresh token
     const res = await fetch(`${config.backend_url}/auth/refresh-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Cookie: `refreshToken=${refreshToken}`
-      }
+      },
+      body: JSON.stringify({ refreshToken }) // Some backends require this in the body
     });
 
     const result = await res.json();
     if (!res.ok || !result.success) throw result;
+
+    // Set the cookie via API route for future requests
+    await fetch(`${config.public_url}/api/auth/set-refresh-cookie`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        refreshToken: result.data.refreshToken || refreshToken
+      })
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decoded = jwtDecode(result.data.accessToken) as any;
@@ -31,6 +43,7 @@ const refreshAccessToken = async (token: any) => {
     return {
       ...token,
       accessToken: result.data.accessToken,
+      refreshToken: result.data.refreshToken || token.refreshToken,
       accessTokenExpires: decoded.exp * 1000
     };
   } catch (err) {
@@ -59,19 +72,14 @@ export const authOptions: NextAuthOptions = {
           body: JSON.stringify(credentials)
         });
         const setCookieHeader = res.headers.get("set-cookie");
+        let refreshToken = null;
 
         if (setCookieHeader) {
           const refreshCookies = setCookieHeader.split(";");
           const refreshTokenCookie = refreshCookies.find((cookie) => cookie.trim().startsWith("refreshToken="));
           if (refreshTokenCookie) {
-            const refreshToken = refreshTokenCookie.split("=")[1].split(";")[0];
-            (await cookies()).set("refresh_token", refreshToken, {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "lax",
-              maxAge: 60 * 60 * 24 * 7,
-              path: "/"
-            });
+            refreshToken = refreshTokenCookie.split("=")[1].split(";")[0];
+            // We'll use this refreshToken in the session/token
           }
         }
 
@@ -84,7 +92,11 @@ export const authOptions: NextAuthOptions = {
 
         if (userDecoded) {
           console.log({ userDecoded });
-          return { ...(userDecoded as User), accessToken: result.data.accessToken };
+          return {
+            ...(userDecoded as User),
+            accessToken: result.data.accessToken,
+            refreshToken: refreshToken || result.data.refreshToken
+          };
         }
         return null;
       }
@@ -129,14 +141,8 @@ export const authOptions: NextAuthOptions = {
           user.role = userDecoded.role;
           user.name = userDecoded.name;
         }
-        // save the cookie by calling the setRefreshCookie function
-        (await cookies()).set("refresh_token", result.data.refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          maxAge: 60 * 60 * 24 * 7,
-          path: "/"
-        });
+        // Store the refresh token in the user object to be passed to the token
+        user.refreshToken = result.data.refreshToken;
         return true;
       } catch (err) {
         console.log(err);
@@ -150,12 +156,27 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name;
         token.image = user.image;
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
         token.role = user.role;
+
+        // Parse the token to set the expiration time
+        if (user.accessToken) {
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const decoded = jwtDecode(user.accessToken) as any;
+            token.accessTokenExpires = decoded.exp * 1000;
+          } catch (error) {
+            console.error("Failed to decode accessToken", error);
+          }
+        }
       }
-      if (Date.now() < (token.accessTokenExpires as number)) {
+
+      // If token is still valid, return it
+      if (token.accessTokenExpires && Date.now() < (token.accessTokenExpires as number)) {
         return token;
       }
 
+      // If token has expired, refresh it
       return await refreshAccessToken(token);
     },
     async session({ session, token }) {
@@ -173,5 +194,16 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login"
   },
-  secret: config.next_auth_secret
+  secret: config.next_auth_secret,
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production"
+      }
+    }
+  }
 };
