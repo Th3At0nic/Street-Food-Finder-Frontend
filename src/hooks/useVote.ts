@@ -109,6 +109,11 @@ export function useVote(post: Post) {
       }
 
       // Make API call
+      const payload = {
+        postId: post.pId,
+        vType: voteType
+      };
+      console.log({ payload });
       const response = await voteOnPost({
         postId: post.pId,
         vType: voteType
