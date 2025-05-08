@@ -25,9 +25,11 @@ export function useVote(post: Post) {
         setIsLoading(true);
         // Get vote counts for the post
         const voteCounts = await getVoteCounts({ postId: post.pId });
-        setUpVoteCount(voteCounts.upVoteCount);
-        setDownVoteCount(voteCounts.downVoteCount);
-        setVoteCount(voteCounts.upVoteCount - voteCounts.downVoteCount);
+        if (voteCounts) {
+          setUpVoteCount(voteCounts.upVoteCount);
+          setDownVoteCount(voteCounts.downVoteCount);
+          setVoteCount(voteCounts.upVoteCount - voteCounts.downVoteCount);
+        }
 
         // Check if current user has voted, but only if they're logged in
         if (session?.user?.id) {
