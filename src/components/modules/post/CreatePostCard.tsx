@@ -123,7 +123,7 @@ export function CreatePostCard() {
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
                             <Button
-                                className="rounded-full bg-orange-500 cursor-pointer hover:bg-orange-600"
+                                className="rounded-full 0 cursor-pointer hover:bg-orange-600"
                             >
                                 Share a post...
                             </Button>

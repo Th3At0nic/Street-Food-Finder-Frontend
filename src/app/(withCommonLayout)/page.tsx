@@ -8,14 +8,14 @@ import Link from "next/link";
 export default function HomePage() {
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold mb-4">
             Discover Hidden Street Food Gems
           </h1>
-          <p className="text-gray-600 text-lg mb-8">
+          <p className=" text-lg mb-8">
             Find, review, and share your favorite street food spots
           </p>
 
@@ -26,7 +26,7 @@ export default function HomePage() {
         {/* Trending Spots */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">Trending Spots</h2>
+            <h2 className="text-2xl font-semibold ">Trending Spots</h2>
             <Link href="/spots" className="text-orange-600 hover:text-orange-700 flex items-center">
               See all
               <ChevronRight className="h-4 w-4 ml-1" />
@@ -41,14 +41,14 @@ export default function HomePage() {
         </section>
 
         {/* Premium Section */}
-        <section className="bg-orange-50 rounded-xl p-8">
+        <section className="bg-orange-300 rounded-xl p-8">
           <div className="flex items-center gap-4 mb-6">
             <Sparkles className="h-8 w-8 text-orange-600" />
-            <h2 className="text-2xl font-semibold text-gray-900">Premium Spots</h2>
+            <h2 className="text-2xl font-semibold ">Premium Spots</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-gray-100 rounded-lg shadow-sm p-6">
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-20 w-20 bg-gray-200 rounded-lg"></div>
                 <div>
