@@ -9,10 +9,10 @@ import {
     Settings,
     FileText,
     Lock,
+    CalendarDays,
 } from "lucide-react";
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
-
 
 
 const adminNavItems = [
@@ -64,6 +64,11 @@ const userNavItems = [
         icon: <List className="h-4 w-4" />,
 
         count: 5 // Pending items
+    },
+    {
+        title:"Payment History",
+        href:"/admin/dashboard/paymentHistory",
+        icon: <CalendarDays className="h-4 w-4"></CalendarDays>
     },
     {
         title: "Profile Settings",
