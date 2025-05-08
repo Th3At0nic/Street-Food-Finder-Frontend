@@ -8,8 +8,8 @@ import { signOutUser } from "@/lib/auth/signOutUser";
 import Logo from "./Logo";
 
 export default function Navbar() {
-  const { status } = useSession();
- 
+  const { data, status } = useSession();
+
 
   return (
     <nav className="bg-white shadow-sm">
@@ -32,7 +32,7 @@ export default function Navbar() {
           {
             status === 'authenticated' ? (
               <div className="flex justify-center items-center">
-                <Link href={'/dashboard'}>
+                <Link href={`${data.user.role?.toLocaleLowerCase()}/dashboard`}>
                   <Button variant="outline">Dashboard</Button>
                 </Link>
                 <Button onClick={() => signOutUser()} variant="outline"><LogOut className="h-4 w-4" /></Button>

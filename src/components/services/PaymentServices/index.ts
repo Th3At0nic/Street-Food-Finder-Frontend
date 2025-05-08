@@ -15,7 +15,9 @@ export async function verifyPaymentAction(spOrderId: string) {
       },
       body: JSON.stringify({ spOrderId })
     });
-    await response.json();
+    const result = await response.json();
+    console.log({ result });
+    return result;
   } catch (error: unknown) {
     throw error;
   }

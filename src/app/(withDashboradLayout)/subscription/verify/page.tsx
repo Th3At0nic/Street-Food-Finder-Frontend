@@ -60,8 +60,7 @@ export default function SubscriptionVerification() {
             if (spOrderId) {
                 try {
                     const result = await verifyPaymentAction(spOrderId);
-                    setData(result);
-                    console.log({ result });
+                    setData(result.data);
                 } catch (error) {
                     console.error("Payment verification failed:", error);
                 } finally {
@@ -72,8 +71,8 @@ export default function SubscriptionVerification() {
         verifyShurjoPayment();
     }, [spOrderId])
 
-    const orderData: OrderData | null = data?.data?.length ? data.data[0] : null;
-
+    const orderData: OrderData | null = data ? data : null;
+    console.log({ orderData });
     return isLoading ? (
         <Skeleton />
     ) : (
