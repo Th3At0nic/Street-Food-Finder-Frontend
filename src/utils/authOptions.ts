@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import config from "@/config";
 import { NextAuthOptions, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
@@ -5,7 +6,6 @@ import CredentialProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
 import { TRole } from "@/types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const refreshAccessToken = async (token: any) => {
   try {
     // Use the refresh token from the token object
@@ -20,13 +20,12 @@ const refreshAccessToken = async (token: any) => {
         "Content-Type": "application/json",
         Cookie: `refreshToken=${refreshToken}`
       },
-      body: JSON.stringify({ refreshToken }) // Some backends require this in the body
+      body: JSON.stringify({ refreshToken })
     });
 
     const result = await res.json();
     if (!res.ok || !result.success) throw result;
 
-    // Set the cookie via API route for future requests
     await fetch(`${config.public_url}/api/auth/set-refresh-cookie`, {
       method: "POST",
       headers: {
@@ -37,11 +36,11 @@ const refreshAccessToken = async (token: any) => {
       })
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decoded = jwtDecode(result.data.accessToken) as any;
-
+    console.log("Decoded access token after refresh:", decoded);
     return {
       ...token,
+      role: decoded.role,
       accessToken: result.data.accessToken,
       refreshToken: result.data.refreshToken || token.refreshToken,
       accessTokenExpires: decoded.exp * 1000
@@ -149,7 +148,11 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      if (trigger == "update") {
+        return await refreshAccessToken(token);
+      }
+
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -162,7 +165,6 @@ export const authOptions: NextAuthOptions = {
         // Parse the token to set the expiration time
         if (user.accessToken) {
           try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const decoded = jwtDecode(user.accessToken) as any;
             token.accessTokenExpires = decoded.exp * 1000;
           } catch (error) {

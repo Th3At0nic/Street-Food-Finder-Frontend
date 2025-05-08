@@ -14,9 +14,9 @@ export default function AdminLayout({
 
   const { data } = useSession();
 
-
+  const role = data?.user.role;
   return (
-    <AuthGuard role={data!.user.role as TRole}>
+    <AuthGuard role={role as TRole}>
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Mobile padding fix */}

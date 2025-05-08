@@ -1,7 +1,7 @@
 "use client";
 
 import Loader from "@/components/shared/Loader";
-import { TRole } from "@/types";
+import { TRole, UserRole } from "@/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -17,8 +17,12 @@ export default function AuthGuard({ role, children }: { role: TRole, children: R
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/login");
-        } else if (status === "authenticated" && data?.user?.role !== role) {
-            router.push("/user/dashboard");
+        } else if (status === "authenticated") {
+            console.log(role, data.user.role);
+            if (role === UserRole.PREMIUM_USER) {
+                router.push(`/user/dashboard`);
+            }
+            else router.push(`/${role?.toLocaleLowerCase()}/dashboard`);
         }
     }, [status, data, role, router]);
 

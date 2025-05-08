@@ -10,42 +10,50 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IPaymentData } from "@/types/payment.types";
+import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 
 export default function SubscriptionVerification() {
     const searchParams = useSearchParams();
+    const spOrderId = searchParams.get("order_id");
+
     const [data, setData] = useState<IPaymentData | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const { update } = useSession();
+
+    const hasVerifiedRef = useRef(false);
 
     useEffect(() => {
-        const spPaymentId = searchParams.get("order_id");
-        const verifyShurjoPayment = async () => {
-            if (spPaymentId) {
-                try {
-                    const result = await verifyPaymentAction(spPaymentId);
-                    if (result.success) {
-                        setData(result.data);
-                    } else {
-                        toast.error(result.message);
-                        setErrorMessage(result.message);
-                    }
-                } catch (error) {
-                    console.error("Payment verification failed:", error);
-                } finally {
-                    setIsLoading(false);
+        if (!spOrderId || hasVerifiedRef.current) {
+            return;
+        }
+
+        const verifyAndRefresh = async () => {
+            try {
+                const result = await verifyPaymentAction(spOrderId);
+                if (result.success) {
+                    setData(result.data);
+                } else {
+                    toast.error(result.message);
+                    setErrorMessage(result.message);
                 }
-            } else {
+            } catch (err) {
+                console.error("Payment verification failed:", err);
+                setErrorMessage("Verification failed.");
+            } finally {
                 setIsLoading(false);
-                setErrorMessage("No sp_order_id found in URL");
+                hasVerifiedRef.current = true;
             }
         };
 
-        verifyShurjoPayment();
-    }, [searchParams]);
+        verifyAndRefresh();
+    }, [spOrderId, update]);
+
+
 
     const paymentData: IPaymentData | null = data ? data : null;
     console.log({ paymentData });
