@@ -18,6 +18,7 @@ import {
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
 import { BiCategory } from "react-icons/bi";
+import { usePathname } from "next/navigation";
 
 const adminNavItems = [
     {
@@ -102,7 +103,7 @@ const userNavItems = [
 
 export function SideBar({ role }: { role: TRole }) {
     const { isOpen, toggleSidebar } = useSidebar();
-
+    const pathname = usePathname();
     return (
         <>
             <nav
@@ -119,8 +120,9 @@ export function SideBar({ role }: { role: TRole }) {
                                 href={item.href}
                                 className={cn(
                                     "flex items-center justify-between gap-3 rounded-md px-3 py-2",
-                                    "text-sm font-medium hover:bg-gray-100 transition-colors",
-                                    "text-gray-600 hover:"
+                                    "text-sm font-medium hover:text-accent-foreground transition-colors",
+                                    "text-gray-600 hover:bg-accent",
+                                    pathname === item.href && "bg-accent text-accent-foreground"
                                 )}
                                 onClick={toggleSidebar}
                             >
