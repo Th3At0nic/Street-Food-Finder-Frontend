@@ -216,53 +216,6 @@ export default function ModerationPage() {
         </CardContent>
       </Card>
 
-      {/* Reported Comments Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-red-600" />
-            Reported Comments
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Comment</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Post</TableHead>
-                <TableHead>Reports</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reportedComments.map((comment) => (
-                <TableRow key={comment.id}>
-                  <TableCell className="max-w-[300px] truncate">
-                    {comment.content}
-                  </TableCell>
-                  <TableCell>{comment.author}</TableCell>
-                  <TableCell>{comment.post}</TableCell>
-                  <TableCell>
-                    <Badge variant="destructive">{comment.reports}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      <Button size="sm" variant="ghost">
-                        Approve
-                      </Button>
-                      <Button size="sm" variant="destructive">
-                        Delete
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
       {/* Pagination Controls */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-500">

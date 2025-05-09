@@ -11,9 +11,6 @@ export const getAllPosts = async () => {
     const res = await fetch(`${config.backend_url}/posts`, {
       headers: {
         Authorization: `Bearer ${session?.user.accessToken}`
-      },
-      next: {
-        tags: ["Posts"]
       }
     });
 
@@ -22,7 +19,7 @@ export const getAllPosts = async () => {
     }
 
     const postsResult = await res.json();
-
+    revalidateTag("Posts");
     return postsResult.data;
   } catch (error) {
     console.error(error);

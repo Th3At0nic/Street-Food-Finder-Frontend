@@ -12,6 +12,7 @@ import {
 } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
+import { revalidateTag } from "next/cache";
 export async function fetchPosts(params: {
   page: number;
   limit?: number;
@@ -51,6 +52,7 @@ export async function fetchPosts(params: {
     }
     const { data, meta } = responseData.data;
     console.log(data[0], meta);
+   
     return {
       posts: data,
       hasMore: page < meta.totalPages,
@@ -93,6 +95,9 @@ export async function createPost(postFormData: FormData) {
   const session = await getServerSession(authOptions);
   try {
     const response = await fetch(`${config.backend_url}/posts`, {
+      next:{
+        tags:["Posts"]
+      },
       method: "POST",
       headers: {
         Authorization: `Bearer ${session?.user.accessToken}`
