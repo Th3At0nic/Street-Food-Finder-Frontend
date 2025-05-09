@@ -7,13 +7,16 @@ import { getServerSession } from "next-auth";
 
 export async function createOrUpdatePostCategory(postCategory: TPostCategory) {
   const session = await getServerSession(authOptions);
+
   console.log({ plan: postCategory });
+  const payload: Partial<TPostCategory> = { name: postCategory.name };
   try {
     let postCategoryApiUrl = `${config.backend_url}/post-categories`;
     let method = "POST";
     if (postCategory.catId) {
       postCategoryApiUrl = `${config.backend_url}/post-categories/${postCategory.catId}`;
       method = "PATCH";
+      payload["catId"] = postCategory.catId;
     }
     const response = await fetch(`${postCategoryApiUrl}`, {
       method,
@@ -21,7 +24,7 @@ export async function createOrUpdatePostCategory(postCategory: TPostCategory) {
         Authorization: `Bearer ${session?.user.accessToken}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(postCategory)
+      body: JSON.stringify(payload)
     });
     const result: IResponse<TPostCategory> = await response.json();
     console.log({ result });
