@@ -26,8 +26,8 @@ export default function HomePage() {
         {/* Trending Spots */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold ">Trending Spots</h2>
-            <Link href="/spots" className="text-orange-600 hover:text-orange-700 flex items-center">
+            <h2 className="text-2xl font-semibold ">Trending Posts</h2>
+            <Link href="/posts" className="text-orange-600 hover:text-orange-700 flex items-center">
               See all
               <ChevronRight className="h-4 w-4 ml-1" />
             </Link>

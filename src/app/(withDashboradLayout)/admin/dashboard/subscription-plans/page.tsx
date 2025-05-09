@@ -34,13 +34,14 @@ import { SubscriptionPlanModal } from "@/components/modules/subscriptionPlans/cr
 import { IMeta, SubscriptionPlanStatus, TSubscriptionPlan } from "@/types";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
 import { Skeleton } from "@/components/ui/skeleton"; // Import skeleton component
+import { PaginationComponent } from "@/components/shared/PaginationComponent";
 
 export default function SubscriptionPlanManagementPage() {
   const [selectedStatus, setSelectedStatus] = useState<SubscriptionPlanStatus | undefined>(undefined);
   const [subscriptionPlans, setSubscriptionPlans] = useState<TSubscriptionPlan[]>([]);
-  const [meta, setMeta] = useState<IMeta | null>(null);
   const [page, setPage] = useState(1);
   const [limit] = useState(7);
+  const [meta, setMeta] = useState<IMeta>({ page, limit, total: 0, totalPages: 1 });
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTableLoading, setIsTableLoading] = useState(false);
@@ -230,32 +231,13 @@ export default function SubscriptionPlanManagementPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        {isTableLoading ? (
-          <Skeleton className="h-4 w-[200px]" />
-        ) : (
-          <div className="text-sm text-gray-500">
-            Showing {(meta?.page || 0) * (meta?.limit || limit) - (meta?.limit || limit) + 1} -
-            {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total || 0} plans
-          </div>
-        )}
-        <div className="flex gap-2">
-          <Button
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            variant="outline"
-            disabled={page <= 1 || isTableLoading}
-          >
-            Previous
-          </Button>
-          <Button
-            onClick={() => setPage((prev) => prev + 1)}
-            variant="outline"
-            disabled={page >= (meta?.totalPages || 1) || isTableLoading}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <PaginationComponent
+        isTableLoading={isTableLoading}
+        meta={meta}
+        setPage={setPage}
+        page={page}
+        tableContentName="plans"
+      />
 
       {/* Create/Update Plan Modal */}
       <SubscriptionPlanModal

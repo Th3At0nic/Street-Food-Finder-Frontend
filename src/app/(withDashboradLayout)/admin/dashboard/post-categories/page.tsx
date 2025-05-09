@@ -22,13 +22,14 @@ import { createOrUpdatePostCategory, deletePostCategory } from "@/components/ser
 import { DeleteConfirmationModal } from "@/components/modules/deleteModal/deleteConfirmationModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
+import { PaginationComponent } from "@/components/shared/PaginationComponent";
 
 export default function PostCategoryPage() {
   const [postCategories, setPostCategories] = useState<TPostCategory[]>([]);
-  const [meta, setMeta] = useState<IMeta | null>();
   const [page, setPage] = useState(1);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [limit, setLimit] = useState(7);
+  const [meta, setMeta] = useState<IMeta>({ page, limit, total: 0, totalPages: 1 });
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -232,20 +233,15 @@ export default function PostCategoryPage() {
         </div>
       </div>
 
+
       {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-gray-500">
-          Showing {((meta?.page || 0) - 1) * (meta?.limit || limit) + 1} - {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total} subscription plans
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setPage(page - 1)} variant="outline" disabled={meta?.page === 1}>
-            Previous
-          </Button>
-          <Button onClick={() => setPage(page + 1)} variant="outline" disabled={meta?.page === meta?.totalPages || meta?.totalPages === 1}>
-            Next
-          </Button>
-        </div>
-      </div>
+      <PaginationComponent
+        isTableLoading={isTableLoading}
+        meta={meta}
+        setPage={setPage}
+        page={page}
+        tableContentName="post categories"
+      />
       <PostCategoryModal
         open={open}
         onOpenChange={setOpen}

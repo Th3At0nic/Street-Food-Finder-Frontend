@@ -12,6 +12,7 @@ import {
 } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
+import { CommentStatus, IComment } from "@/types/comments.types";
 export async function fetchPosts(params: {
   page: number;
   limit?: number;
@@ -157,8 +158,15 @@ export async function commentOnPost(params: { postId: string; comment: string })
 }
 
 // update comment
-export async function updateComment(params: { commentId: string; comment: string }) {
+export async function updateComment(params: { commentId: string; comment?: string; status?: CommentStatus }) {
   const session = await getServerSession(authOptions);
+  const payload: Partial<IComment> = {};
+  if (params.comment) {
+    payload.comment = params.comment;
+  }
+  if (params.status) {
+    payload.status = params.status;
+  }
   try {
     const response = await fetch(`${config.backend_url}/comments/${params.commentId}`, {
       method: "PATCH",
@@ -166,7 +174,7 @@ export async function updateComment(params: { commentId: string; comment: string
         Authorization: `Bearer ${session?.user.accessToken}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ comment: params.comment })
+      body: JSON.stringify(payload)
     });
     const result = await response.json();
     console.log({ result });

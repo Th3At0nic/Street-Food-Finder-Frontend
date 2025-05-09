@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
-import { BiCategory } from "react-icons/bi";
+import { BiCategory, BiCommentCheck } from "react-icons/bi";
 import { usePathname } from "next/navigation";
 
 const adminNavItems = [
@@ -54,9 +54,9 @@ const adminNavItems = [
         icon: < DollarSign className="h-4 w-4"></DollarSign>
     },
     {
-        title: "Comment Management",
-        href: "/admin/dashboard/reported-comment",
-        icon: <User className="h-4 w-4"></User>,
+        title: "Comment Moderation",
+        href: "/admin/dashboard/comment-moderation",
+        icon: <BiCommentCheck className="h-4 w-4"></BiCommentCheck>,
     },
     {
         title: "Content Audit",
@@ -121,7 +121,7 @@ export function SideBar({ role }: { role: TRole }) {
                                 className={cn(
                                     "flex items-center justify-between gap-3 rounded-md px-3 py-2",
                                     "text-sm font-medium hover:text-accent-foreground transition-colors",
-                                    "text-gray-600 hover:bg-accent",
+                                    " hover:bg-accent",
                                     pathname === item.href && "bg-accent text-accent-foreground"
                                 )}
                                 onClick={toggleSidebar}
