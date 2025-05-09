@@ -17,13 +17,83 @@ import {
 } from "lucide-react";
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
+import { BiCategory } from "react-icons/bi";
 
 const adminNavItems = [
   {
     title: "Dashboard",
     href: "/admin/dashboard",
     icon: <List className="h-4 w-4" />,
+        count: 5 // Pending items
+    },
+    {
+        title: "Moderation",
+        href: "/admin/dashboard/moderation",
+        icon: <Shield className="h-4 w-4" />,
+        count: 5 // Pending items
+    },
+    {
+        title: "User Management",
+        href: "/admin/dashboard/users",
+        icon: <Users className="h-4 w-4" />
+    },
+    {
+        title: "Post-category Management",
+        href: "/admin/dashboard/post-categories",
+        icon: <BiCategory className="h-4 w-4" />
+    },
+    {
+        title: "Subscription Management",
+        href: "/admin/dashboard/subscription-plans",
+        icon: <GrPlan className="h-4 w-4" />
+    },
+    {
+        title: "Make Premium ",
+        href: "/admin/dashboard/make-premium",
+        icon: < DollarSign className="h-4 w-4"></DollarSign>
+    },
+    {
+        title: "Content Audit",
+        href: "/admin/dashboard/audit",
+        icon: <FileText className="h-4 w-4" />
+    },
+    {
+        title: "Reports",
+        href: "/admin/dashboard/analytics",
+        icon: <AlertCircle className="h-4 w-4" />,
+        count: 3
+    },
+    {
+        title: "Permissions",
+        href: "/admin/dashboard/permissions",
+        icon: <Lock className="h-4 w-4" />
+    },
+    {
+        title: "Admin Settings",
+        href: "/admin/dashboard/settings",
+        icon: <Settings className="h-4 w-4" />
+    }
+];
 
+const userNavItems = [
+    {
+        title: "Dashboard",
+        href: "/user/dashboard",
+        icon: <List className="h-4 w-4" />,
+
+        count: 5 // Pending items
+    },
+    {
+        title: "Payment History",
+        href: "/user/dashboard/payment-history",
+        icon: <BadgeDollarSign className="h-4 w-4" />
+    },
+    {
+        title: "Profile Settings",
+        href: "/user/dashboard/settings",
+        icon: <Settings className="h-4 w-4" />
+    }
+]
     count: 5, // Pending items
   },
   {

@@ -1,6 +1,15 @@
 "use server";
 import { getServerSession } from "next-auth";
-import { TPost, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse, PostType } from "@/types";
+import {
+  TPost,
+  TPostCategory,
+  PostsResponse,
+  PostStatus,
+  VoteCountResponse,
+  VoteResponse,
+  PostType,
+  IMeta
+} from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
 import { revalidateTag } from "next/cache";
@@ -58,18 +67,11 @@ export async function fetchPosts(params: {
 }
 
 // fetch post categories
-export async function fetchPostCategories(
-  page = 1,
-  limit = 10
-): Promise<{
-  categories: PostCategory[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+export async function fetchPostCategories(params: { page: number; limit: number }): Promise<{
+  categories: TPostCategory[];
+  meta: IMeta;
 }> {
+  const { page = 1, limit = 7 } = params;
   try {
     const response = await fetch(`${config.backend_url}/post-categories?page=${page}&limit=${limit}`);
     if (!response.ok) {

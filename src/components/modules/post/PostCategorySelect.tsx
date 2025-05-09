@@ -21,7 +21,7 @@ export default function PostCategorySelect({ handleCategoryChange }: PostCategor
         meta,
     } = usePaginatedFetch({
         fetchFn: async (page) => {
-            const { categories, meta } = await fetchPostCategories(page, 10);
+            const { categories, meta } = await fetchPostCategories({ page, limit: 10 });
             const mapped = categories.map((c) => ({
                 value: c.catId,
                 label: c.name,
