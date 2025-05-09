@@ -4,6 +4,7 @@ import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
+import { toast } from "sonner";
 
 export const getAllUsers = async () => {
   const session = await getServerSession(authOptions);
@@ -41,7 +42,7 @@ export const getSingleUser = async () => {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch user");
+      toast.error("failed to fetch users")
     }
 
     const userResult = await res.json();

@@ -25,7 +25,7 @@ import {
   updatePost,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { Post, PostStatus, TPost } from "@/types";
+import { Post, PostStatus } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
 
@@ -64,7 +64,7 @@ const reportedComments = [
 ];
 
 export default function ModerationPage() {
-  const [pending, setPending] = useState<TPost[]>([]);
+  const [pending, setPending] = useState<Post[]>([]);
   const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export default function ModerationPage() {
     // Add API call here
     const result = await updatePost(postId, body.status);
     console.log(result);
-    if (typeof result !== "string" && result?.statusCode === 200) {
+    if (result.statusCode === 200) {
       toast.success("post Approve sucessfully");
     }
   };
@@ -113,14 +113,14 @@ export default function ModerationPage() {
           <div className="space-y-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Shield className="h-5 w-5 text-red-600" />
-              Pending Posts Approval
+              Make Approved Post Premium
             </CardTitle>
             <div className="text-sm text-gray-500">
               {pending.length} posts awaiting moderation
             </div>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            {/* <Select value={filterType} onValueChange={setFilterType}>
+            <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
@@ -129,7 +129,7 @@ export default function ModerationPage() {
                 <SelectItem value="normal">Normal Posts</SelectItem>
                 <SelectItem value="premium">Premium Posts</SelectItem>
               </SelectContent>
-            </Select> */}
+            </Select>
             <div className="relative w-full sm:w-[240px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input placeholder="Search posts..." className="pl-10" />
@@ -152,7 +152,7 @@ export default function ModerationPage() {
               <>
                 <TableRow>
                   <TableCell colSpan={6} className="text-center">
-                    <NoPost h="h-20" w="w-20" title="No Pending Post Yet" />
+                    <NoPost h="h-20" w="w-20" title="No Approved Post Yet" />
                   </TableCell>
                 </TableRow>
               </>

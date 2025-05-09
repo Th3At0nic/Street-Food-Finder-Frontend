@@ -12,6 +12,7 @@ import {
     FileText,
     Lock,
     BadgeDollarSign,
+    DollarSign,
 } from "lucide-react";
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
@@ -37,9 +38,9 @@ const adminNavItems = [
         icon: <Users className="h-4 w-4" />
     },
     {
-        title: "Subscription Management",
-        href: "/admin/dashboard/subscription-plans",
-        icon: <GrPlan className="h-4 w-4" />
+        title:"Make Premium ",
+        href:"/admin/dashboard/makePremium",
+        icon: < DollarSign className="h-4 w-4"></DollarSign>
     },
     {
         title: "Content Audit",
