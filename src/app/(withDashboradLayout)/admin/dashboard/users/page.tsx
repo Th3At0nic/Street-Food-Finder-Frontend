@@ -27,6 +27,7 @@ import {
 } from "@/components/services/AuthService/UserService";
 import { toast } from "sonner";
 import { TUser, UserRole, UserStatus } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function UserManagementPage() {
   const [selectedRole, setSelectedRole] = useState<string>("all");
@@ -90,50 +91,54 @@ export default function UserManagementPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      {/* Header Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <User className="h-6 w-6 text-blue-600" />
-            <span className="text-xl sm:text-2xl">User Management</span>
-          </h2>
-          <p className="text-sm text-gray-500">
-            Manage user accounts and permissions
-          </p>
-        </div>
+      <Card>
+        {/* Header Section */}
+        <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <User className="h-6 w-6 text-blue-600" />
+                <span className="text-xl sm:text-2xl">User Management</span>
+              </CardTitle>
+              <p className="text-sm text-gray-500">
+                Manage user accounts and permissions
+              </p>
+            </div>
 
-        {/* Search and Filter */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
-         
-          <Select value={selectedRole} onValueChange={setSelectedRole}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="All Roles" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="ADMIN">Admin</SelectItem>
-              <SelectItem value="PREMIUM_USER">Premium User</SelectItem>
-              <SelectItem value="USER">User</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="mt-4">
-            Selected Role: <b>{selectedRole}</b>
+            {/* Search and Filter */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input placeholder="Search users..." className="pl-10 w-full" />
+              </div>
+              <Select value={selectedRole} onValueChange={setSelectedRole}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="PREMIUM_USER">Premium User</SelectItem>
+                  <SelectItem value="USER">User</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="mt-4">
+                Selected Role: <b>{selectedRole}</b>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Table Container */}
-      <div className="rounded-lg border overflow-hidden">
-        <div className="overflow-x-auto">
+        </CardHeader>
+        {/* Table Container */}
+        <CardContent>
           <Table className="min-w-[600px]">
             <TableHeader className="bg-accent">
-              <TableRow>
-                <TableHead className="w-[30%]">Email</TableHead>
+              <TableRow className="font-bold">
+                <TableHead className="w-[30%] rounded-l-lg">Email</TableHead>
                 <TableHead className="w-[20%]">User Name</TableHead>
                 <TableHead className="w-[10%]">Role</TableHead>
                 <TableHead className="w-[10%]">Status</TableHead>
                 <TableHead className="w-[15%]">Posts</TableHead>
-                <TableHead className="w-[10%] text-right">Actions</TableHead>
+                <TableHead className="w-[10%] text-right] rounded-r-lg">Actions</TableHead>
 
               </TableRow>
             </TableHeader>
@@ -206,9 +211,8 @@ export default function UserManagementPage() {
               ))}
             </TableBody>
           </Table>
-        </div>
-      </div>
-
+        </CardContent>
+      </Card>
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
