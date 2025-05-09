@@ -38,6 +38,11 @@ const adminNavItems = [
         icon: <Users className="h-4 w-4" />
     },
     {
+        title: "Subscription Management",
+        href: "/admin/dashboard/subscription-plans",
+        icon: <GrPlan className="h-4 w-4" />
+    },
+    {
         title:"Make Premium ",
         href:"/admin/dashboard/makePremium",
         icon: < DollarSign className="h-4 w-4"></DollarSign>
