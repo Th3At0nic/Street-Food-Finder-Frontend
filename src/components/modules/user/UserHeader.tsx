@@ -12,7 +12,7 @@ export function UserHeader() {
   const { isOpen, toggleSidebar } = useSidebar();
 
   return (
-    <header className="bg-white shadow-sm border-b z-[60] sticky top-0">
+    <header className="bg-white dark:bg-accent shadow-sm border-b z-[60] sticky top-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button

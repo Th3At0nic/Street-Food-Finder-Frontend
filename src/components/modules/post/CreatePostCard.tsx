@@ -133,7 +133,7 @@ export function CreatePostCard() {
             />
             <AvatarFallback>{session?.user?.name?.[0] || "U"}</AvatarFallback>
           </Avatar>
-         
+
         </div>
         <div className="flex items-center justify-center space-x-3">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -146,16 +146,17 @@ export function CreatePostCard() {
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[500px]">
-              <form onSubmit={handleSubmit}>
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] p-0 flex flex-col">
+              <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+                <DialogHeader className="p-6 pb-2">
                   <DialogTitle>Share a post</DialogTitle>
                   <DialogDescription>
                     Tell others about an amazing street food find!
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-4 py-4">
+                {/* Scrollable form body */}
+                <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-6">
                   <div className="grid gap-2">
                     <Label htmlFor="title">Title</Label>
                     <Input
@@ -182,9 +183,7 @@ export function CreatePostCard() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="category">Category</Label>
-                    <PostCategorySelect
-                      handleCategoryChange={handleCategoryChange}
-                    />
+                    <PostCategorySelect handleCategoryChange={handleCategoryChange} />
                   </div>
 
                   <div className="grid gap-2">
@@ -240,18 +239,15 @@ export function CreatePostCard() {
                       onChange={handleImageUpload}
                       className="cursor-pointer"
                     />
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="grid grid-cols-4 gap-2">
                       {formData.images.map((image, index) => (
-                        <div
-                          key={index}
-                          className="h-16 w-16 rounded overflow-hidden"
-                        >
+                        <div key={index} className="h-16 w-16 rounded overflow-hidden">
                           <Image
                             src={URL.createObjectURL(image)}
                             alt={`Upload ${index + 1}`}
                             className="h-full w-full object-cover"
-                            width={40}
-                            height={40}
+                            width={64}
+                            height={64}
                           />
                         </div>
                       ))}
@@ -259,8 +255,10 @@ export function CreatePostCard() {
                   </div>
                 </div>
 
-                <DialogFooter>
-                  <Button type="submit">Post</Button>
+                <DialogFooter className="p-4 border-t">
+                  <Button type="submit" className="w-full">
+                    Post
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
