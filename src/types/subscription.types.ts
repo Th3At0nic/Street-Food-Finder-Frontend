@@ -15,6 +15,8 @@ export interface Data {
 export interface TSubscriptionPlan {
   spId: string;
   name: string;
+  description?: string;
+  features?: string[];
   fee: number;
   duration: number;
   status: string;

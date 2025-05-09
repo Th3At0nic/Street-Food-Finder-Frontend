@@ -18,26 +18,65 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, Pencil, Check } from "lucide-react";
+import { Search, Pencil, PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { SubscriptionPlanStatus, TSubscriptionPlan } from "@/types";
-import { fetchSubscriptionPlans } from "@/components/services/SubscriptionPlanServices";
+import { IMeta, SubscriptionPlanStatus, TSubscriptionPlan } from "@/types";
+import { createOrUpdateSubscriptionPlan, fetchSubscriptionPlans } from "@/components/services/SubscriptionPlanServices";
 import { formatDate } from "date-fns";
 import { GrPlan } from "react-icons/gr";
+import { toast } from "sonner";
+import { SubscriptionPlanModal } from "@/components/modules/subscriptionPlans/createSubscriptionModal";
 
 export default function UserManagementPage() {
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [subscriptionPlans, setSubscriptionPlans] = useState<TSubscriptionPlan[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [meta, setMeta] = useState<{
-    limit: number;
-    page: number;
-    total: number;
-  }>();
+  const [meta, setMeta] = useState<IMeta | null>();
+
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState<TSubscriptionPlan | undefined>(undefined);
+
+  const handleCreatePlan = () => {
+    setCurrentPlan(undefined);
+    setOpen(true);
+  };
+
+  const handleEditPlan = (plan: TSubscriptionPlan) => {
+    setCurrentPlan(plan);
+    setOpen(true);
+  };
+
+  const handleSubmit = async (data: TSubscriptionPlan) => {
+    setIsLoading(true);
+    const toastId = toast.loading(`Creating plan ${data.name}...`);
+
+    try {
+      const result = await createOrUpdateSubscriptionPlan(data);
+      console.log({ result });
+      if (currentPlan) {
+        // Update existing plan
+        setSubscriptionPlans(subscriptionPlans.map(plan =>
+          plan.name === currentPlan.name ? result.data : plan
+        ));
+        toast.success(`Successfully updated ${data.name}`, { id: toastId })
+      } else {
+        // Create new plan
+        setSubscriptionPlans([...subscriptionPlans, result.data]);
+        toast.success(`Successfully created ${data.name}`, { id: toastId })
+      }
+
+      setOpen(false);
+    } catch (error) {
+      console.log({ error });
+      toast.error("Something went wrong. Please try again.", { id: toastId })
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const getAllPlans = async () => {
-      const result = await fetchSubscriptionPlans();
+      const result = await fetchSubscriptionPlans({});
       setMeta(result.data.meta);
       setSubscriptionPlans(result.data.data);
     };
@@ -75,6 +114,10 @@ export default function UserManagementPage() {
               <SelectItem value={SubscriptionPlanStatus.IN_ACTIVE}>In-active plans</SelectItem>
             </SelectContent>
           </Select>
+
+          <Button onClick={handleCreatePlan}>
+            <PlusCircle /> Add
+          </Button>
         </div>
       </div>
 
@@ -88,6 +131,7 @@ export default function UserManagementPage() {
                 <TableHead className="w-[8%]">Fee</TableHead>
                 <TableHead className="w-[15%]">Duration</TableHead>
                 <TableHead className="w-[8%]">Status</TableHead>
+                <TableHead className="w-[10%]">Recommended</TableHead>
                 <TableHead className="w-[5%]">Updated At</TableHead>
                 <TableHead className="w-[30%] text-right">Actions</TableHead>
 
@@ -115,6 +159,10 @@ export default function UserManagementPage() {
                       {plan.status}
                     </Badge>
                   </TableCell>
+
+                  <TableCell>
+                    <div className="text-center">{plan.isRecommended ? 'Yes' : 'No'}</div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1 sm:gap-2">
                       {formatDate(plan.updatedAt, "hh:mm:ss dd-MM-yyyy")}
@@ -123,35 +171,13 @@ export default function UserManagementPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1 sm:gap-2">
                       <Button
-                        // onClick={}
+                        onClick={() => handleEditPlan(plan)}
                         size="icon"
                         variant="destructive"
                         className="h-8 w-8 cursor-pointer"
                       >
                         <Pencil />
                       </Button>
-                      {plan?.status === SubscriptionPlanStatus.ACTIVE ? (
-                        <>
-                          {" "}
-                          <Button
-                            // onClick={}
-                            size="icon"
-                            variant="destructive"
-                            className="h-8 w-8 cursor-pointer"
-                          >
-                            <Ban />
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          // onClick={}
-                          size="icon"
-                          variant="secondary"
-                          className="h-8 w-8 cursor-pointer"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -164,7 +190,7 @@ export default function UserManagementPage() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
-          Showing 1-{subscriptionPlans.length} of {subscriptionPlans.length} subscription plans
+          Showing {((meta?.page || 0) - 1) * (meta?.limit || 7) + 1} - {(meta?.page || 0) * (meta?.limit || 7)} of {meta?.total} subscription plans
         </div>
         <div className="flex gap-2">
           <Button variant="outline" disabled>
@@ -175,6 +201,13 @@ export default function UserManagementPage() {
           </Button>
         </div>
       </div>
+      <SubscriptionPlanModal
+        open={open}
+        onOpenChange={setOpen}
+        initialData={currentPlan}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
     </div >
   );
 }
