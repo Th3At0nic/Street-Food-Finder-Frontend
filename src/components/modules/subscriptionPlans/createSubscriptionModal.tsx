@@ -108,8 +108,8 @@ export function SubscriptionPlanModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[525px] max-h-[88vh] mt-8 p-0 flex flex-col">
+                <DialogHeader className="p-6 pb-2">
                     <DialogTitle>
                         {isEditMode ? "Edit Subscription Plan" : "Create Subscription Plan"}
                     </DialogTitle>
@@ -119,102 +119,33 @@ export function SubscriptionPlanModal({
                             : "Enter the details for the new subscription plan."}
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Premium Plan" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Description</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="A detailed description of the subscription plan..."
-                                            {...field}
-                                            value={field.value || ""}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="features"
-                            render={() => (
-                                <FormItem>
-                                    <div className="mb-4">
-                                        <FormLabel>Features</FormLabel>
-                                        <FormDescription>
-                                            Select the features included in this plan
-                                        </FormDescription>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {commonFeatures.map((feature) => (
-                                            <FormField
-                                                key={feature.id}
-                                                control={form.control}
-                                                name="features"
-                                                render={({ field }) => {
-                                                    return (
-                                                        <FormItem
-                                                            key={feature.id}
-                                                            className="flex flex-row items-start space-x-3 space-y-0"
-                                                        >
-                                                            <FormControl>
-                                                                <Checkbox
-                                                                    checked={field.value?.includes(feature.id)}
-                                                                    onCheckedChange={(checked) => {
-                                                                        const currentFeatures = field.value || [];
-                                                                        return checked
-                                                                            ? field.onChange([...currentFeatures, feature.id])
-                                                                            : field.onChange(
-                                                                                currentFeatures.filter(
-                                                                                    (value) => value !== feature.id
-                                                                                )
-                                                                            );
-                                                                    }}
-                                                                />
-                                                            </FormControl>
-                                                            <FormLabel className="font-normal">
-                                                                {feature.label}
-                                                            </FormLabel>
-                                                        </FormItem>
-                                                    );
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-2 gap-4">
+                <div className="flex-1 overflow-y-auto px-6">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                             <FormField
                                 control={form.control}
-                                name="fee"
+                                name="name"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Fee</FormLabel>
+                                        <FormLabel>Name</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="0.00"
+                                            <Input placeholder="Premium Plan" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="A detailed description of the subscription plan..."
                                                 {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                value={field.value || ""}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -223,76 +154,147 @@ export function SubscriptionPlanModal({
                             />
                             <FormField
                                 control={form.control}
-                                name="duration"
-                                render={({ field }) => (
+                                name="features"
+                                render={() => (
                                     <FormItem>
-                                        <FormLabel>Duration (Days)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                placeholder="30"
-                                                {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="status"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Status</FormLabel>
-                                    <FormControl>
-                                        <select
-                                            className="w-full rounded-md border border-input bg-background px-3 py-2"
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                        >
-                                            {subscriptionStatusOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
+                                        <div className="mb-4">
+                                            <FormLabel>Features</FormLabel>
+                                            <FormDescription>
+                                                Select the features included in this plan
+                                            </FormDescription>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {commonFeatures.map((feature) => (
+                                                <FormField
+                                                    key={feature.id}
+                                                    control={form.control}
+                                                    name="features"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={feature.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(feature.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            const currentFeatures = field.value || [];
+                                                                            return checked
+                                                                                ? field.onChange([...currentFeatures, feature.id])
+                                                                                : field.onChange(
+                                                                                    currentFeatures.filter(
+                                                                                        (value) => value !== feature.id
+                                                                                    )
+                                                                                );
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <FormLabel className="font-normal">
+                                                                    {feature.label}
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        );
+                                                    }}
+                                                />
                                             ))}
-                                        </select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="isRecommended"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <FormLabel className="text-base">Recommended Plan</FormLabel>
-                                        <FormDescription>
-                                            Highlight this plan as the recommended option
-                                        </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => onOpenChange(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading ? "Saving..." : isEditMode ? "Update Plan" : "Create Plan"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="fee"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Fee</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="0.00"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="duration"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Duration (Days)</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="30"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="status"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Status</FormLabel>
+                                        <FormControl>
+                                            <select
+                                                className="w-full rounded-md border border-input bg-background px-3 py-2"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                            >
+                                                {subscriptionStatusOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="isRecommended"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel className="text-base">Recommended Plan</FormLabel>
+                                            <FormDescription>
+                                                Highlight this plan as the recommended option
+                                            </FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                        </form>
+                    </Form>
+                </div>
+                <DialogFooter className="p-4 border-t">
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading}>
+                        {isLoading ? "Saving..." : isEditMode ? "Update Plan" : "Create Plan"}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
