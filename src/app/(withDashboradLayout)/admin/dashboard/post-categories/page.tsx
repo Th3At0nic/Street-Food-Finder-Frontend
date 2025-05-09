@@ -34,6 +34,34 @@ export default function PostCategoryPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<TPostCategory | undefined>(undefined);
 
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setDebouncedSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchInput);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchInput]);
+
+
+
+  useEffect(() => {
+    const getPostCategories = async () => {
+      const result = await fetchPostCategories({
+        page,
+        limit,
+        searchTerm
+      });
+      setMeta(result.meta);
+      setPostCategories(result.categories);
+    };
+    getPostCategories();
+  }, [page, limit, searchTerm]);
+
   const handleCreateCategory = () => {
     setCurrentCategory(undefined);
     setOpen(true);
@@ -58,7 +86,6 @@ export default function PostCategoryPage() {
   };
 
   const openDeleteConfirmModal = (category: TPostCategory) => {
-    console.log("object");
     setCurrentCategory(category);
     setIsDeleteOpen(true);
   };
@@ -71,13 +98,13 @@ export default function PostCategoryPage() {
       const result = await createOrUpdatePostCategory(data);
       console.log({ result });
       if (currentCategory) {
-        // Update existing plan
+        // Update existing category
         setPostCategories(PostCategories.map(plan =>
           plan.name === currentCategory.name ? result.data : plan
         ));
         toast.success(`Successfully updated ${data.name}`, { id: toastId })
       } else {
-        // Create new plan
+        // Create new category
         setPostCategories([...PostCategories, result.data]);
         toast.success(`Successfully created ${data.name}`, { id: toastId })
       }
@@ -90,18 +117,6 @@ export default function PostCategoryPage() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const getPostCategories = async () => {
-      const result = await fetchPostCategories({
-        page,
-        limit
-      });
-      setMeta(result.meta);
-      setPostCategories(result.categories);
-    };
-    getPostCategories();
-  }, [page, limit]);
 
 
   return (
@@ -122,7 +137,12 @@ export default function PostCategoryPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search category..." className="pl-10 w-full" />
+            <Input
+              placeholder="Search category..."
+              className="pl-10 w-full"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
           </div>
           <Button className="cursor-pointer" onClick={handleCreateCategory}>
             <PlusCircle /> Add

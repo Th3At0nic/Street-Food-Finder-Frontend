@@ -44,14 +44,13 @@ export default function SubscriptionPlanManagementPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<TSubscriptionPlan | undefined>(undefined);
 
-  const [searchInput, setSearchInput] = useState(""); // controlled input
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(""); // actual search trigger
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-  // Debounce Effect
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchInput);
-    }, 300); // debounce 300ms
+    }, 500);
 
     return () => {
       clearTimeout(handler);
@@ -199,7 +198,7 @@ export default function SubscriptionPlanManagementPage() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
-          Showing {(meta?.page || 0) * (meta?.limit || limit) - (meta?.limit || limit) + 1} - 
+          Showing {(meta?.page || 0) * (meta?.limit || limit) - (meta?.limit || limit) + 1} -
           {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total || 0} plans
         </div>
         <div className="flex gap-2">
