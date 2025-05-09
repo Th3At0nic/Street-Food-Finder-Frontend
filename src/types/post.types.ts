@@ -33,7 +33,7 @@ export type TPost = {
   updatedAt: Date;
 
   // Relations
-  category?: PostCategory;
+  category?: TPostCategory;
   author?: TUser;
   votes?: Vote[];
   comments?: Comment[];
@@ -50,7 +50,7 @@ export type TPost = {
   averageRating?: number;
 };
 
-export type PostCategory = {
+export type TPostCategory = {
   catId: string;
   name: string;
   createdAt: Date;
@@ -115,7 +115,7 @@ export interface CategoryResponse {
       limit: number;
       totalPages: number;
     };
-    data: PostCategory[];
+    data: TPostCategory[];
   };
 }
 

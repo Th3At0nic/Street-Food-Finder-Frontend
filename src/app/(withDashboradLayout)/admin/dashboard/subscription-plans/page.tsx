@@ -27,7 +27,7 @@ import { GrPlan } from "react-icons/gr";
 import { toast } from "sonner";
 import { SubscriptionPlanModal } from "@/components/modules/subscriptionPlans/createSubscriptionModal";
 
-export default function UserManagementPage() {
+export default function SubscriptionPlanManagementPage() {
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [subscriptionPlans, setSubscriptionPlans] = useState<TSubscriptionPlan[]>([]);
   const [meta, setMeta] = useState<IMeta | null>();

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useSidebar } from "@/context/sidebar-context";
 import { TRole } from "@/types";
+import { BiCategory } from "react-icons/bi";
 
 
 const adminNavItems = [
@@ -38,13 +39,18 @@ const adminNavItems = [
         icon: <Users className="h-4 w-4" />
     },
     {
+        title: "Post-category Management",
+        href: "/admin/dashboard/post-categories",
+        icon: <BiCategory className="h-4 w-4" />
+    },
+    {
         title: "Subscription Management",
         href: "/admin/dashboard/subscription-plans",
         icon: <GrPlan className="h-4 w-4" />
     },
     {
-        title:"Make Premium ",
-        href:"/admin/dashboard/make-premium",
+        title: "Make Premium ",
+        href: "/admin/dashboard/make-premium",
         icon: < DollarSign className="h-4 w-4"></DollarSign>
     },
     {
@@ -81,7 +87,7 @@ const userNavItems = [
     {
         title: "Payment History",
         href: "/user/dashboard/payment-history",
-        icon: <BadgeDollarSign className="h-4 w-4"/>
+        icon: <BadgeDollarSign className="h-4 w-4" />
     },
     {
         title: "Profile Settings",
