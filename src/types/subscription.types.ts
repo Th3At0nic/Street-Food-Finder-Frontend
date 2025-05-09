@@ -22,3 +22,7 @@ export interface TSubscriptionPlan {
   createdAt: Date;
   updatedAt: Date;
 }
+export enum SubscriptionPlanStatus {
+  ACTIVE = "ACTIVE",
+  IN_ACTIVE = "IN_ACTIVE"
+}

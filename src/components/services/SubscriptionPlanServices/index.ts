@@ -1,7 +1,7 @@
 "use server";
 
 import config from "@/config";
-import { IResponse, TSubscriptionPlan } from "@/types";
+import { IMeta, IResponse, TSubscriptionPlan } from "@/types";
 import { authOptions } from "@/utils/authOptions";
 import { getServerSession } from "next-auth";
 
@@ -15,7 +15,10 @@ export async function fetchSubscriptionPlans() {
         "Content-Type": "application/json"
       }
     });
-    const result = await response.json();
+    const result: IResponse<{
+      data: TSubscriptionPlan[];
+      meta: IMeta;
+    }> = await response.json();
     console.log({ result });
     return result;
   } catch (error: unknown) {
