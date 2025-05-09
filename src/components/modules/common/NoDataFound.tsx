@@ -26,21 +26,17 @@ export function NoDataFound({
     const IconComponent = icons[icon] || icons.default;
 
     return (
-        <div
-            className={cn(
-                "flex flex-col items-center justify-center gap-4 p-8 text-center",
-                className
-            )}
-            {...props}
-        >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                <IconComponent className="h-8 w-8 text-muted-foreground" />
+        <div className={cn("w-full h-full flex items-center justify-center", className)} {...props}>
+            <div className="flex flex-col items-center justify-center gap-4 p-8 text-center max-w-md mx-auto">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    <IconComponent className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div className="space-y-1">
+                    <h3 className="text-lg font-medium text-foreground">{title}</h3>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                </div>
+                {action && <div className="mt-2">{action}</div>}
             </div>
-            <div className="space-y-1">
-                <h3 className="text-lg font-medium text-foreground">{title}</h3>
-                <p className="text-sm text-muted-foreground">{description}</p>
-            </div>
-            {action && <div className="mt-2">{action}</div>}
         </div>
     );
 }

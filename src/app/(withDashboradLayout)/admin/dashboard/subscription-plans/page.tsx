@@ -218,7 +218,11 @@ export default function SubscriptionPlanManagementPage() {
                   </TableRow>
                 ))
               ) : (
-                <NoDataFound />
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">
+                    <NoDataFound className="h-full" />
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>
