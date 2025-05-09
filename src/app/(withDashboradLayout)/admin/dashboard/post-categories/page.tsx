@@ -20,9 +20,11 @@ import { fetchPostCategories } from "@/app/actions/post-actions";
 import { PostCategoryModal } from "@/components/modules/post/AllComments/PostCategoryModal";
 import { createOrUpdatePostCategory, deletePostCategory } from "@/components/services/PostServices";
 import { DeleteConfirmationModal } from "@/components/modules/deleteModal/deleteConfirmationModal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { NoDataFound } from "@/components/modules/common/NoDataFound";
 
 export default function PostCategoryPage() {
-  const [PostCategories, setPostCategories] = useState<TPostCategory[]>([]);
+  const [postCategories, setPostCategories] = useState<TPostCategory[]>([]);
   const [meta, setMeta] = useState<IMeta | null>();
   const [page, setPage] = useState(1);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,6 +34,7 @@ export default function PostCategoryPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<TPostCategory | undefined>(undefined);
 
   const [searchInput, setSearchInput] = useState("");
@@ -51,13 +54,21 @@ export default function PostCategoryPage() {
 
   useEffect(() => {
     const getPostCategories = async () => {
-      const result = await fetchPostCategories({
-        page,
-        limit,
-        searchTerm
-      });
-      setMeta(result.meta);
-      setPostCategories(result.categories);
+      setIsTableLoading(true);
+      try {
+        const result = await fetchPostCategories({
+          page,
+          limit,
+          searchTerm
+        });
+        setMeta(result.meta);
+        setPostCategories(result.categories);
+      } catch (err) {
+        console.log("Failed to fetch post categories", err);
+      } finally {
+        setIsTableLoading(false);
+      }
+
     };
     getPostCategories();
   }, [page, limit, searchTerm]);
@@ -76,7 +87,7 @@ export default function PostCategoryPage() {
     setIsDeleting(true);
     const result = await deletePostCategory(currentCategory!.catId);
     if (result.success) {
-      setPostCategories(PostCategories.filter(plan => plan.catId !== currentCategory?.catId));
+      setPostCategories(postCategories.filter(plan => plan.catId !== currentCategory?.catId));
       toast.success(result.message || "Category deleted", { id: toastId });
     } else {
       toast.error(result.message || "Some error occurred while deleting", { id: toastId });
@@ -99,13 +110,13 @@ export default function PostCategoryPage() {
       console.log({ result });
       if (currentCategory) {
         // Update existing category
-        setPostCategories(PostCategories.map(plan =>
+        setPostCategories(postCategories.map(plan =>
           plan.name === currentCategory.name ? result.data : plan
         ));
         toast.success(`Successfully updated ${data.name}`, { id: toastId })
       } else {
         // Create new category
-        setPostCategories([...PostCategories, result.data]);
+        setPostCategories([...postCategories, result.data]);
         toast.success(`Successfully created ${data.name}`, { id: toastId })
       }
 
@@ -117,7 +128,19 @@ export default function PostCategoryPage() {
       setIsLoading(false);
     }
   };
-
+  const TableSkeleton = () => {
+    return Array.from({ length: limit }).map((_, index) => (
+      <TableRow key={index}>
+        <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+        <TableCell className="text-right">
+          <Skeleton className="h-8 w-8 ml-auto" />
+        </TableCell>
+      </TableRow>
+    ));
+  };
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -164,7 +187,9 @@ export default function PostCategoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {PostCategories?.map((postCategory) => (
+              {isTableLoading ? (
+                <TableSkeleton />
+              ) : postCategories.length ? postCategories?.map((postCategory) => (
                 <TableRow key={postCategory.catId}>
                   <TableCell className="font-medium truncate max-w-[200px] sm:max-w-none">
                     {postCategory.name}
@@ -197,7 +222,7 @@ export default function PostCategoryPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )) : <NoDataFound />}
             </TableBody>
           </Table>
         </div>

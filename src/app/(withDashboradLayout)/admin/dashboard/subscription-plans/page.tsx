@@ -1,4 +1,3 @@
-// app/admin/users/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,19 +32,22 @@ import {
 import { SubscriptionPlanModal } from "@/components/modules/subscriptionPlans/createSubscriptionModal";
 
 import { IMeta, SubscriptionPlanStatus, TSubscriptionPlan } from "@/types";
+import { NoDataFound } from "@/components/modules/common/NoDataFound";
+import { Skeleton } from "@/components/ui/skeleton"; // Import skeleton component
 
 export default function SubscriptionPlanManagementPage() {
-  const [selectedRole, setSelectedRole] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<SubscriptionPlanStatus | undefined>(undefined);
   const [subscriptionPlans, setSubscriptionPlans] = useState<TSubscriptionPlan[]>([]);
   const [meta, setMeta] = useState<IMeta | null>(null);
   const [page, setPage] = useState(1);
   const [limit] = useState(7);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<TSubscriptionPlan | undefined>(undefined);
 
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [searchTerm, setDebouncedSearchTerm] = useState("");
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -61,23 +63,25 @@ export default function SubscriptionPlanManagementPage() {
   useEffect(() => {
     const getAllPlans = async () => {
       try {
-        let result;
-        if (debouncedSearchTerm) {
-          result = await fetchSubscriptionPlans({ page, limit, searchTerm: debouncedSearchTerm });
-        } else if (selectedRole === "all") {
-          result = await fetchSubscriptionPlans({ page, limit });
-        } else {
-          result = await fetchSubscriptionPlans({ page, limit, status: selectedRole as SubscriptionPlanStatus });
-        }
+        setIsTableLoading(true);
+        const result = await fetchSubscriptionPlans({
+          page,
+          limit,
+          status: selectedStatus,
+          searchTerm
+        });
+
         setMeta(result?.data?.meta);
         setSubscriptionPlans(result?.data?.data);
       } catch (error) {
         console.error("Failed to fetch plans:", error);
+      } finally {
+        setIsTableLoading(false);
       }
     };
 
     getAllPlans();
-  }, [selectedRole, page, limit, debouncedSearchTerm]);
+  }, [selectedStatus, page, limit, searchTerm]);
 
   // Create or Update Plan
   const handleSubmit = async (data: TSubscriptionPlan) => {
@@ -106,6 +110,23 @@ export default function SubscriptionPlanManagementPage() {
     }
   };
 
+  // Skeleton Loader for Table Rows
+  const TableSkeleton = () => {
+    return Array.from({ length: limit }).map((_, index) => (
+      <TableRow key={index}>
+        <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-[140px]" /></TableCell>
+        <TableCell className="text-right">
+          <Skeleton className="h-8 w-8 ml-auto" />
+        </TableCell>
+      </TableRow>
+    ));
+  };
+
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
@@ -132,7 +153,10 @@ export default function SubscriptionPlanManagementPage() {
           </div>
 
           {/* Filter Dropdown */}
-          <Select value={selectedRole} onValueChange={(value) => { setSelectedRole(value); setPage(1); }}>
+          <Select value={selectedStatus} onValueChange={(value) => {
+            setSelectedStatus(value === 'all' ? undefined : value as SubscriptionPlanStatus);
+            setPage(1);
+          }}>
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
@@ -166,30 +190,36 @@ export default function SubscriptionPlanManagementPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subscriptionPlans?.map((plan) => (
-                <TableRow key={plan.spId}>
-                  <TableCell>{plan.name}</TableCell>
-                  <TableCell>{plan.fee || "N/A"}</TableCell>
-                  <TableCell>{plan.duration} days</TableCell>
-                  <TableCell>
-                    <Badge variant={plan.status === SubscriptionPlanStatus.ACTIVE ? "secondary" : "destructive"}>
-                      {plan.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{plan.isRecommended ? "Yes" : "No"}</TableCell>
-                  <TableCell>{format(new Date(plan.updatedAt), "hh:mm:ss dd-MM-yyyy")}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      onClick={() => { setCurrentPlan(plan); setOpen(true); }}
-                      size="icon"
-                      variant="destructive"
-                      className="h-8 w-8"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {isTableLoading ? (
+                <TableSkeleton />
+              ) : subscriptionPlans.length ? (
+                subscriptionPlans?.map((plan) => (
+                  <TableRow key={plan.spId}>
+                    <TableCell>{plan.name}</TableCell>
+                    <TableCell>{plan.fee || "N/A"}</TableCell>
+                    <TableCell>{plan.duration} days</TableCell>
+                    <TableCell>
+                      <Badge variant={plan.status === SubscriptionPlanStatus.ACTIVE ? "secondary" : "destructive"}>
+                        {plan.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{plan.isRecommended ? "Yes" : "No"}</TableCell>
+                    <TableCell>{format(new Date(plan.updatedAt), "hh:mm:ss dd-MM-yyyy")}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        onClick={() => { setCurrentPlan(plan); setOpen(true); }}
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <NoDataFound />
+              )}
             </TableBody>
           </Table>
         </div>
@@ -197,22 +227,26 @@ export default function SubscriptionPlanManagementPage() {
 
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-sm text-gray-500">
-          Showing {(meta?.page || 0) * (meta?.limit || limit) - (meta?.limit || limit) + 1} -
-          {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total || 0} plans
-        </div>
+        {isTableLoading ? (
+          <Skeleton className="h-4 w-[200px]" />
+        ) : (
+          <div className="text-sm text-gray-500">
+            Showing {(meta?.page || 0) * (meta?.limit || limit) - (meta?.limit || limit) + 1} -
+            {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total || 0} plans
+          </div>
+        )}
         <div className="flex gap-2">
           <Button
             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
             variant="outline"
-            disabled={page <= 1}
+            disabled={page <= 1 || isTableLoading}
           >
             Previous
           </Button>
           <Button
             onClick={() => setPage((prev) => prev + 1)}
             variant="outline"
-            disabled={page >= (meta?.totalPages || 1)}
+            disabled={page >= (meta?.totalPages || 1) || isTableLoading}
           >
             Next
           </Button>
