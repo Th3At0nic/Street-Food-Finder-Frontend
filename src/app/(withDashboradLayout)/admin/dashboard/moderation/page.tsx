@@ -29,30 +29,6 @@ import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
 import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
 
-// Mock data - replace with API calls
-// const pendingPosts = [
-//   {
-//     id: 1,
-//     title: "Spicy Chicken Tacos",
-//     author: "user1@example.com",
-//     category: "Snacks",
-//     price: "$3-$8",
-//     type: "normal",
-//     status: "pending",
-//     reported: 2
-//   },
-//   {
-//     id: 2,
-//     title: "Secret BBQ Stall",
-//     author: "user2@example.com",
-//     category: "Meals",
-//     price: "$10-$15",
-//     type: "premium",
-//     status: "pending",
-//     reported: 5
-//   }
-// ];
-
 const reportedComments = [
   {
     id: 1,
@@ -97,7 +73,7 @@ export default function ModerationPage() {
     const result = await updatePost(postId, body.status);
     console.log(result);
     if (typeof result !== "string" && result?.statusCode === 200) {
-      toast.success("post Approve sucessfully");
+      toast.success("Post approved successfully");
     }
   };
 

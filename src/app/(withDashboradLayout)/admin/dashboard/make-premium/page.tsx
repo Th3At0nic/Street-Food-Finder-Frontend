@@ -25,10 +25,11 @@ import {
   updatePtype,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { PostsResponse, PostStatus, TPost } from "@/types";
-import { PostStatus, PostType, TPost } from "@/types";
+import { PostsResponse, PostStatus, PostType, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
+import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
+import { fetchUsersByRole } from "@/components/services/AuthService/UserService";
 
 
 const reportedComments = [
@@ -81,8 +82,9 @@ export default function ModerationPage() {
       }
     };
 
-    fetchUsers(); // call the inner function
+    fetchUsers();
   }, [filterType]);
+
   console.log(pending);
 
   const handlePremium = async (
@@ -91,13 +93,13 @@ export default function ModerationPage() {
       pType: PostType.PREMIUM;
     }
   ) => {
-    // Add API call here
 
     const result = await updatePtype(postId, body.pType);
     console.log(result);
     if (typeof result !== "string" && result.statusCode === 200) {
       toast.success("Make Post Premium sucessfully");
     }
+
   };
 
   const handleNormal = async (
