@@ -19,12 +19,11 @@ import { fetchPaymentHistories } from "@/components/services/PaymentServices";
 
 export default function PaymentHistoryPage() {
   const [payments, setPayments] = useState<IPayment[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [meta, setMeta] = useState<IMeta | null>();
 
   useEffect(() => {
     const getPaymentHistories = async () => {
-      const result = await fetchPaymentHistories();
+      const result = await fetchPaymentHistories({ page: 1, limit: 7 });
       console.log({ result });
       setMeta(result.data.meta);
       setPayments(result.data.data);
@@ -118,13 +117,13 @@ export default function PaymentHistoryPage() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
-          Showing 1-{payments.length} of {payments.length} subscription plans
+          Showing {((meta?.page || 0) - 1) * (meta?.limit || 7) + 1} - {(meta?.page || 0) * (meta?.limit || 7)} of {meta?.total} payments
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" disabled>
+          <Button variant="outline" disabled={meta?.page === 1}>
             Previous
           </Button>
-          <Button variant="outline" disabled>
+          <Button variant="outline" disabled={meta?.page === meta?.totalPages || meta?.totalPages === 1}>
             Next
           </Button>
         </div>

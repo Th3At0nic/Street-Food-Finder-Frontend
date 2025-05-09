@@ -1,15 +1,15 @@
 'use client';
 
-import { PlanCard } from "@/components/modules/subscrptionPlans/PlanCard";
+import { PlanCard } from "@/components/modules/subscriptionPlans/PlanCard";
 import { fetchSubscriptionPlans } from "@/components/services/SubscriptionPlanServices";
-import { ISubscriptionPlanResponse, TSubscriptionPlan } from "@/types/subscription.types";
+import { ISubscriptionPlanResponse, SubscriptionPlanStatus, TSubscriptionPlan } from "@/types/subscription.types";
 import { useEffect, useState } from "react";
 
 export default function SubscriptionPlanPage() {
     const [plans, setPlans] = useState<TSubscriptionPlan[]>([]);
     useEffect(() => {
         (async () => {
-            const result: ISubscriptionPlanResponse = await fetchSubscriptionPlans();
+            const result: ISubscriptionPlanResponse = await fetchSubscriptionPlans({ page: 1, limit: 3, status: SubscriptionPlanStatus.ACTIVE });
             console.log({ result });
             if (result.success) {
                 setPlans(result.data.data);

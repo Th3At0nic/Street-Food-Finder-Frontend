@@ -25,10 +25,11 @@ export async function verifyPaymentAction(spOrderId: string) {
 }
 
 // get payment history
-export async function fetchPaymentHistories() {
+export async function fetchPaymentHistories(params: { page?: number; limit?: number }) {
   const session = await getServerSession(authOptions);
+  const { page = 1, limit = 7 } = params;
   try {
-    const response = await fetch(`${config.backend_url}/payments`, {
+    const response = await fetch(`${config.backend_url}/payments?page=${page}&limit=${limit}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session?.user.accessToken}`,
