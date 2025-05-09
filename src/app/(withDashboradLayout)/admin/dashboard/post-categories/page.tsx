@@ -222,7 +222,11 @@ export default function PostCategoryPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              )) : <NoDataFound />}
+              )) : <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  <NoDataFound className="h-full" />
+                </TableCell>
+              </TableRow>}
             </TableBody>
           </Table>
         </div>
