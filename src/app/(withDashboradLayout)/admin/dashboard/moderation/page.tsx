@@ -28,6 +28,7 @@ import { fetchPosts } from "@/app/actions/post-actions";
 import { Post, PostStatus, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
+import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
 
 // Mock data - replace with API calls
 // const pendingPosts = [
@@ -66,12 +67,14 @@ const reportedComments = [
 export default function ModerationPage() {
   const [pending, setPending] = useState<TPost[]>([]);
   const [filterType, setFilterType] = useState("all");
+  const [loading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const result = await fetchPosts(1, 5, PostStatus.PENDING);
         setPending(result.posts);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -104,7 +107,13 @@ export default function ModerationPage() {
     // Add API call here
     await updatePost(postId, body.status);
   };
-
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-60">
+        <LoadingPosts></LoadingPosts>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -137,28 +146,25 @@ export default function ModerationPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Post Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            {pending.length === 0 ? (
-              <>
+          {pending.length === 0 ? (
+            <div className="flex justify-center items-center py-10">
+              <NoPost h="h-20" w="w-20" title="No Pending Post Yet" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    <NoPost h="h-20" w="w-20" title="No Pending Post Yet" />
-                  </TableCell>
+                  <TableHead>Post Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              </>
-            ) : (
+              </TableHeader>
+
               <TableBody>
-                {pending?.map((post) => (
+                {pending.map((post) => (
                   <TableRow key={post.pId}>
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell>{post.author?.userDetails?.name}</TableCell>
@@ -209,8 +215,8 @@ export default function ModerationPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            )}
-          </Table>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

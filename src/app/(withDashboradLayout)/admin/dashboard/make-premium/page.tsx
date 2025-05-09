@@ -23,11 +23,14 @@ import { useEffect, useState } from "react";
 import {
   getAllPosts,
   updatePost,
+  updatePtype,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { Post, PostStatus } from "@/types";
+import { PostStatus, PostType, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
+import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
+import { fetchUsersByRole } from "@/components/services/AuthService/UserService";
 
 // Mock data - replace with API calls
 // const pendingPosts = [
@@ -64,47 +67,79 @@ const reportedComments = [
 ];
 
 export default function ModerationPage() {
-  const [pending, setPending] = useState<Post[]>([]);
+  const [pending, setPending] = useState<TPost[]>([]);
   const [filterType, setFilterType] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedRole, setSelectedRole] = useState<string | undefined>("all");
 
+
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     if (
+  //       selectedRole === PostType.NORMAL ||
+  //       selectedRole === PostType.PREMIUM
+  //     )
+  //    {
+  //       const result = await fetchPosts(1,5,PostStatus.APPROVED,selectedRole);
+  //       setPending(result.posts);
+  //     }
+  //     if (selectedRole === "all") {
+  //       const result = await getAllPosts();
+  //       setPending(result.posts);
+  //     }
+  //   };
+  //   fetchUsers();
+  // }, [selectedRole]);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const result = await fetchPosts(1, 5, PostStatus.PENDING);
+        const result = await fetchPosts(1, 5);
         setPending(result.posts);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchUsers(); // call the inner function
-  }, []);
+  }, [filterType]);
   console.log(pending);
 
-  const handleApprove = async (
+  const handlePremium = async (
     postId: string,
     body: {
-      status: PostStatus.APPROVED | PostStatus.PENDING | PostStatus.REJECTED;
+      pType: PostType.PREMIUM;
     }
   ) => {
     // Add API call here
-    const result = await updatePost(postId, body.status);
+ 
+    const result = await updatePtype(postId, body.pType);
     console.log(result);
-    if (result.statusCode === 200) {
-      toast.success("post Approve sucessfully");
+    if (typeof result !== "string" && result.statusCode === 200) {
+      toast.success("Make Post Premium sucessfully");
     }
   };
 
-  const handleReject = async (
+  const handleNormal = async (
     postId: string,
     body: {
-      status: PostStatus.APPROVED | PostStatus.PENDING | PostStatus.REJECTED;
+      pType: PostType.NORMAL;
     }
   ) => {
     // Add API call here
-    await updatePost(postId, body.status);
+  const result =  await updatePtype(postId, body.pType);
+  if (typeof result !== "string" && result.statusCode === 200) {
+    toast.success("Make Post Normal sucessfully");
+  }
   };
-
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-60">
+        <LoadingPosts></LoadingPosts>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -116,18 +151,18 @@ export default function ModerationPage() {
               Make Approved Post Premium
             </CardTitle>
             <div className="text-sm text-gray-500">
-              {pending.length} posts awaiting moderation
+              {pending?.length} posts awaiting moderation
             </div>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            <Select value={filterType} onValueChange={setFilterType}>
+            <Select >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="normal">Normal Posts</SelectItem>
-                <SelectItem value="premium">Premium Posts</SelectItem>
+                <SelectItem value="NORMAL">Normal Posts</SelectItem>
+                <SelectItem value="PREMIUM">Premium Posts</SelectItem>
               </SelectContent>
             </Select>
             <div className="relative w-full sm:w-[240px]">
@@ -137,26 +172,23 @@ export default function ModerationPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Post Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            {pending.length === 0 ? (
-              <>
+          {pending?.length === 0 ? (
+            <div className="flex justify-center items-center py-10">
+              <NoPost h="h-20" w="w-20" title="No Approved Post Yet" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    <NoPost h="h-20" w="w-20" title="No Approved Post Yet" />
-                  </TableCell>
+                  <TableHead>Post Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Post Type</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              </>
-            ) : (
+              </TableHeader>
               <TableBody>
                 {pending?.map((post) => (
                   <TableRow key={post.pId}>
@@ -178,39 +210,55 @@ export default function ModerationPage() {
                         {post.status}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          post.pType === PostType.NORMAL
+                            ? "destructive"
+                            : "outline"
+                        }
+                        className="capitalize"
+                      >
+                        {post.pType}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() =>
-                          handleApprove(post.pId, {
-                            status: PostStatus.APPROVED,
-                          })
-                        }
-                        className="cursor-pointer"
-                      >
-                        <Check className="h-4 w-4 mr-2" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() =>
-                          handleReject(post.pId, {
-                            status: PostStatus.REJECTED,
-                          })
-                        }
-                        className="cursor-pointer"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Reject
-                      </Button>
+                      {post.pType === PostType.NORMAL ? (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() =>
+                            handlePremium(post.pId, {
+                              pType: PostType.PREMIUM,
+                            })
+                          }
+                          className="cursor-pointer"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Make Premium
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() =>
+                            handleNormal(post.pId, {
+                              pType: PostType.NORMAL,
+                            })
+                          }
+                          className="cursor-pointer"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Make Normal
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
-            )}
-          </Table>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

@@ -1,6 +1,6 @@
 "use server";
 import { getServerSession } from "next-auth";
-import { TPost, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse } from "@/types";
+import { TPost, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse, PostType } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
 export async function fetchPosts(
@@ -8,6 +8,7 @@ export async function fetchPosts(
   limit: number = 5,
   status: PostStatus | null = PostStatus.APPROVED,
   authorId?:string,
+  pType?:null | PostType
 ): Promise<{
   posts: TPost[];
   hasMore: boolean;
@@ -19,6 +20,9 @@ export async function fetchPosts(
     const session = await getServerSession(authOptions);
     console.log({ session });
     let queryString = `page=${page}&limit=${limit}`;
+    if (pType) {
+      queryString += `&status=${pType}`
+    }
     if (status) {
       queryString += `&status=${status}`;
     }
