@@ -19,17 +19,20 @@ import { fetchPaymentHistories } from "@/components/services/PaymentServices";
 
 export default function PaymentHistoryPage() {
   const [payments, setPayments] = useState<IPayment[]>([]);
-  const [meta, setMeta] = useState<IMeta | null>();
+  const [meta, setMeta] = useState<IMeta | null>()
+  const [page, setPage] = useState(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [limit, setLimit] = useState(7);;
 
   useEffect(() => {
     const getPaymentHistories = async () => {
-      const result = await fetchPaymentHistories({ page: 1, limit: 7 });
+      const result = await fetchPaymentHistories({ page, limit });
       console.log({ result });
       setMeta(result.data.meta);
       setPayments(result.data.data);
     };
     getPaymentHistories();
-  }, []);
+  }, [page, limit]);
   console.log(payments[0]?.userSubscription[0]);
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -117,13 +120,13 @@ export default function PaymentHistoryPage() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
-          Showing {((meta?.page || 0) - 1) * (meta?.limit || 7) + 1} - {(meta?.page || 0) * (meta?.limit || 7)} of {meta?.total} payments
+          Showing {((meta?.page || 0) - 1) * (meta?.limit || limit) + 1} - {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total} payments
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" disabled={meta?.page === 1}>
+          <Button onClick={() => setPage(page - 1)} variant="outline" disabled={meta?.page === 1}>
             Previous
           </Button>
-          <Button variant="outline" disabled={meta?.page === meta?.totalPages || meta?.totalPages === 1}>
+          <Button onClick={() => setPage(page + 1)} variant="outline" disabled={meta?.page === meta?.totalPages || meta?.totalPages === 1}>
             Next
           </Button>
         </div>
