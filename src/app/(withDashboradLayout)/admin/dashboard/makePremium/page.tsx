@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Check, X, Star, Search } from "lucide-react";
+import { Shield, Check, X, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,37 +21,13 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import {
-  getAllPosts,
   updatePost,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { Post, PostStatus } from "@/types";
+import { PostsResponse, PostStatus, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
 
-// Mock data - replace with API calls
-// const pendingPosts = [
-//   {
-//     id: 1,
-//     title: "Spicy Chicken Tacos",
-//     author: "user1@example.com",
-//     category: "Snacks",
-//     price: "$3-$8",
-//     type: "normal",
-//     status: "pending",
-//     reported: 2
-//   },
-//   {
-//     id: 2,
-//     title: "Secret BBQ Stall",
-//     author: "user2@example.com",
-//     category: "Meals",
-//     price: "$10-$15",
-//     type: "premium",
-//     status: "pending",
-//     reported: 5
-//   }
-// ];
 
 const reportedComments = [
   {
@@ -64,20 +40,24 @@ const reportedComments = [
 ];
 
 export default function ModerationPage() {
-  const [pending, setPending] = useState<Post[]>([]);
+  const [pending, setPending] = useState<TPost[]>([]);
   const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const result = await fetchPosts(1, 5, PostStatus.PENDING);
+        const result = await fetchPosts({
+          page: 1,
+          limit: 5,
+          status: PostStatus.PENDING,
+        });
         setPending(result.posts);
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchUsers(); // call the inner function
+    fetchUsers();
   }, []);
   console.log(pending);
 
@@ -90,8 +70,8 @@ export default function ModerationPage() {
     // Add API call here
     const result = await updatePost(postId, body.status);
     console.log(result);
-    if (result.statusCode === 200) {
-      toast.success("post Approve sucessfully");
+    if ((result as PostsResponse).statusCode === 200) {
+      toast.success("Post approved successfully");
     }
   };
 

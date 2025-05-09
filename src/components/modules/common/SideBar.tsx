@@ -73,19 +73,19 @@ const adminNavItems = [
 const userNavItems = [
     {
         title: "Dashboard",
-        href: "/admin/dashboard",
+        href: "/user/dashboard",
         icon: <List className="h-4 w-4" />,
 
         count: 5 // Pending items
     },
     {
         title: "Payment History",
-        href: "/admin/dashboard/paymentHistory",
-        icon: <BadgeDollarSign className="h-4 w-4"></BadgeDollarSign>
+        href: "/user/dashboard/payment-history",
+        icon: <BadgeDollarSign className="h-4 w-4"/>
     },
     {
         title: "Profile Settings",
-        href: "/admin/dashboard/settings",
+        href: "/user/dashboard/settings",
         icon: <Settings className="h-4 w-4" />
     }
 ]
