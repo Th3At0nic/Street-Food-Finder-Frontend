@@ -24,9 +24,11 @@ import { PostSearchBox } from './PostSearchBox';
 import Image from 'next/image';
 import { createPost } from '@/app/actions/post-actions';
 import PostCategorySelect from './PostCategorySelect';
+import { redirect } from 'next/navigation';
 
 export function CreatePostCard() {
     const { data: session } = useSession();
+   
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -62,6 +64,7 @@ export function CreatePostCard() {
             toast.error('Please log in to create a post');
             return;
         }
+    
         const toastId = toast.loading('Creating post...');
         try {
             const postFormData = new FormData();
@@ -103,7 +106,13 @@ export function CreatePostCard() {
             }
         }
     };
-
+    const handleOpenDialog = () => {
+        if (!session) {
+          redirect("/login"); // redirect if not logged in
+          
+        }
+        setIsDialogOpen(true); // otherwise open dialog
+      };
     return (
         <Card className="mb-4 shadow-sm">
             <CardContent className="pt-0">
@@ -123,6 +132,7 @@ export function CreatePostCard() {
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
                             <Button
+                               onClick={handleOpenDialog}
                                 className="rounded-full 0 cursor-pointer hover:bg-orange-600"
                             >
                                 Share a post...
@@ -252,7 +262,7 @@ export function CreatePostCard() {
                         variant="ghost"
                         size="sm"
                         className="flex-1"
-                        onClick={() => setIsDialogOpen(true)}
+                        onClick={handleOpenDialog}
                     >
                         <ImageIcon className="w-5 h-5 mr-2 text-green-500" />
                         Upload Photos
@@ -262,7 +272,7 @@ export function CreatePostCard() {
                         variant="ghost"
                         size="sm"
                         className="flex-1"
-                        onClick={() => setIsDialogOpen(true)}
+                        onClick={handleOpenDialog}
                     >
                         <MapPinIcon className="w-5 h-5 mr-2 text-red-500" />
                         Add Location
@@ -272,7 +282,7 @@ export function CreatePostCard() {
                         variant="ghost"
                         size="sm"
                         className="flex-1"
-                        onClick={() => setIsDialogOpen(true)}
+                        onClick={handleOpenDialog}
                     >
                         <DollarSignIcon className="w-5 h-5 mr-2 text-blue-500" />
                         Price Range
