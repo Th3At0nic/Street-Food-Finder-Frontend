@@ -18,7 +18,8 @@ import { formatDate } from "date-fns";
 import { toast } from "sonner";
 import { fetchPostCategories } from "@/app/actions/post-actions";
 import { PostCategoryModal } from "@/components/modules/post/AllComments/PostCategoryModal";
-import { createOrUpdatePostCategory } from "@/components/services/PostServices";
+import { createOrUpdatePostCategory, deletePostCategory } from "@/components/services/PostServices";
+import { DeleteConfirmationModal } from "@/components/modules/deleteModal/deleteConfirmationModal";
 
 export default function PostCategoryPage() {
   const [PostCategories, setPostCategories] = useState<TPostCategory[]>([]);
@@ -27,6 +28,8 @@ export default function PostCategoryPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [limit, setLimit] = useState(7);
 
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<TPostCategory | undefined>(undefined);
@@ -36,10 +39,28 @@ export default function PostCategoryPage() {
     setOpen(true);
   };
 
-  const handleEditPlan = (category: TPostCategory) => {
-    console.log(category);
+  const handleEditPlan = async (category: TPostCategory) => {
     setCurrentCategory(category);
     setOpen(true);
+  };
+  const handleDeleteCategory = async () => {
+    const toastId = toast.loading("Deleting category...");
+    setIsDeleting(true);
+    const result = await deletePostCategory(currentCategory!.catId);
+    if (result.success) {
+      setPostCategories(PostCategories.filter(plan => plan.catId !== currentCategory?.catId));
+      toast.success(result.message || "Category deleted", { id: toastId });
+    } else {
+      toast.error(result.message || "Some error occurred while deleting", { id: toastId });
+    }
+    setIsDeleting(false);
+    setIsDeleteOpen(false);
+  };
+
+  const openDeleteConfirmModal = (category: TPostCategory) => {
+    console.log("object");
+    setCurrentCategory(category);
+    setIsDeleteOpen(true);
   };
 
   const handleSubmit = async (data: TPostCategory) => {
@@ -146,7 +167,7 @@ export default function PostCategoryPage() {
                         <Pencil />
                       </Button>
                       <Button
-                        onClick={() => handleEditPlan(postCategory)}
+                        onClick={() => openDeleteConfirmModal(postCategory)}
                         size="icon"
                         variant="destructive"
                         className="h-8 w-8 cursor-pointer"
@@ -182,6 +203,17 @@ export default function PostCategoryPage() {
         category={currentCategory}
         onSubmit={handleSubmit}
         isLoading={isLoading}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteCategory}
+        isLoading={isDeleting}
+        title="Delete Post Category?"
+        description={<>
+          Are you sure you want to delete <span className="font-bold">{currentCategory?.name}?</span> This action cannot be undone.
+        </>}
       />
     </div >
   );
