@@ -50,3 +50,32 @@ export const updatePost = async (userId: string, payload: string): Promise<Posts
     return (error as Error).message;
   }
 };
+
+export const updatePtype = async (userId: string, payload: string): Promise<PostsResponse | string> => {
+  const session = await getServerSession(authOptions);
+
+  try {
+    const res = await fetch(`${config.backend_url}/posts/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.user.accessToken}`,
+      },
+      body: JSON.stringify({ pType: payload }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to update Post Type");
+    }
+
+    const result = await res.json();
+
+    revalidateTag("Posts");
+    console.log(result);
+
+    return result;
+  } catch (error: unknown) {
+    console.log({ updatePostError: error });
+    return (error as Error).message;
+  }
+};
