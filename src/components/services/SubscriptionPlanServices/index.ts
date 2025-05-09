@@ -9,13 +9,17 @@ export async function fetchSubscriptionPlans(params: {
   page?: number;
   limit?: number;
   status?: SubscriptionPlanStatus;
+  searchTerm?:string | null;
 }) {
   const session = await getServerSession(authOptions);
-  const { page = 1, limit = 7, status } = params;
+  const { page = 1, limit = 7, status,searchTerm } = params;
   try {
     let baseUrl = `${config.backend_url}/subscription-plans?page=${page}&limit=${limit}`;
     if (status) {
       baseUrl += `&status=${status}`;
+    }
+    if (searchTerm) {
+      baseUrl += `&searchTerm=${searchTerm}`
     }
     const response = await fetch(`${baseUrl}`, {
       method: "GET",
