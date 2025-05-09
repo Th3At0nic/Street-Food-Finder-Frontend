@@ -20,6 +20,7 @@ import {
 
 export default function AllSpotsPage() {
   const { posts, loading, loadMorePosts } = usePostFeed();
+  console.log(posts);
   const { ref, inView } = useInView();
 
   // Search and price filter states
