@@ -1,9 +1,9 @@
-
 'use client';
 
 import { RxCross2 } from "react-icons/rx";
 import { BsCheckAll } from "react-icons/bs";
 import { TbEyeFilled } from "react-icons/tb";
+import { toast } from "sonner";
 
 import { fetchAllComments } from "@/components/services/CommentServices";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +27,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
 import { formatDate } from "date-fns";
 import { PaginationComponent } from "@/components/shared/PaginationComponent";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DeleteConfirmationModal } from "@/components/modules/deleteModal/deleteConfirmationModal";
 import {
@@ -37,23 +36,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { updateComment } from "@/app/actions/post-actions";
 
 export default function CommentModerationPage() {
   const [comments, setComments] = useState<IComment[]>([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(7);
+  const limit = 7;
   const [meta, setMeta] = useState<IMeta>({ page, limit, total: 0, totalPages: 1 });
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<CommentStatus | undefined>(undefined);
   const [isTableLoading, setIsTableLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [currentComment, setCurrentComment] = useState<IComment | undefined>(undefined);
 
-  const getAllComment = async () => {
+
+  const getAllComments = async () => {
     try {
-      const result = await fetchAllComments({})
+      const result = await fetchAllComments({ page, limit, status: filterStatus, searchTerm })
       setComments(result.data.data);
       setMeta(result.data.meta);
       console.log({ result });
@@ -65,16 +66,48 @@ export default function CommentModerationPage() {
   }
 
   useEffect(() => {
-    getAllComment();
-  }, [page, searchTerm]);
+    getAllComments();
+  }, [page, limit, filterStatus, searchTerm]);
 
-  const handleRejectComment = () => {
-    setIsDeleting(true);
+  const handleUpdateCommentStatus = async (comment: IComment, status: CommentStatus) => {
+    try {
+      if (status === CommentStatus.REJECTED) {
+        setIsDeleting(true);
+      }
+
+      const result = await updateComment({
+        commentId: status === CommentStatus.REJECTED ? currentComment!.cId : comment.cId,
+        status: status
+      });
+
+      if (result.success) {
+        toast.success(`Comment ${status === CommentStatus.APPROVED ? 'approved' : 'rejected'} successfully`);
+        getAllComments();
+      } else {
+        toast.error(`Failed to ${status === CommentStatus.APPROVED ? 'approve' : 'reject'} comment`);
+      }
+
+      if (status === CommentStatus.REJECTED) {
+        setIsDeleteOpen(false);
+      }
+    } catch (error) {
+      toast.error(`Error: ${error instanceof Error ? error.message : 'Something went wrong'}`);
+    } finally {
+      if (status === CommentStatus.REJECTED) {
+        setIsDeleting(false);
+      }
+    }
   }
 
-  const handleCommentDelete = () => {
-    setIsDeleting(true);
-  }
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchInput]);
 
   const TableSkeleton = () => {
     return Array.from({ length: limit }).map((_, index) => (
@@ -107,7 +140,9 @@ export default function CommentModerationPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input placeholder="Search comments..." className="pl-10" />
+              <Input placeholder="Search comments..." className="pl-10"
+                value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
+              />
             </div>
             {/* Filter Dropdown */}
             <Select value={filterStatus} onValueChange={(value) => {
@@ -178,33 +213,39 @@ export default function CommentModerationPage() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Button size="sm" variant="secondary">
-                                  <BsCheckAll />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                Approve
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Button size="sm" variant="destructive" onClick={() => {
-                                  setCurrentComment(comment);
-                                  setIsDeleteOpen(true);
-                                }}>
-                                  <RxCross2 />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                Reject
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                          {(comment.status === CommentStatus.REJECTED || comment.status === CommentStatus.PENDING) && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Button onClick={() => {
+                                    handleUpdateCommentStatus(comment, CommentStatus.APPROVED);
+                                  }} size="sm" variant="secondary">
+                                    <BsCheckAll />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Approve
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                          {(comment.status === CommentStatus.APPROVED || comment.status === CommentStatus.PENDING) && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Button size="sm" variant="destructive" onClick={() => {
+                                    setCurrentComment(comment);
+                                    setIsDeleteOpen(true);
+                                  }}>
+                                    <RxCross2 />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Reject
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -231,7 +272,7 @@ export default function CommentModerationPage() {
       <DeleteConfirmationModal
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
-        onConfirm={handleRejectComment}
+        onConfirm={() => handleUpdateCommentStatus(currentComment!, CommentStatus.REJECTED)}
         isLoading={isDeleting}
         title="Reject the comment?"
         confirmText="Reject"
@@ -242,4 +283,3 @@ export default function CommentModerationPage() {
     </div>
   );
 };
-
