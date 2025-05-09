@@ -10,11 +10,11 @@ export const getAllUsers = async () => {
   try {
     const res = await fetch(`${config.backend_url}/users`, {
       headers: {
-        Authorization: `Bearer ${session?.user.accessToken}`, // ✅ Added Bearer here
+        Authorization: `Bearer ${session?.user.accessToken}` // ✅ Added Bearer here
       },
       next: {
-        tags: ["users"],
-      },
+        tags: ["users"]
+      }
     });
 
     // if (!res.ok) {
@@ -33,11 +33,11 @@ export const getSingleUser = async () => {
   try {
     const res = await fetch(`${config.backend_url}/users/me`, {
       headers: {
-        Authorization: `Bearer ${session?.user.accessToken}`,
+        Authorization: `Bearer ${session?.user.accessToken}`
       },
       next: {
-        tags: ["users",], // 👈 cache tag for the specific user
-      },
+        tags: ["users"] // 👈 cache tag for the specific user
+      }
     });
 
     if (!res.ok) {
@@ -51,23 +51,22 @@ export const getSingleUser = async () => {
     console.error(error);
   }
 };
-export const updateUsers = async (
-  userId: number,
-  payload: string
-): Promise<any> => {
+export const updateUsers = async (userId: string, payload: string) => {
   const session = await getServerSession(authOptions);
   try {
     const res = await fetch(`${config.backend_url}/users/${userId}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`,
+        Authorization: `Bearer ${session?.user.accessToken}`
       },
-      body: JSON.stringify({ status: payload }),
+      body: JSON.stringify({ status: payload })
     });
     revalidateTag("users");
     return res.json();
-  } catch (error) {}
+  } catch (error: unknown) {
+    console.log({ errorInUpdateUser: error });
+  }
 };
 
 export const fetchUsersByRole = async (role: string) => {
@@ -77,8 +76,8 @@ export const fetchUsersByRole = async (role: string) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.user.accessToken}`
+      }
     });
     const data = await response.json();
     return data.data;
@@ -88,7 +87,6 @@ export const fetchUsersByRole = async (role: string) => {
   }
 };
 
-
 export const changePassword = async (oldPassword: string, newPassword: string) => {
   const session = await getServerSession(authOptions);
   try {
@@ -96,12 +94,12 @@ export const changePassword = async (oldPassword: string, newPassword: string) =
       method: "POST", // usually password updates use PATCH
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`,
+        Authorization: `Bearer ${session?.user.accessToken}`
       },
       body: JSON.stringify({
         oldPassword,
-        newPassword,
-      }),
+        newPassword
+      })
     });
 
     if (!response.ok) {

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { MessageCircle, Share2, Send, MapPin, DollarSign, Star, ArrowBigUp, ArrowBigDown } from 'lucide-react';
-import { Post, VoteType, Comment } from '@/types';
+import { TPost, VoteType, Comment } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { useSession } from 'next-auth/react';
 import { CommentItem } from './CommentItem';
@@ -21,12 +21,12 @@ import { Rating as ReactRating } from '@smastrom/react-rating'
 import { usePostRating } from '@/hooks/ usePostRating';
 
 interface PostCardFeedProps {
-    post: Post;
+    post: TPost;
 }
 
 export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
     // Use state to manage post data so we can update it after commenting
-    const [post, setPost] = useState<Post>(initialPost);
+    const [post, setPost] = useState<TPost>(initialPost);
     const [isCommenting, setIsCommenting] = useState(false);
     const [commentText, setCommentText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);

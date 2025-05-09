@@ -97,7 +97,7 @@ export function SideBar({ role }: { role: TRole }) {
                                 className={cn(
                                     "flex items-center justify-between gap-3 rounded-md px-3 py-2",
                                     "text-sm font-medium hover:bg-gray-100 transition-colors",
-                                    "text-gray-600 hover:text-gray-900"
+                                    "text-gray-600 hover:"
                                 )}
                                 onClick={toggleSidebar}
                             >

@@ -25,7 +25,7 @@ import {
   updatePost,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { Post, PostStatus } from "@/types";
+import { TPost, PostStatus } from "@/types";
 
 // Mock data - replace with API calls
 // const pendingPosts = [
@@ -62,7 +62,7 @@ const reportedComments = [
 ];
 
 export default function ModerationPage() {
-  const [pending, setPending] = useState<Post[]>([]);
+  const [pending, setPending] = useState<TPost[]>([]);
   const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {

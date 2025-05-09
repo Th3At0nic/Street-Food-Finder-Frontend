@@ -49,11 +49,11 @@ export default function PostCard() {
         {/* Voting and Comments Section */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => handleVote('up')}
               className={`p-1 rounded-md hover:bg-gray-100 transition-colors ${
-                userVote === 'up' 
-                  ? 'text-green-600 bg-green-50 hover:bg-green-100' 
+                userVote === 'up'
+                  ? 'text-green-600 bg-green-50 hover:bg-green-100'
                   : 'text-gray-500'
               }`}
             >
@@ -62,11 +62,11 @@ export default function PostCard() {
             <span className="text-sm font-medium text-gray-700 min-w-[20px] text-center">
               {voteScore}
             </span>
-            <button 
+            <button
               onClick={() => handleVote('down')}
               className={`p-1 rounded-md hover:bg-gray-100 transition-colors ${
-                userVote === 'down' 
-                  ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+                userVote === 'down'
+                  ? 'text-red-600 bg-red-50 hover:bg-red-100'
                   : 'text-gray-500'
               }`}
             >

@@ -6,13 +6,18 @@ import { Button } from "../ui/button";
 import { useSession } from "next-auth/react";
 import { signOutUser } from "@/lib/auth/signOutUser";
 import Logo from "./Logo";
+import { UserRole } from "@/types";
+import { useRouter } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { data, status } = useSession();
+  const router = useRouter();
 
+  const canUserSeePremiumButton = data?.user.role !== UserRole.ADMIN && data?.user.role !== UserRole.PREMIUM_USER;
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link
           href="/"
@@ -22,17 +27,21 @@ export default function Navbar() {
           StreetBites
         </Link>
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            className="text-orange-600 hover:bg-orange-50"
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            Go Premium
-          </Button>
+          {canUserSeePremiumButton && (
+            <Button
+              onClick={() => router.push('/subscription-plan')}
+              variant="ghost"
+              className="text-orange-600 hover:"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Go Premium
+            </Button>
+          )}
+          <ThemeToggle />
           {
             status === 'authenticated' ? (
               <div className="flex justify-center items-center">
-                <Link href={`${data.user.role?.toLocaleLowerCase()}/dashboard`}>
+                <Link href={`/dashboard`}>
                   <Button variant="outline">Dashboard</Button>
                 </Link>
                 <Button onClick={() => signOutUser()} variant="outline"><LogOut className="h-4 w-4" /></Button>

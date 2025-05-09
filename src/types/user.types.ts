@@ -1,5 +1,7 @@
+import { TPost } from "./post.types";
+
 export type TRole = "ADMIN" | "USER" | "PREMIUM_USER" | null;
-export type User = {
+export type TUser = {
   id: string;
   email: string;
   role: UserRole;
@@ -7,6 +9,7 @@ export type User = {
   createdAt: Date;
   updatedAt: Date;
   userDetails?: UserDetail;
+  authoredPosts?: TPost[];
 };
 
 export enum UserRole {

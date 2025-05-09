@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, Star, Search, Ban, Mail, Blocks } from "lucide-react";
+import { User, Search, Ban, Mail, Blocks } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   fetchUsersByRole,
@@ -26,42 +26,17 @@ import {
   updateUsers,
 } from "@/components/services/AuthService/UserService";
 import { toast } from "sonner";
-
-// const users = [
-//   {
-//     id: 1,
-//     email: "user1@example.com",
-//     role: "admin",
-//     status: "active",
-//     posts: 12,
-//   },
-//   {
-//     id: 2,
-//     email: "user2@example.com",
-//     role: "premium",
-//     status: "active",
-//     posts: 5,
-//   },
-//   {
-//     id: 3,
-//     email: "user3@example.com",
-//     role: "user",
-//     status: "banned",
-//     posts: 0,
-//   },
-// ];
+import { TUser, UserRole, UserStatus } from "@/types";
 
 export default function UserManagementPage() {
   const [selectedRole, setSelectedRole] = useState<string>("all");
-  const [users, setUsers] = useState<
-    { id: number; email: string; role: string; status: string; posts: number }[]
-  >([]);
+  const [users, setUsers] = useState<TUser[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [meta, setMeta] = useState<{
     limit: number;
     page: number;
     total: number;
   }>();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -99,16 +74,16 @@ export default function UserManagementPage() {
 
   // Revalidate Work is not working -------
 
-  const handleBlock = async (id: number, body: string) => {
+  const handleUserStatus = async (id: string, body: string) => {
     if (body === "BLOCKED") {
       const data = await updateUsers(id, body);
       if (data.statusCode === 200) {
-        toast.success("User Blocked Sucessfully");
+        toast.success("User blocked successfully");
       }
     } else {
       const data = await updateUsers(id, body);
       if (data.statusCode === 200) {
-        toast.success("User UnBlocked Sucessfully");
+        toast.success("User unblocked successfully");
       }
     }
   };
@@ -162,7 +137,7 @@ export default function UserManagementPage() {
                 <TableHead className="w-[10%]">Status</TableHead>
                 <TableHead className="w-[15%]">Posts</TableHead>
                 <TableHead className="w-[10%] text-right">Actions</TableHead>
-               
+
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -172,16 +147,16 @@ export default function UserManagementPage() {
                     {user.email}
                   </TableCell>
                   <TableCell className="font-medium truncate max-w-[200px] sm:max-w-none">
-                    {user.userDetails.name}
+                    {user?.userDetails?.name || 'N/A'}
                   </TableCell>
                   <TableCell>
                     <Badge
                       variant={
-                        user.role === "admin"
+                        user.role === UserRole.ADMIN
                           ? "destructive"
-                          : user.role === "premium"
-                          ? "secondary"
-                          : "outline"
+                          : user.role === UserRole.PREMIUM_USER
+                            ? "secondary"
+                            : "outline"
                       }
                       className="text-xs sm:text-sm"
                     >
@@ -210,7 +185,7 @@ export default function UserManagementPage() {
                         <>
                           {" "}
                           <Button
-                            onClick={() => handleBlock(user.id, "ACTIVE")}
+                            onClick={() => handleUserStatus(user.id, UserStatus.ACTIVE)}
                             size="icon"
                             variant="destructive"
                             className="h-8 w-8 cursor-pointer"
@@ -220,7 +195,7 @@ export default function UserManagementPage() {
                         </>
                       ) : (
                         <Button
-                          onClick={() => handleBlock(user.id, "BLOCKED")}
+                          onClick={() => handleUserStatus(user.id, UserStatus.BLOCKED)}
                           size="icon"
                           variant="destructive"
                           className="h-8 w-8 cursor-pointer"
