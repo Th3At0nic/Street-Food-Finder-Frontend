@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { TPost, PostCategory, PostsResponse, PostStatus, VoteCountResponse, VoteResponse, PostType } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
+<<<<<<< HEAD
 export async function fetchPosts(
   page: number,
   limit: number = 5,
@@ -10,12 +11,22 @@ export async function fetchPosts(
   authorId?:string,
   pType?:null | PostType
 ): Promise<{
+=======
+export async function fetchPosts(params: {
+  page: number;
+  limit?: number;
+  status?: PostStatus;
+  authorId?: string;
+  postType?: PostType;
+}): Promise<{
+>>>>>>> 86e08fc (update: updated post action)
   posts: TPost[];
   hasMore: boolean;
   totalPosts: number;
   currentPage: number;
   totalPages: number;
 }> {
+  const { page, limit = 5, status, authorId, postType } = params;
   try {
     const session = await getServerSession(authOptions);
     console.log({ session });
@@ -27,7 +38,10 @@ export async function fetchPosts(
       queryString += `&status=${status}`;
     }
     if (authorId) {
-      queryString += `&authorId=${authorId}`
+      queryString += `&authorId=${authorId}`;
+    }
+    if (postType) {
+      queryString += `&pType=${postType}`;
     }
     const response = await fetch(`${config.backend_url}/posts?${queryString}`);
     if (!response.ok) {
@@ -228,9 +242,10 @@ export async function getVoteCounts(params: { postId: string }) {
       method: "GET"
     });
     const result: VoteCountResponse = await response.json();
-   
+
     if (result.success) {
-      return result.data;}
+      return result.data;
+    }
     // } else {
     //   throw new Error(result.message);
     // }

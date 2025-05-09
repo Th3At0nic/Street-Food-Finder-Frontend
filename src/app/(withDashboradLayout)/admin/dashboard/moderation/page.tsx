@@ -21,11 +21,10 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import {
-  getAllPosts,
   updatePost,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { Post, PostStatus, TPost } from "@/types";
+import { PostStatus, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
 import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
@@ -72,7 +71,11 @@ export default function ModerationPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const result = await fetchPosts(1, 5, PostStatus.PENDING);
+        const result = await fetchPosts({
+          page: 1,
+          limit: 5,
+          status: PostStatus.PENDING,
+        });
         setPending(result.posts);
         setIsLoading(false);
       } catch (error) {

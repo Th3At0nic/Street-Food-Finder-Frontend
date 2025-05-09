@@ -41,12 +41,16 @@ export const updatePost = async (userId: string, payload: string): Promise<Posts
       body: JSON.stringify({ status: payload }),
     });
 
+<<<<<<< HEAD
     if (!res.ok) {
       throw new Error("Failed to update Post");
     }
 
     const result = await res.json(); 
     revalidateTag("Posts"); 
+=======
+    const result: PostsResponse = await res.json();
+>>>>>>> 86e08fc (update: updated post action)
     console.log(result);
 
     return result;

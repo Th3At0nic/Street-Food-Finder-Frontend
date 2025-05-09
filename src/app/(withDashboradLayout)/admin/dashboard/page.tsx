@@ -26,10 +26,14 @@ export default async function AdminDashboard() {
   console.log({ singleUser });
   const userData = await getAllUsers();
   const premiumUser = await fetchUsersByRole("PREMIUM_USER");
-  const pendingModeration = await fetchPosts(1, 5, PostStatus.PENDING);
- 
+  const pendingModeration = await fetchPosts({
+    page: 1,
+    limit: 5,
+    status: PostStatus.PENDING,
+  });
 
-  const handleChangePassword = () => {};
+
+  const handleChangePassword = () => { };
   return (
     <div className="space-y-8">
       {/* Admin Stats Cards */}
@@ -116,12 +120,11 @@ export default async function AdminDashboard() {
                 <TableCell>{singleUser.status}</TableCell>
                 <TableCell>
                   <span
-                    className={`${
-                      singleUser.role === UserRole.ADMIN ||
+                    className={`${singleUser.role === UserRole.ADMIN ||
                       UserRole.PREMIUM_USER
-                        ? "text-amber-600"
-                        : "text-gray-600"
-                    }`}
+                      ? "text-amber-600"
+                      : "text-gray-600"
+                      }`}
                   >
                     {singleUser.role}
                     <Badge></Badge>
@@ -129,7 +132,7 @@ export default async function AdminDashboard() {
                 </TableCell>
                 <TableCell className="text-right flex flex-col justify-end items-end gap-1.5">
                   <Button
-                 
+
                     variant="outline"
                     size="sm"
                     className="cursor-pointer text-blue-600 hover:text-blue-800"

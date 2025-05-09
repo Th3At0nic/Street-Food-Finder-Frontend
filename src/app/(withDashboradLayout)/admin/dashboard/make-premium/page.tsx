@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Check, X, Star, Search } from "lucide-react";
+import { Shield, Check, X, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,40 +21,15 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import {
-  getAllPosts,
   updatePost,
   updatePtype,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
+import { PostsResponse, PostStatus, TPost } from "@/types";
 import { PostStatus, PostType, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
-import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
-import { fetchUsersByRole } from "@/components/services/AuthService/UserService";
 
-// Mock data - replace with API calls
-// const pendingPosts = [
-//   {
-//     id: 1,
-//     title: "Spicy Chicken Tacos",
-//     author: "user1@example.com",
-//     category: "Snacks",
-//     price: "$3-$8",
-//     type: "normal",
-//     status: "pending",
-//     reported: 2
-//   },
-//   {
-//     id: 2,
-//     title: "Secret BBQ Stall",
-//     author: "user2@example.com",
-//     category: "Meals",
-//     price: "$10-$15",
-//     type: "premium",
-//     status: "pending",
-//     reported: 5
-//   }
-// ];
 
 const reportedComments = [
   {
@@ -94,7 +69,11 @@ export default function ModerationPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const result = await fetchPosts(1, 5);
+        const result = await fetchPosts({
+          page: 1,
+          limit: 5,
+          status: PostStatus.PENDING,
+        });
         setPending(result.posts);
         setIsLoading(false);
       } catch (error) {
@@ -113,7 +92,7 @@ export default function ModerationPage() {
     }
   ) => {
     // Add API call here
- 
+
     const result = await updatePtype(postId, body.pType);
     console.log(result);
     if (typeof result !== "string" && result.statusCode === 200) {
@@ -128,10 +107,10 @@ export default function ModerationPage() {
     }
   ) => {
     // Add API call here
-  const result =  await updatePtype(postId, body.pType);
-  if (typeof result !== "string" && result.statusCode === 200) {
-    toast.success("Make Post Normal sucessfully");
-  }
+    const result = await updatePtype(postId, body.pType);
+    if (typeof result !== "string" && result.statusCode === 200) {
+      toast.success("Make Post Normal sucessfully");
+    }
   };
   if (isLoading) {
     return (
