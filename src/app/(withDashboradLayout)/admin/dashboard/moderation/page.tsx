@@ -27,30 +27,7 @@ import { fetchPosts } from "@/app/actions/post-actions";
 import { PostStatus, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
-
-// Mock data - replace with API calls
-// const pendingPosts = [
-//   {
-//     id: 1,
-//     title: "Spicy Chicken Tacos",
-//     author: "user1@example.com",
-//     category: "Snacks",
-//     price: "$3-$8",
-//     type: "normal",
-//     status: "pending",
-//     reported: 2
-//   },
-//   {
-//     id: 2,
-//     title: "Secret BBQ Stall",
-//     author: "user2@example.com",
-//     category: "Meals",
-//     price: "$10-$15",
-//     type: "premium",
-//     status: "pending",
-//     reported: 5
-//   }
-// ];
+import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
 
 const reportedComments = [
   {
@@ -65,6 +42,7 @@ const reportedComments = [
 export default function ModerationPage() {
   const [pending, setPending] = useState<TPost[]>([]);
   const [filterType, setFilterType] = useState("all");
+  const [loading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -75,6 +53,7 @@ export default function ModerationPage() {
           status: PostStatus.PENDING,
         });
         setPending(result.posts);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -94,7 +73,7 @@ export default function ModerationPage() {
     const result = await updatePost(postId, body.status);
     console.log(result);
     if (typeof result !== "string" && result?.statusCode === 200) {
-      toast.success("post Approve sucessfully");
+      toast.success("Post approved successfully");
     }
   };
 
@@ -107,7 +86,13 @@ export default function ModerationPage() {
     // Add API call here
     await updatePost(postId, body.status);
   };
-
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-60">
+        <LoadingPosts></LoadingPosts>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -140,28 +125,25 @@ export default function ModerationPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Post Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            {pending.length === 0 ? (
-              <>
+          {pending.length === 0 ? (
+            <div className="flex justify-center items-center py-10">
+              <NoPost h="h-20" w="w-20" title="No Pending Post Yet" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    <NoPost h="h-20" w="w-20" title="No Pending Post Yet" />
-                  </TableCell>
+                  <TableHead>Post Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              </>
-            ) : (
+              </TableHeader>
+
               <TableBody>
-                {pending?.map((post) => (
+                {pending.map((post) => (
                   <TableRow key={post.pId}>
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell>{post.author?.userDetails?.name}</TableCell>
@@ -212,8 +194,8 @@ export default function ModerationPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            )}
-          </Table>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

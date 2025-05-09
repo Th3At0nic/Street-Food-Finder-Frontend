@@ -44,7 +44,7 @@ const adminNavItems = [
     },
     {
         title:"Make Premium ",
-        href:"/admin/dashboard/makePremium",
+        href:"/admin/dashboard/make-premium",
         icon: < DollarSign className="h-4 w-4"></DollarSign>
     },
     {
