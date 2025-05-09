@@ -53,7 +53,7 @@ export default function AuthGuard({ role, children }: { role: TRole, children: R
 
     return (
         <SidebarProvider>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen">
                 <Header role={data!.user!.role!} />
                 <div className="flex flex-col md:flex-row">
                     <SideBar role={data!.user!.role!} />

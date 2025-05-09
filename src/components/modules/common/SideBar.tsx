@@ -1,4 +1,6 @@
 'use client';
+
+import { GrPlan } from "react-icons/gr";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -35,6 +37,11 @@ const adminNavItems = [
         icon: <Users className="h-4 w-4" />
     },
     {
+        title: "Subscription Management",
+        href: "/admin/dashboard/subscription-plans",
+        icon: <GrPlan className="h-4 w-4" />
+    },
+    {
         title: "Content Audit",
         href: "/admin/dashboard/audit",
         icon: <FileText className="h-4 w-4" />
@@ -66,8 +73,8 @@ const userNavItems = [
         count: 5 // Pending items
     },
     {
-        title:"Payment History",
-        href:"/admin/dashboard/paymentHistory",
+        title: "Payment History",
+        href: "/admin/dashboard/paymentHistory",
         icon: <BadgeDollarSign className="h-4 w-4"></BadgeDollarSign>
     },
     {
@@ -84,7 +91,7 @@ export function SideBar({ role }: { role: TRole }) {
     return (
         <>
             <nav className={cn(
-                "fixed md:relative md:translate-x-0 z-50 w-64 h-screen bg-white border-r transform transition-transform duration-300 ease-in-out",
+                "fixed md:relative md:translate-x-0 z-50 w-64 h-screen border-r transform transition-transform duration-300 ease-in-out",
                 isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             )}>
                 <div className="p-4 h-full overflow-y-auto">

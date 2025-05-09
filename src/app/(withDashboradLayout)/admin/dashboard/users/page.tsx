@@ -129,7 +129,7 @@ export default function UserManagementPage() {
       <div className="rounded-lg border overflow-hidden">
         <div className="overflow-x-auto">
           <Table className="min-w-[600px]">
-            <TableHeader className="bg-gray-50">
+            <TableHeader className="bg-accent">
               <TableRow>
                 <TableHead className="w-[30%]">Email</TableHead>
                 <TableHead className="w-[20%]">User Name</TableHead>
