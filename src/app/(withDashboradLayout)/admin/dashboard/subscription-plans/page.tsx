@@ -31,6 +31,9 @@ export default function UserManagementPage() {
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [subscriptionPlans, setSubscriptionPlans] = useState<TSubscriptionPlan[]>([]);
   const [meta, setMeta] = useState<IMeta | null>();
+  const [page, setPage] = useState(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [limit, setLimit] = useState(7);
 
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,12 +79,15 @@ export default function UserManagementPage() {
 
   useEffect(() => {
     const getAllPlans = async () => {
-      const result = await fetchSubscriptionPlans({});
+      const result = await fetchSubscriptionPlans({
+        page,
+        limit
+      });
       setMeta(result.data.meta);
       setSubscriptionPlans(result.data.data);
     };
     getAllPlans();
-  }, [selectedRole]);
+  }, [selectedRole, page, limit]);
 
 
   return (
@@ -190,13 +196,13 @@ export default function UserManagementPage() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
-          Showing {((meta?.page || 0) - 1) * (meta?.limit || 7) + 1} - {(meta?.page || 0) * (meta?.limit || 7)} of {meta?.total} subscription plans
+          Showing {((meta?.page || 0) - 1) * (meta?.limit || limit) + 1} - {(meta?.page || 0) * (meta?.limit || limit)} of {meta?.total} subscription plans
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" disabled>
+          <Button onClick={() => setPage(page - 1)} variant="outline" disabled={meta?.page === 1}>
             Previous
           </Button>
-          <Button variant="outline" disabled>
+          <Button onClick={() => setPage(page + 1)} variant="outline" disabled={meta?.page === meta?.totalPages || meta?.totalPages === 1}>
             Next
           </Button>
         </div>
