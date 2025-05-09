@@ -1,16 +1,16 @@
 'use client'
 
 import AuthGuard from "@/components/modules/auth/authGuard/AuthGuard";
+import useSessionUpdateListener from "@/hooks/useSessionUpdateListener";
 import { TRole } from "@/types";
 import { useSession } from "next-auth/react";
-
-
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  useSessionUpdateListener();
 
   const { data } = useSession();
 

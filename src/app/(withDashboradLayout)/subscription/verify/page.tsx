@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IPaymentData } from "@/types/payment.types";
-import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -19,12 +18,16 @@ import { toast } from "sonner";
 export default function SubscriptionVerification() {
     const searchParams = useSearchParams();
     const spOrderId = searchParams.get("order_id");
+    const router = useRouter();
 
     const [data, setData] = useState<IPaymentData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const { update } = useSession();
 
+    const verificationResultRef = useRef<{ success: boolean; shouldUpdateSession: boolean }>({
+        success: false,
+        shouldUpdateSession: false
+    });
     const hasVerifiedRef = useRef(false);
 
     useEffect(() => {
@@ -32,11 +35,17 @@ export default function SubscriptionVerification() {
             return;
         }
 
-        const verifyAndRefresh = async () => {
+        hasVerifiedRef.current = true;
+
+        const verifyPayment = async () => {
             try {
                 const result = await verifyPaymentAction(spOrderId);
                 if (result.success) {
                     setData(result.data);
+                    verificationResultRef.current = {
+                        success: true,
+                        shouldUpdateSession: true
+                    };
                 } else {
                     toast.error(result.message);
                     setErrorMessage(result.message);
@@ -46,12 +55,29 @@ export default function SubscriptionVerification() {
                 setErrorMessage("Verification failed.");
             } finally {
                 setIsLoading(false);
-                hasVerifiedRef.current = true;
             }
         };
 
-        verifyAndRefresh();
-    }, [spOrderId, update]);
+        verifyPayment();
+    }, [spOrderId]);
+
+    useEffect(() => {
+        if (verificationResultRef.current.shouldUpdateSession) {
+            verificationResultRef.current.shouldUpdateSession = false;
+
+            const updateSession = async () => {
+                try {
+                    const event = new CustomEvent('session-update-needed');
+                    window.dispatchEvent(event);
+                    localStorage.setItem('session-needs-update', 'true');
+                } catch (error) {
+                    console.error("Failed to update session:", error);
+                }
+            };
+
+            updateSession();
+        }
+    }, [data]);
 
 
 
@@ -86,31 +112,42 @@ export default function SubscriptionVerification() {
         <div className="container mx-auto p-4">
             <h1 className="text-3xl font-bold mb-6">Payment Verification</h1>
             {paymentData ? (
-                <div className="grid gap-6 md:grid-cols-2"><Card>
-                    <CardHeader>
-                        <CardTitle>Payment Details</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <dl className="grid lg:grid-cols-2 gap-2">
-                            <dt className="font-semibold">Payment ID:</dt>
-                            <dd>{paymentData?.payment.pmId}</dd>
-                            <dt className="font-semibold">Amount:</dt>
-                            <dd>
-                                {paymentData?.verificationResponse.currency} {Number(paymentData?.payment.amount).toFixed(2)}
-                            </dd>
-                            <dt className="font-semibold">Status:</dt>
-                            <dd>
-                                <Badge
-                                    color={paymentData?.verificationResponse.bank_status === "Success" ? "green" : "red"}
-                                >
-                                    {paymentData?.verificationResponse.bank_status}
-                                </Badge>
-                            </dd>
-                            <dt className="font-semibold">Date:</dt>
-                            <dd>{paymentData?.payment.createdAt ? new Date(paymentData?.payment.createdAt).toLocaleString() : 'N/A'}</dd>
-                        </dl>
-                    </CardContent>
-                </Card>
+                <div className="grid gap-6 md:grid-cols-2">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Payment Details</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <dl className="grid lg:grid-cols-2 gap-2">
+                                <dt className="font-semibold">Payment ID:</dt>
+                                <dd>{paymentData?.payment.pmId}</dd>
+                                <dt className="font-semibold">Amount:</dt>
+                                <dd>
+                                    {paymentData?.verificationResponse.currency} {Number(paymentData?.payment.amount).toFixed(2)}
+                                </dd>
+                                <dt className="font-semibold">Status:</dt>
+                                <dd>
+                                    <Badge
+                                        className={paymentData?.verificationResponse.bank_status === "Success" ? "bg-green-500" : "bg-red-500"}
+                                    >
+                                        {paymentData?.verificationResponse.bank_status}
+                                    </Badge>
+                                </dd>
+                                <dt className="font-semibold">Date:</dt>
+                                <dd>{paymentData?.payment.createdAt ? new Date(paymentData?.payment.createdAt).toLocaleString() : 'N/A'}</dd>
+                            </dl>
+                            {paymentData?.verificationResponse.bank_status === "Success" && (
+                                <div className="mt-6">
+                                    <button
+                                        onClick={() => router.push('/user/dashboard')}
+                                        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition-colors"
+                                    >
+                                        Go to Your Dashboard
+                                    </button>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
                     <Card>
                         <CardHeader>

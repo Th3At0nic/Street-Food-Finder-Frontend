@@ -1,3 +1,4 @@
+import { IMeta } from "./common.types";
 import { TUser } from "./user.types";
 
 export enum PostType {
@@ -98,12 +99,7 @@ export interface PostsResponse {
   message: string;
   success: boolean;
   data: {
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
+    meta: IMeta;
     data: TPost[];
   };
 }
