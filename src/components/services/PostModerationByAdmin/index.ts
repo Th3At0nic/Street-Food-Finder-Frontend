@@ -42,7 +42,7 @@ export const updatePost = async (userId: string, payload: string): Promise<Posts
     });
     revalidateTag("Posts");
 
-    const result = res.json();
+    const result: PostsResponse = await res.json();
     console.log(result);
     return result;
   } catch (error: unknown) {

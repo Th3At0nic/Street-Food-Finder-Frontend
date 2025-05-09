@@ -20,7 +20,7 @@ export function usePostFeed() {
       setLoading(true);
 
       try {
-        const result = await fetchPosts(pageNum);
+        const result = await fetchPosts({ page: pageNum });
 
         if (pageNum === 1) {
           setPosts(result.posts);

@@ -27,12 +27,20 @@ import {
 export default async function AdminDashboard() {
   const singleUser = await getSingleUser();
 
-  const pendingModeration = await fetchPosts(1, 5, PostStatus.PENDING);
+  const pendingModeration = await fetchPosts({
+    page: 1,
+    limit: 5,
+    status: PostStatus.PENDING,
+  });
   console.log(pendingModeration.totalPosts);
-  const SpecificUserPosts = await fetchPosts(1, 5, null, singleUser?.id);
+  const SpecificUserPosts = await fetchPosts({
+    page: 1,
+    limit: 5,
+    authorId: singleUser?.id,
+  });
 
   console.log(SpecificUserPosts);
-  const handleChangePassword = () => {};
+  const handleChangePassword = () => { };
 
   // Handle Delete Work
   const handleDelete = (id: string) => {
@@ -141,15 +149,14 @@ export default async function AdminDashboard() {
 
                   <TableCell>
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        post.status === "APPROVED"
-                          ? "bg-green-100 text-green-800"
-                          : post.status === "PENDING"
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${post.status === "APPROVED"
+                        ? "bg-green-100 text-green-800"
+                        : post.status === "PENDING"
                           ? "bg-red-100 text-red-800"
                           : post.status === PostStatus.REJECTED
-                          ? "bg-red-100 text-red-800"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
+                            ? "bg-red-100 text-red-800"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
                     >
                       {post.status}
                     </span>
@@ -163,11 +170,10 @@ export default async function AdminDashboard() {
 
                   <TableCell>
                     <span
-                      className={`${
-                        post.location === "BD"
-                          ? "text-amber-600"
-                          : "text-gray-600"
-                      }`}
+                      className={`${post.location === "BD"
+                        ? "text-amber-600"
+                        : "text-gray-600"
+                        }`}
                     >
                       {post.location}
                     </span>
@@ -199,11 +205,10 @@ export default async function AdminDashboard() {
 
                   <TableCell>
                     <span
-                      className={`${
-                        post._count.votes > 1
-                          ? "text-amber-600"
-                          : "text-gray-600"
-                      }`}
+                      className={`${post._count.votes > 1
+                        ? "text-amber-600"
+                        : "text-gray-600"
+                        }`}
                     >
                       {post._count.votes}
                     </span>
@@ -211,11 +216,10 @@ export default async function AdminDashboard() {
 
                   <TableCell>
                     <span
-                      className={`${
-                        post._count.comments > 1
-                          ? "text-amber-600"
-                          : "text-gray-600"
-                      }`}
+                      className={`${post._count.comments > 1
+                        ? "text-amber-600"
+                        : "text-gray-600"
+                        }`}
                     >
                       {post._count.comments}
                     </span>
@@ -223,11 +227,10 @@ export default async function AdminDashboard() {
 
                   <TableCell>
                     <span
-                      className={`${
-                        post._count.postRatings > 1
-                          ? "text-amber-600"
-                          : "text-gray-600"
-                      }`}
+                      className={`${post._count.postRatings > 1
+                        ? "text-amber-600"
+                        : "text-gray-600"
+                        }`}
                     >
                       {post._count.postRatings}
                     </span>
@@ -243,7 +246,7 @@ export default async function AdminDashboard() {
                       Delete your Post
                       <Trash className="h-4 w-4"></Trash>
                     </Button>
-                   
+
                   </TableCell>
                 </TableRow>
               ))}
@@ -298,12 +301,11 @@ export default async function AdminDashboard() {
                 <TableCell>{singleUser?.status}</TableCell>
                 <TableCell>
                   <span
-                    className={`${
-                      singleUser?.role === UserRole.ADMIN ||
+                    className={`${singleUser?.role === UserRole.ADMIN ||
                       UserRole.PREMIUM_USER
-                        ? "text-amber-600"
-                        : "text-gray-600"
-                    }`}
+                      ? "text-amber-600"
+                      : "text-gray-600"
+                      }`}
                   >
                     {singleUser?.role}
                     <Badge></Badge>

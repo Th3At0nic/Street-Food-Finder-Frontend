@@ -1,19 +1,27 @@
+import { TSubscriptionPlan } from "./subscription.types";
+
 export interface IPaymentData {
   verificationResponse: VerificationResponse;
-  payment: Payment;
-  userSubscription: UserSubscription;
+  payment: IPayment;
+  userSubscription: TUserSubscription;
 }
 
-export interface Payment {
+export interface IPayment {
   pmId: string;
   userId: string;
   shurjoPayOrderId: string;
   amount: string;
   createdAt: Date;
   updatedAt: Date;
+  userSubscription: TUserSubscription[];
 }
 
-export interface UserSubscription {
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  PAID = "PAID"
+}
+
+export interface TUserSubscription {
   id: string;
   subPlanId: string;
   paymentStatus: string;
@@ -22,17 +30,7 @@ export interface UserSubscription {
   expiringAt: null;
   createdAt: Date;
   updatedAt: Date;
-  subscriptionPlan: SubscriptionPlan;
-}
-
-export interface SubscriptionPlan {
-  spId: string;
-  name: string;
-  fee: string;
-  duration: number;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
+  subscriptionPlan: TSubscriptionPlan;
 }
 
 export interface VerificationResponse {
