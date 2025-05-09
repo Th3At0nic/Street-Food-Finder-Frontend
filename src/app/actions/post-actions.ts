@@ -11,7 +11,8 @@ import {
   IMeta
 } from "@/types";
 import config from "@/config";
-import { authOptions } from "@/utils/authOptions";export async function fetchPosts(params: {
+import { authOptions } from "@/utils/authOptions";
+export async function fetchPosts(params: {
   page: number;
   limit?: number;
   status?: PostStatus;
@@ -40,6 +41,7 @@ import { authOptions } from "@/utils/authOptions";export async function fetchPos
     }
     const response = await fetch(`${config.backend_url}/posts?${queryString}`);
     if (!response.ok) {
+      console.log(response, queryString);
       throw new Error(`Failed to fetch posts: ${response.status}`);
     }
 

@@ -1,8 +1,12 @@
+"use client";
+
 import { useState, useCallback, useEffect, useRef } from "react";
-import { TPost } from "@/types";
+import { PostStatus, PostType, TPost, UserRole } from "@/types";
 import { fetchPosts } from "@/app/actions/post-actions";
+import { useSession } from "next-auth/react";
 
 export function usePostFeed() {
+  const { data: session } = useSession();
   const [posts, setPosts] = useState<TPost[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -20,7 +24,8 @@ export function usePostFeed() {
       setLoading(true);
 
       try {
-        const result = await fetchPosts({ page: pageNum });
+        const postType = session?.user.role === (UserRole.PREMIUM_USER || UserRole.ADMIN) ? undefined : PostType.NORMAL;
+        const result = await fetchPosts({ page: pageNum, status: PostStatus.APPROVED, postType });
 
         if (pageNum === 1) {
           setPosts(result.posts);
@@ -44,7 +49,7 @@ export function usePostFeed() {
         setLoading(false);
       }
     },
-    [loading]
+    [loading, session?.user.role]
   );
 
   const loadMorePosts = useCallback(() => {
