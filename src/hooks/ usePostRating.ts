@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Post } from "@/types";
+import { TPost } from "@/types";
 import { useSession } from "next-auth/react";
 import { getMyPostRating, postRatingOnPost, updateMyPostRating } from "@/app/actions/post-actions";
 
 /**
  * Custom hook for handling post rating
  */
-export function usePostRating(post: Post) {
+export function usePostRating(post: TPost) {
   const { data: session } = useSession();
   const [myPostRating, setMyPostRating] = useState<number | null>(null);
   const [myPostRatingId, setMyPostRatingId] = useState("");

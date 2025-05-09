@@ -104,7 +104,7 @@ export default function LoginForm() {
 
           <Button
             type="submit"
-            className="mt-5 w-full bg-orange-600 hover:bg-orange-50 hover:text-orange-600 cursor-pointer"
+            className="mt-5 w-full bg-orange-600 hover: hover:text-orange-600 cursor-pointer"
           >
             {isSubmitting ? "Logging...." : "Login"}
           </Button>

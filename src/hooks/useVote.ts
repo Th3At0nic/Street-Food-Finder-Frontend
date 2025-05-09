@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Post, VoteType } from "@/types";
+import { TPost, VoteType } from "@/types";
 import { useSession } from "next-auth/react";
 import { getUserVote, getVoteCounts, voteOnPost } from "@/app/actions/post-actions";
 
 /**
  * Custom hook for handling post voting
  */
-export function useVote(post: Post) {
+export function useVote(post: TPost) {
   const { data: session } = useSession();
   const [isVoted, setIsVoted] = useState(false);
   const [isUpVoted, setIsUpVoted] = useState(false);
@@ -109,6 +109,11 @@ export function useVote(post: Post) {
       }
 
       // Make API call
+      const payload = {
+        postId: post.pId,
+        vType: voteType
+      };
+      console.log({ payload });
       const response = await voteOnPost({
         postId: post.pId,
         vType: voteType

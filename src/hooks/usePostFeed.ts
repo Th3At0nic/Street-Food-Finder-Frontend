@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Post } from "@/types";
+import { TPost } from "@/types";
 import { fetchPosts } from "@/app/actions/post-actions";
 
 export function usePostFeed() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<TPost[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);

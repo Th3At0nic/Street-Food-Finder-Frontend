@@ -1,22 +1,22 @@
 'use client'
 
 import AuthGuard from "@/components/modules/auth/authGuard/AuthGuard";
+import useSessionUpdateListener from "@/hooks/useSessionUpdateListener";
 import { TRole } from "@/types";
 import { useSession } from "next-auth/react";
-
-
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  useSessionUpdateListener();
 
   const { data } = useSession();
 
-
+  const role = data?.user.role;
   return (
-    <AuthGuard role={data!.user.role as TRole}>
+    <AuthGuard role={role as TRole}>
       <main className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Mobile padding fix */}

@@ -41,7 +41,7 @@ export default function FoodSpotPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-accent">
     
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -56,7 +56,7 @@ export default function FoodSpotPage() {
         {/* Header Section */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold  mb-2">
               {spot.title}
               {isPremiumPost && (
                 <Badge  className="ml-2">

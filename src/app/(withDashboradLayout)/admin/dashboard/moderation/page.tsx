@@ -25,7 +25,7 @@ import {
   updatePost,
 } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { Post, PostStatus } from "@/types";
+import { Post, PostStatus, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
 
@@ -64,7 +64,7 @@ const reportedComments = [
 ];
 
 export default function ModerationPage() {
-  const [pending, setPending] = useState<Post[]>([]);
+  const [pending, setPending] = useState<TPost[]>([]);
   const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export default function ModerationPage() {
     // Add API call here
     const result = await updatePost(postId, body.status);
     console.log(result);
-    if (result.statusCode === 200) {
+    if (typeof result !== "string" && result?.statusCode === 200) {
       toast.success("post Approve sucessfully");
     }
   };
