@@ -104,10 +104,7 @@ export default function UserManagementPage() {
 
         {/* Search and Filter */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search users..." className="pl-10 w-full" />
-          </div>
+         
           <Select value={selectedRole} onValueChange={setSelectedRole}>
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="All Roles" />

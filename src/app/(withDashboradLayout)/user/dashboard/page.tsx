@@ -135,7 +135,6 @@ export default async function AdminDashboard() {
                 <TableHead>Post Status</TableHead>
                 <TableHead>Post Category</TableHead>
                 <TableHead>Location</TableHead>
-                <TableHead>post Image</TableHead>
                 <TableHead>Counts Votes</TableHead>
                 <TableHead>Counts Comments</TableHead>
                 <TableHead>Counts Ratings</TableHead>
@@ -179,30 +178,7 @@ export default async function AdminDashboard() {
                     </span>
                   </TableCell>
 
-                  <TableCell>
-                    {/* <span
-                      className={`${
-                        post.location === "BD"
-                          ? "text-amber-600"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      {post.location}
-                    </span> */}
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage
-                        src={
-                          post.postImages?.[0]?.file_path || "/default-post.png"
-                        }
-                        alt={post.title}
-                      />
-
-                      <AvatarFallback>
-                        {post.location.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TableCell>
-
+                 
                   <TableCell>
                     <span
                       className={`${post._count.votes > 1
@@ -243,7 +219,6 @@ export default async function AdminDashboard() {
                       size="sm"
                       className="cursor-pointer text-red-600 hover:text-green-800"
                     >
-                      Delete your Post
                       <Trash className="h-4 w-4"></Trash>
                     </Button>
 
