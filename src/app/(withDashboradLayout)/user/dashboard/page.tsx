@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
 
   const pendingModeration = await fetchPosts(1, 5, PostStatus.PENDING);
   console.log(pendingModeration.totalPosts);
-  const SpecificUserPosts = await fetchPosts(1, 5, null, singleUser.id);
+  const SpecificUserPosts = await fetchPosts(1, 5, null, singleUser?.id);
 
   console.log(SpecificUserPosts);
   const handleChangePassword = () => {};
@@ -135,7 +135,7 @@ export default async function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {SpecificUserPosts.posts?.map((post) => (
+              {SpecificUserPosts?.posts?.map((post) => (
                 <TableRow key={post.pId}>
                   <TableCell className="font-medium">{post.title}</TableCell>
 
@@ -293,19 +293,19 @@ export default async function AdminDashboard() {
                 </TableRow>
               ))} */}
               <TableRow>
-                <TableCell>{singleUser.email}</TableCell>
-                <TableCell>{singleUser.userDetails.name}</TableCell>
-                <TableCell>{singleUser.status}</TableCell>
+                <TableCell>{singleUser?.email}</TableCell>
+                <TableCell>{singleUser?.userDetails.name}</TableCell>
+                <TableCell>{singleUser?.status}</TableCell>
                 <TableCell>
                   <span
                     className={`${
-                      singleUser.role === UserRole.ADMIN ||
+                      singleUser?.role === UserRole.ADMIN ||
                       UserRole.PREMIUM_USER
                         ? "text-amber-600"
                         : "text-gray-600"
                     }`}
                   >
-                    {singleUser.role}
+                    {singleUser?.role}
                     <Badge></Badge>
                   </span>
                 </TableCell>
