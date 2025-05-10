@@ -33,7 +33,6 @@ import { SubscriptionPlanModal } from "@/components/modules/subscriptionPlans/cr
 
 import { IMeta, SubscriptionPlanStatus, TSubscriptionPlan } from "@/types";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
-import { Skeleton } from "@/components/ui/skeleton"; // Import skeleton component
 import { PaginationComponent } from "@/components/shared/PaginationComponent";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";
 

@@ -1,4 +1,4 @@
-import { Search as SearchIcon, Utensils, Candy, MapPin, Star, ChevronRight, Sparkles } from "lucide-react";
+import { Search as SearchIcon, ChevronRight } from "lucide-react";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "../ui/button";

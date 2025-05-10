@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import {
   TPost,
   TPostCategory,
-  PostsResponse,
   PostStatus,
   VoteCountResponse,
   VoteResponse,

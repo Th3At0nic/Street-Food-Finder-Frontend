@@ -1,21 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/spots/[id]/page.tsx
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   MapPin,
   Star,
-  ArrowUp,
-  ArrowDown,
-  MessageCircle,
   Utensils,
-  Clock,
   Wallet,
   Shield,
-  Map,
+
 } from "lucide-react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 // import { useState } from "react";
 
@@ -29,8 +24,6 @@ export default async function FoodSpotPage({
     `https://street-food-finder-backend.vercel.app/api/posts/${postId}`
   );
   const post = await res.json();
-  console.log(post);
-  const isPremiumUser = false; // Replace with actual auth check
   const isPremiumPost = true; // Replace with post data
   // const [comment, setComment] = useState("");
 
@@ -138,7 +131,7 @@ export default async function FoodSpotPage({
 
               {/* Comments List */}
               <div className="space-y-4">
-                {post?.data?.comments.map((comment) => (
+                {post?.data?.comments.map((comment:any) => (
                   <div key={comment.cId} className="border-b pb-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">User </span>

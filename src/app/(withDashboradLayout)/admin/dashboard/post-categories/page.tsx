@@ -20,7 +20,6 @@ import { fetchPostCategories } from "@/app/actions/post-actions";
 import { PostCategoryModal } from "@/components/modules/post/AllComments/PostCategoryModal";
 import { createOrUpdatePostCategory, deletePostCategory } from "@/components/services/PostServices";
 import { DeleteConfirmationModal } from "@/components/modules/deleteModal/deleteConfirmationModal";
-import { Skeleton } from "@/components/ui/skeleton";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
 import { PaginationComponent } from "@/components/shared/PaginationComponent";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";

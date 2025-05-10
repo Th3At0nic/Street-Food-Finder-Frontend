@@ -9,7 +9,7 @@ import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
-  const { posts, loading, loadMorePosts } = usePostFeed();
+  const { posts, loading} = usePostFeed();
   console.log(posts,loading);
   const trendingPosts = [...posts].sort((a, b) => {
     const aScore = a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
