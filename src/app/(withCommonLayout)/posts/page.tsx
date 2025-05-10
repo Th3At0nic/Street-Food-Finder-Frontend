@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useInView } from "react-intersection-observer";
@@ -230,7 +229,7 @@ export default function AllSpotsPage() {
               )}
             </div>
           )}
-          
+
 
           <div className="space-y-6  max-w-[800px]">
             {filteredPosts?.length === 0 ? (

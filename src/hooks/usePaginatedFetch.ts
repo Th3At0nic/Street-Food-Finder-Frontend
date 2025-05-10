@@ -56,7 +56,6 @@ export function usePaginatedFetch<T>({ fetchFn, getKey }: UsePaginatedFetchOptio
     return () => {
       if (ref) observer.unobserve(ref);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta.page, meta.totalPages, loading]);
 
   return {
