@@ -23,6 +23,7 @@ import { DeleteConfirmationModal } from "@/components/modules/deleteModal/delete
 import { Skeleton } from "@/components/ui/skeleton";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
 import { PaginationComponent } from "@/components/shared/PaginationComponent";
+import { TableSkeleton } from "@/components/shared/TableSkeleton";
 
 export default function PostCategoryPage() {
   const [postCategories, setPostCategories] = useState<TPostCategory[]>([]);
@@ -129,19 +130,6 @@ export default function PostCategoryPage() {
       setIsLoading(false);
     }
   };
-  const TableSkeleton = () => {
-    return Array.from({ length: limit }).map((_, index) => (
-      <TableRow key={index}>
-        <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-        <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-        <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-        <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-        <TableCell className="text-right">
-          <Skeleton className="h-8 w-8 ml-auto" />
-        </TableCell>
-      </TableRow>
-    ));
-  };
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -189,7 +177,7 @@ export default function PostCategoryPage() {
             </TableHeader>
             <TableBody>
               {isTableLoading ? (
-                <TableSkeleton />
+                <TableSkeleton cols={4} />
               ) : postCategories.length ? postCategories?.map((postCategory) => (
                 <TableRow key={postCategory.catId}>
                   <TableCell className="font-medium truncate max-w-[200px] sm:max-w-none">

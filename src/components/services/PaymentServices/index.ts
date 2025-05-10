@@ -25,11 +25,15 @@ export async function verifyPaymentAction(spOrderId: string) {
 }
 
 // get payment history
-export async function fetchPaymentHistories(params: { page?: number; limit?: number }) {
+export async function fetchPaymentHistories(params: { page?: number; limit?: number; searchTerm?: number }) {
   const session = await getServerSession(authOptions);
-  const { page = 1, limit = 7 } = params;
+  const { page = 1, limit = 7, searchTerm } = params;
+  let apiURL = `${config.backend_url}/payments?page=${page}&limit=${limit}`;
+  if (searchTerm) {
+    apiURL += `&searchTerm=${searchTerm}`;
+  }
   try {
-    const response = await fetch(`${config.backend_url}/payments?page=${page}&limit=${limit}`, {
+    const response = await fetch(apiURL, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${session?.user.accessToken}`,

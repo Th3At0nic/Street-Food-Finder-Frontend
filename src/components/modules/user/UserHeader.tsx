@@ -1,6 +1,7 @@
 'use client';
 
 import Logo from "@/components/shared/Logo";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/context/sidebar-context";
 import { signOutUser } from "@/lib/auth/signOutUser";
@@ -38,6 +39,8 @@ export function UserHeader() {
         </Link>
 
         <div className="flex items-center gap-4">
+
+          <ThemeToggle />
           <Button
             onClick={() => signOutUser()}
             variant="ghost"
