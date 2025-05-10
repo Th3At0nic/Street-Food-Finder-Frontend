@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { TPost } from "@/types";
 import { MapPin, Star, ArrowUp, ArrowDown, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

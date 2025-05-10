@@ -2,7 +2,7 @@
 'use client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, User, Edit, Trash } from "lucide-react";
+import { Shield } from "lucide-react";
 
 const logs = [
   { id: 1, action: "POST_APPROVAL", user: "admin@example.com", target: "Spicy Tacos", timestamp: "2024-03-15 14:30" },

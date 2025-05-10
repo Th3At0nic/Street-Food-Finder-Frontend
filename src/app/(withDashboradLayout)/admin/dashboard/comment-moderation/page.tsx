@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { RxCross2 } from "react-icons/rx";
@@ -64,9 +65,9 @@ export default function CommentModerationPage() {
       setIsTableLoading(false);
     }
   }
-
+   
   useEffect(() => {
-    getAllComments();
+    getAllComments();               
   }, [page, limit, filterStatus, searchTerm]);
 
   const handleUpdateCommentStatus = async (comment: IComment, status: CommentStatus) => {

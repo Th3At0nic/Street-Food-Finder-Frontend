@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useInView } from "react-intersection-observer";
@@ -7,7 +8,6 @@ import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
 import { useEffect, useState } from "react";
 import { CreatePostCard } from "@/components/modules/post/CreatePostCard";
 import NoPost from "@/components/shared/noPost";
-import { PostSearchBox } from "@/components/modules/post/PostSearchBox";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import {

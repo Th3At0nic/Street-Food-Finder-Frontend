@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { AlertCircle, Save, Mail, Shield } from "lucide-react";
+import { AlertCircle, Mail, Shield } from "lucide-react";
 
 export default function SettingsPage() {
   return (
