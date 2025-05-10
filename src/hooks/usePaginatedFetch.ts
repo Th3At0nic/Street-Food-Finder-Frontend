@@ -35,7 +35,6 @@ export function usePaginatedFetch<T>({ fetchFn }: UsePaginatedFetchOptions<T>) {
   // Initial load
   useEffect(() => {
     load(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Infinite scroll
