@@ -47,7 +47,7 @@ export default function UserManagementPage() {
         selectedRole === "PREMIUM_USER"
       ) {
         const result = await fetchUsersByRole(selectedRole);
-        setUsers(result.data);
+        setUsers(result.data.data);
       }
       if (selectedRole === "all") {
         const result = await getAllUsers();
@@ -88,7 +88,7 @@ export default function UserManagementPage() {
       }
     }
   };
-
+console.log(users);
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <Card>
