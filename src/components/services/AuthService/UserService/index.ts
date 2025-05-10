@@ -1,6 +1,7 @@
 "use server";
 
 import config from "@/config";
+import { IMeta, IResponse, TUser } from "@/types";
 import { authOptions } from "@/utils/authOptions";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
@@ -42,7 +43,7 @@ export const getSingleUser = async () => {
     });
 
     if (!res.ok) {
-      toast.error("failed to fetch users")
+      toast.error("failed to fetch users");
     }
 
     const userResult = await res.json();
@@ -80,8 +81,11 @@ export const fetchUsersByRole = async (role: string) => {
         Authorization: `Bearer ${session?.user.accessToken}`
       }
     });
-    const data = await response.json();
-    return data.data;
+    const data: IResponse<{
+      data: TUser[];
+      meta: IMeta;
+    }> = await response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching users by role:", error);
     throw error; // Re-throw so caller can catch if needed

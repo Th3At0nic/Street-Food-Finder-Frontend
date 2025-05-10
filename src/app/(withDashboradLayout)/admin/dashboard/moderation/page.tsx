@@ -10,81 +10,119 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Check, X, Star, Search } from "lucide-react";
+import { Shield, Check, X, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useEffect, useState } from "react";
-import {
-  updatePost,
-} from "@/components/services/PostModerationByAdmin";
+import { useEffect, useState, useCallback } from "react";
+import { updatePost } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { PostStatus, TPost } from "@/types";
+import { IMeta, PostStatus, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
-import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
+import { PaginationComponent } from "@/components/shared/PaginationComponent";
+import { PostRejectConfirmationModal } from "@/components/modules/deleteModal/postRejectConfirmationModal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/shared/TableSkeleton";
 
-
+const POSTS_PER_PAGE = 7;
 
 export default function ModerationPage() {
-  const [pending, setPending] = useState<TPost[]>([]);
-  const [filterType, setFilterType] = useState("all");
-  const [loading, setIsLoading] = useState(true);
+  const [posts, setPosts] = useState<TPost[]>([]);
+  const [currentPost, setCurrentPost] = useState<TPost | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState<IMeta>({
+    page,
+    limit: POSTS_PER_PAGE,
+    total: 0,
+    totalPages: 1
+  });
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState<PostStatus | undefined>(undefined);
+  const [rejectReason, setRejectReason] = useState<string | undefined>(undefined);
 
+  // Memoized fetch function
+  const getPosts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await fetchPosts({
+        page,
+        limit: POSTS_PER_PAGE,
+        status: PostStatus.PENDING,
+        searchTerm
+      });
+      setPosts(result.data.data);
+      setMeta(result.data.meta);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      toast.error("Failed to fetch posts");
+    }
+  }, [page, searchTerm]);
+
+  // Debounce search
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const result = await fetchPosts({
-          page: 1,
-          limit: 5,
-          status: PostStatus.PENDING,
-        });
-        setPending(result.posts);
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
+    const handler = setTimeout(() => {
+      if (searchInput !== searchTerm) {
+        setSearchTerm(searchInput);
+        setPage(1);
       }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
     };
+  }, [searchInput, searchTerm]);
 
-    fetchUsers(); // call the inner function
-  }, []);
-  console.log(pending);
+  // Fetch posts when page or search term changes
+  useEffect(() => {
+    getPosts();
+  }, [getPosts]);
 
-  const handleApprove = async (
+  const handleStatusUpdate = useCallback(async (
     postId: string,
-    body: {
-      status: PostStatus.APPROVED | PostStatus.PENDING | PostStatus.REJECTED;
-    }
+    status: PostStatus.REJECTED | PostStatus.APPROVED,
+    rejectReason?: string
   ) => {
-    // Add API call here
-    const result = await updatePost(postId, body.status);
-    console.log(result);
-    if (typeof result !== "string" && result?.statusCode === 200) {
-      toast.success("Post approved successfully");
+    if (status === PostStatus.REJECTED && !rejectReason) {
+      toast.warning("Please enter a reject reason!");
+      return;
     }
-  };
 
-  const handleReject = async (
-    postId: string,
-    body: {
-      status: PostStatus.APPROVED | PostStatus.PENDING | PostStatus.REJECTED;
+    const toastId = toast.loading('Updating post status...');
+    try {
+      const result = await updatePost({ postId, status, rejectReason });
+      if (result?.success) {
+        toast.success(`Post ${status === PostStatus.APPROVED ? "approved" : "rejected"} successfully`, { id: toastId });
+        await getPosts();
+        setIsRejectModalOpen(false);
+        setRejectReason(undefined);
+      } else {
+        toast.error(`Failed to ${status === PostStatus.APPROVED ? "approve" : "reject"} post`, { id: toastId });
+      }
+    } catch (error) {
+      toast.error(`Error: ${error instanceof Error ? error.message : "Something went wrong"}`, { id: toastId });
     }
-  ) => {
-    // Add API call here
-    await updatePost(postId, body.status);
-  };
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-60">
-        <LoadingPosts></LoadingPosts>
-      </div>
+  }, [getPosts]);
+
+  // Handle status change when newStatus and rejectReason are set
+  useEffect(() => {
+    if (!newStatus ||
+      newStatus === PostStatus.PENDING ||
+      !currentPost ||
+      (newStatus === PostStatus.REJECTED && !rejectReason)) {
+      return;
+    }
+
+    handleStatusUpdate(
+      currentPost.pId,
+      newStatus,
+      rejectReason
     );
-  }
+  }, [currentPost, rejectReason, newStatus, handleStatusUpdate]);
+
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -96,28 +134,39 @@ export default function ModerationPage() {
               Pending Posts Approval
             </CardTitle>
             <div className="text-sm text-gray-500">
-              {pending.length} posts awaiting moderation
+              {loading ? <Skeleton className="h-4 w-[120px]" /> : `${posts.length} posts awaiting moderation`}
             </div>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            {/* <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="normal">Normal Posts</SelectItem>
-                <SelectItem value="premium">Premium Posts</SelectItem>
-              </SelectContent>
-            </Select> */}
             <div className="relative w-full sm:w-[240px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input placeholder="Search posts..." className="pl-10" />
+              <Input
+                placeholder="Search posts..."
+                className="pl-10"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          {pending.length === 0 ? (
+          {loading ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Post Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableSkeleton cols={6} />
+              </TableBody>
+            </Table>
+          ) : posts.length === 0 ? (
             <div className="flex justify-center items-center py-10">
               <NoPost h="h-20" w="w-20" title="No Pending Post Yet" />
             </div>
@@ -135,7 +184,7 @@ export default function ModerationPage() {
               </TableHeader>
 
               <TableBody>
-                {pending.map((post) => (
+                {posts.map((post) => (
                   <TableRow key={post.pId}>
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell>{post.author?.userDetails?.name}</TableCell>
@@ -159,11 +208,10 @@ export default function ModerationPage() {
                       <Button
                         size="sm"
                         variant="default"
-                        onClick={() =>
-                          handleApprove(post.pId, {
-                            status: PostStatus.APPROVED,
-                          })
-                        }
+                        onClick={() => {
+                          setCurrentPost(post);
+                          setNewStatus(PostStatus.APPROVED);
+                        }}
                         className="cursor-pointer"
                       >
                         <Check className="h-4 w-4 mr-2" />
@@ -172,11 +220,11 @@ export default function ModerationPage() {
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() =>
-                          handleReject(post.pId, {
-                            status: PostStatus.REJECTED,
-                          })
-                        }
+                        onClick={() => {
+                          setCurrentPost(post);
+                          setNewStatus(PostStatus.REJECTED);
+                          setIsRejectModalOpen(true);
+                        }}
                         className="cursor-pointer"
                       >
                         <X className="h-4 w-4 mr-2" />
@@ -192,19 +240,26 @@ export default function ModerationPage() {
       </Card>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-500">
-          Showing 1-{pending.length} of {pending.length} results
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" disabled>
-            Previous
-          </Button>
-          <Button variant="outline" disabled>
-            Next
-          </Button>
-        </div>
-      </div>
+      <PaginationComponent
+        meta={meta}
+        setPage={setPage}
+        page={page}
+        isTableLoading={loading}
+        tableContentName="posts"
+      />
+
+      <PostRejectConfirmationModal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        onConfirm={(reason) => {
+          setRejectReason(reason);
+        }}
+        title="Reject Post"
+        description="Please provide a reason for rejecting this post."
+        confirmText="Submit Rejection"
+        cancelText="Cancel"
+        isLoading={false}
+      />
     </div>
   );
 }

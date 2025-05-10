@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Check, X, Search } from "lucide-react";
+import { Shield, Check, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -20,58 +20,76 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { updatePost, updatePtype } from "@/components/services/PostModerationByAdmin";
+import { updatePostType } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
-import { PostsResponse, PostStatus, PostType, TPost } from "@/types";
+import { IMeta, PostStatus, PostType, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
-import { LoadingPosts } from "@/components/modules/post/LoadingPosts";
+import { TableSkeleton } from "@/components/shared/TableSkeleton";
+import { PaginationComponent } from "@/components/shared/PaginationComponent";
 
-const reportedComments = [
-  {
-    id: 1,
-    content: "Overrated, not worth the price!",
-    author: "user3@example.com",
-    post: "Spicy Chicken Tacos",
-    reports: 3,
-  },
-];
-
+const POSTS_PER_PAGE = 7;
 export default function ModerationPage() {
-  const [pending, setPending] = useState<TPost[]>([]);
-  const [filterType, setFilterType] = useState("all");
+  const [posts, setPosts] = useState<TPost[]>([]);
+  const [filterType, setFilterType] = useState<PostType | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedRole, setSelectedRole] = useState<string | undefined>("all");
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState<IMeta>({
+    page,
+    limit: POSTS_PER_PAGE,
+    total: 0,
+    totalPages: 1
+  });
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Debounce search
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const result = await fetchPosts({
-          page: 1,
-          limit: 5,
-          status: PostStatus.APPROVED,
-        });
-        setPending(result.posts);
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
+    const handler = setTimeout(() => {
+      if (searchInput !== searchTerm) {
+        setSearchTerm(searchInput);
+        setPage(1);
       }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
     };
+  }, [searchInput, searchTerm]);
 
-    fetchUsers();
-  }, [filterType]);
+  const getApprovedPosts = async () => {
+    try {
+      const result = await fetchPosts({
+        page,
+        limit: POSTS_PER_PAGE,
+        status: PostStatus.APPROVED,
+        postType: filterType,
+        searchTerm
+      });
+      setPosts(result.data.data);
+      setMeta(result.data.meta);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  console.log(pending);
-  console.log(pending);
+  useEffect(() => {
+    getApprovedPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterType, searchTerm, page]);
+
   const handlePremium = async (
     postId: string,
     body: {
       pType: PostType.PREMIUM;
     }
   ) => {
-    const result = await updatePtype(postId, body.pType);
+    const result = await updatePostType(postId, body.pType);
     console.log(result);
     if (typeof result !== "string" && result.statusCode === 200) {
-      toast.success("Make Post Premium sucessfully");
+      toast.success("Post has been made premium successfully!");
     }
   };
 
@@ -81,19 +99,11 @@ export default function ModerationPage() {
       pType: PostType.NORMAL;
     }
   ) => {
-    // Add API call here
-    const result = await updatePtype(postId, body.pType);
+    const result = await updatePostType(postId, body.pType);
     if (typeof result !== "string" && result.statusCode === 200) {
-      toast.success("Make Post Normal sucessfully");
+      toast.success("Post type changed to normal successfully");
     }
   };
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-60">
-        <LoadingPosts></LoadingPosts>
-      </div>
-    );
-  }
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -102,31 +112,38 @@ export default function ModerationPage() {
           <div className="space-y-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Shield className="h-5 w-5 text-red-600" />
-              Make Approved Post Premium
+              Manage Premium and Normal Posts
             </CardTitle>
             <div className="text-sm text-gray-500">
-              {pending.length} posts awaiting moderation
+              Total {meta.total} approved posts found!
             </div>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            <Select value={filterType} onValueChange={setFilterType}>
+            <Select value={filterType} onValueChange={(val) => {
+              setFilterType(val === 'all' ? undefined : val as PostType);
+            }}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="normal">Normal Posts</SelectItem>
-                <SelectItem value="premium">Premium Posts</SelectItem>
+                <SelectItem value="all">ALL</SelectItem>
+                <SelectItem value={PostType.NORMAL}>{PostType.NORMAL}</SelectItem>
+                <SelectItem value={PostType.PREMIUM}>{PostType.PREMIUM}</SelectItem>
               </SelectContent>
             </Select>
             <div className="relative w-full sm:w-[240px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input placeholder="Search posts..." className="pl-10" />
+              <Input
+                placeholder="Search posts..."
+                className="pl-10"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          {pending?.length === 0 ? (
+          {posts?.length === 0 ? (
             <div className="flex justify-center items-center py-10">
               <NoPost h="h-20" w="w-20" title="No Approved Post Yet" />
             </div>
@@ -137,14 +154,14 @@ export default function ModerationPage() {
                   <TableHead>Post Title</TableHead>
                   <TableHead>Author</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
+                  <TableHead>Price Range</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Post Type</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pending?.map((post) => (
+                {isLoading ? <TableSkeleton cols={7} /> : posts?.map((post) => (
                   <TableRow key={post.pId}>
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell>{post.author?.userDetails?.name}</TableCell>
@@ -217,19 +234,13 @@ export default function ModerationPage() {
       </Card>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-500">
-          Showing 1-{pending.length} of {pending.length} results
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" disabled>
-            Previous
-          </Button>
-          <Button variant="outline" disabled>
-            Next
-          </Button>
-        </div>
-      </div>
+      <PaginationComponent
+        meta={meta}
+        setPage={setPage}
+        page={page}
+        isTableLoading={isLoading}
+        tableContentName="posts"
+      />
     </div>
   );
 }

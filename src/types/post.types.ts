@@ -25,6 +25,7 @@ export type TPost = {
   status: PostStatus;
   title: string;
   description: string;
+  rejectReason?: string;
   priceRangeStart: number;
   priceRangeEnd: number;
   location: string;

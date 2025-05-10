@@ -8,7 +8,8 @@ import {
   VoteCountResponse,
   VoteResponse,
   PostType,
-  IMeta
+  IMeta,
+  IResponse
 } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
@@ -19,34 +20,30 @@ export async function fetchPosts(params: {
   status?: PostStatus;
   authorId?: string;
   postType?: PostType;
-}): Promise<{
-  posts: TPost[];
-  hasMore: boolean;
-  totalPosts: number;
-  currentPage: number;
-  totalPages: number;
-}> {
-  const { page, limit = 5, status, authorId, postType } = params;
+  searchTerm?: string;
+}) {
+  const { page, limit = 5, status, authorId, postType, searchTerm } = params;
   try {
     const session = await getServerSession(authOptions);
     console.log({ session });
-    let queryString = `page=${page}&limit=${limit}`;
+    let apiURL = `${config.backend_url}/posts?page=${page}&limit=${limit}`;
+    if (searchTerm) {
+      apiURL += `&searchTerm=${searchTerm}`;
+    }
     if (status) {
-      queryString += `&status=${status}`;
+      apiURL += `&status=${status}`;
     }
     if (authorId) {
-      queryString += `&authorId=${authorId}`;
+      apiURL += `&authorId=${authorId}`;
     }
     if (postType) {
-      queryString += `&pType=${postType}`;
+      apiURL += `&pType=${postType}`;
     }
-    const response = await fetch(`${config.backend_url}/posts?${queryString}`);
-    if (!response.ok) {
-      console.log(response, queryString);
-      throw new Error(`Failed to fetch posts: ${response.status}`);
-    }
-
-    const responseData: PostsResponse = await response.json();
+    const response = await fetch(apiURL);
+    const responseData: IResponse<{
+      data: TPost[];
+      meta: IMeta;
+    }> = await response.json();
 
     if (!responseData.success) {
       throw new Error(`API error: ${responseData.message}`);
@@ -54,13 +51,7 @@ export async function fetchPosts(params: {
     const { data, meta } = responseData.data;
     console.log(data[0], meta);
 
-    return {
-      posts: data,
-      hasMore: page < meta.totalPages,
-      totalPosts: meta.total,
-      currentPage: meta.page,
-      totalPages: meta.totalPages
-    };
+    return responseData;
   } catch (error) {
     console.error("Error fetching posts:", error);
     throw error;
