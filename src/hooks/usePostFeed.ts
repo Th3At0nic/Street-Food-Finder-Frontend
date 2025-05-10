@@ -26,14 +26,14 @@ export function usePostFeed() {
       try {
         const postType = session?.user.role === (UserRole.PREMIUM_USER || UserRole.ADMIN) ? undefined : PostType.NORMAL;
         const result = await fetchPosts({ page: pageNum, status: PostStatus.APPROVED, postType });
-    
+
         if (pageNum === 1) {
           setPosts(result?.data.data);
         } else {
           setPosts((prev) => [...prev, ...result?.data?.data]);
         }
 
-        setHasMore(result.hasMore);
+        setHasMore(result.data?.meta?.page < result.data?.meta?.totalPages);
         setTotalPosts(result.data?.meta?.total);
         setTotalPages(result.data?.meta?.totalPages);
 

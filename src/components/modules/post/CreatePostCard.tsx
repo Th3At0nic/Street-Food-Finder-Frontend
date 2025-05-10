@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -124,23 +123,12 @@ export function CreatePostCard() {
   return (
     <Card className="mb-4 shadow-sm">
       <CardContent className="pt-0">
-        <div className="flex justify-center mb-4 items-center">
-          <Avatar className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
-            <AvatarImage
-              src={session?.user?.image || "/api/placeholder/32/32"}
-              alt="Your profile"
-              sizes="64px"
-            />
-            <AvatarFallback>{session?.user?.name?.[0] || "U"}</AvatarFallback>
-          </Avatar>
-
-        </div>
-        <div className="flex items-center justify-center space-x-3">
+        <div className="flex items-center justify-center space-x-3 w-full">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 onClick={handleOpenDialog}
-                className="rounded-full 0 cursor-pointer hover:bg-orange-600"
+                className="rounded-full cursor-pointer w-full"
               >
                 Share a post...
               </Button>
