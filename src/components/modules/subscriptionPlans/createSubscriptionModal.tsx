@@ -108,7 +108,7 @@ export function SubscriptionPlanModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px] max-h-[88vh] mt-8 p-0 flex flex-col">
+            <DialogContent className="sm:max-w-[525px] md:max-w-[800px] max-h-[88vh] mt-8 p-0 flex flex-col">
                 <DialogHeader className="p-6 pb-2">
                     <DialogTitle>
                         {isEditMode ? "Edit Subscription Plan" : "Create Subscription Plan"}
@@ -119,8 +119,8 @@ export function SubscriptionPlanModal({
                             : "Enter the details for the new subscription plan."}
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto px-6">
-                    <Form {...form}>
+                <Form {...form}><form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto px-6">
                         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                             <FormField
                                 control={form.control}
@@ -285,16 +285,17 @@ export function SubscriptionPlanModal({
                                 )}
                             />
                         </form>
-                    </Form>
-                </div>
-                <DialogFooter className="p-4 border-t">
-                    <Button className="cursor-pointer" variant="outline" onClick={() => onOpenChange(false)}>
-                        Cancel
-                    </Button>
-                    <Button className="cursor-pointer" type="submit" disabled={isLoading}>
-                        {isLoading ? "Saving..." : isEditMode ? "Update Plan" : "Create Plan"}
-                    </Button>
-                </DialogFooter>
+                    </div>
+                    <DialogFooter className="p-4 border-t mt-6">
+                        <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? "Saving..." : isEditMode ? "Update Plan" : "Create Plan"}
+                        </Button>
+                    </DialogFooter>
+                </form>
+                </Form>
             </DialogContent>
         </Dialog>
     );
