@@ -36,7 +36,7 @@ export default function AllSpotsPage() {
   }, [inView, loading, loadMorePosts]);
 
   // Filter posts based on search and price
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = posts?.filter((post) => {
     const matchesSearch = post.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
@@ -45,6 +45,7 @@ export default function AllSpotsPage() {
       (!priceTo || post.priceRangeEnd <= Number(priceTo));
     return matchesSearch && matchesPrice;
   });
+  console.log(filteredPosts);
 
   return (
     <div className=" flex flex-col lg:flex-row">
@@ -110,11 +111,11 @@ export default function AllSpotsPage() {
         <CreatePostCard />
 
         <div className="space-y-6 mt-6">
-          {filteredPosts.map((post) => (
+          {filteredPosts?.map((post) => (
             <PostCardFeed key={post.pId} post={post} />
           ))}
 
-          {filteredPosts.length === 0 && (
+          {filteredPosts?.length === 0 && (
             <div className="flex justify-center items-center py-12">
               <NoPost h="h-32" w="w-32" title="No Post" />
             </div>

@@ -1,12 +1,25 @@
+"use client"
 // app/page.tsx
 import PostCard from "@/components/modules/post/PostCard";
 import SearchBox from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePostFeed } from "@/hooks/usePostFeed";
 import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
+  const { posts, loading, loadMorePosts } = usePostFeed();
+  console.log(posts,loading);
+  const trendingPosts = [...posts].sort((a, b) => {
+    const aScore = a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
+    const bScore = b._count.comments * 2 + b._count.votes * 1 + (b.averageRating ?? 0) * 3;
+    return bScore - aScore;
+  })
 
+  if (loading) {
+    return <Skeleton></Skeleton>
+  }
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -34,8 +47,8 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((item) => (
-              <PostCard key={item} />
+            {trendingPosts.map((item) => (
+              <PostCard data={item} key={item.pId}/>
             ))}
           </div>
         </section>

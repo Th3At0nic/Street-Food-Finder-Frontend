@@ -87,6 +87,7 @@ export default function SubscriptionPlanManagementPage() {
 
   // Create or Update Plan
   const handleSubmit = async (data: TSubscriptionPlan) => {
+    console.log(data);
     setIsLoading(true);
     const toastId = toast.loading(`Saving plan "${data.name}"...`);
     try {

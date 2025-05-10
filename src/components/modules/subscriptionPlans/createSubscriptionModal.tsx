@@ -288,10 +288,10 @@ export function SubscriptionPlanModal({
                     </Form>
                 </div>
                 <DialogFooter className="p-4 border-t">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    <Button className="cursor-pointer" variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button className="cursor-pointer" type="submit" disabled={isLoading}>
                         {isLoading ? "Saving..." : isEditMode ? "Update Plan" : "Create Plan"}
                     </Button>
                 </DialogFooter>
