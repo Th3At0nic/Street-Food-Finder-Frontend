@@ -20,10 +20,10 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                 <Image
                     src={images[0].file_path}
                     alt="Post image"
-                    className="w-full h-auto object-cover"
+                    className="w-full h-auto object-cover max-w-[200px]"
 
-                    height={200}
-                    width={200}
+                    height={100}
+                    width={100}
                 />
             </div>
         );
@@ -42,9 +42,9 @@ export function ImageGallery({ images }: ImageGalleryProps) {
             <Image
                 src={images[activeIndex].file_path}
                 alt={`Post image ${activeIndex + 1}`}
-                className="w-full h-64 object-cover"
-                height={200}
-                width={200}
+                className="w-full max-w-[200px] h-64 object-cover"
+                height={100}
+                width={100}
             />
 
             <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">

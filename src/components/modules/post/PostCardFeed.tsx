@@ -169,7 +169,7 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
     const hasMoreComments = totalComments > displayedComments.length;
 
     return (
-        <Card className="mb-4 shadow-sm">
+        <Card className="mb-4 shadow-lg">
             <CardHeader className="">
                 <div className="flex items-center space-x-3">
                     <Avatar>

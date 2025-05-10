@@ -19,13 +19,10 @@ export default function PostCategorySelect({ handleCategoryChange }: PostCategor
         observerRef,
         loading,
         meta,
-    } = usePaginatedFetch({
+    } = usePaginatedFetch<SelectOption>({
         fetchFn: async (page) => {
             const { categories, meta } = await fetchPostCategories({ page, limit: 10 });
-            const mapped = categories.map((c) => ({
-                value: c.catId,
-                label: c.name,
-            }));
+            const mapped = categories.map((c) => ({ value: c.catId, label: c.name }));
             return { data: mapped, meta };
         },
     });
@@ -61,6 +58,12 @@ export default function PostCategorySelect({ handleCategoryChange }: PostCategor
             placeholder="Select category"
             isSearchable
             className="w-full"
+            menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+            menuPosition="fixed"
+            styles={{
+                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+            }}
         />
+
     );
 }

@@ -9,9 +9,10 @@ interface Meta {
 
 interface UsePaginatedFetchOptions<T> {
   fetchFn: (page: number) => Promise<{ data: T[]; meta: Meta }>;
+  getKey?: (item: T) => string | number;
 }
 
-export function usePaginatedFetch<T>({ fetchFn }: UsePaginatedFetchOptions<T>) {
+export function usePaginatedFetch<T>({ fetchFn, getKey }: UsePaginatedFetchOptions<T>) {
   const [items, setItems] = useState<T[]>([]);
   const [meta, setMeta] = useState<Meta>({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,11 @@ export function usePaginatedFetch<T>({ fetchFn }: UsePaginatedFetchOptions<T>) {
     setLoading(true);
     try {
       const result = await fetchFn(page);
-      setItems((prev) => [...prev, ...result.data]);
+      setItems((prev) => {
+        const existing = new Set(prev.map((item) => (getKey ? getKey(item) : JSON.stringify(item))));
+        const filteredNew = result.data.filter((item) => !existing.has(getKey ? getKey(item) : JSON.stringify(item)));
+        return [...prev, ...filteredNew];
+      });
       setMeta(result.meta);
     } catch (error) {
       console.error("Pagination fetch failed:", error);
@@ -51,6 +56,7 @@ export function usePaginatedFetch<T>({ fetchFn }: UsePaginatedFetchOptions<T>) {
     return () => {
       if (ref) observer.unobserve(ref);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta.page, meta.totalPages, loading]);
 
   return {
