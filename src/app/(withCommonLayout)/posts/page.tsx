@@ -27,14 +27,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSession } from "next-auth/react";
 
 const PRICE_RANGE_LOW = 0;
 const PRICE_RANGE_HIGH = 100000;
 
 export default function AllSpotsPage() {
-  const {data: session} = useSession();
   const { posts, loading, loadMorePosts } = usePostFeed();
   const { ref, inView } = useInView();
 
