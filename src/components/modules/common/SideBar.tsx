@@ -161,8 +161,8 @@ export function SideBar({ role }: { role: TRole }) {
             icon: <BadgeDollarSign className="h-4 w-4" />
         },
         {
-            title: "Profile Settings",
-            href: "/user/dashboard/settings",
+            title: "My Subscriptions",
+            href: "/user/dashboard/my-subscriptions",
             icon: <Settings className="h-4 w-4" />
         }
     ];
