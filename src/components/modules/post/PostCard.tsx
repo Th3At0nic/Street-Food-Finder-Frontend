@@ -31,7 +31,7 @@ export default function PostCard(data: any) {
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    if (postData.pType === "PREMIUM") {
+    if (postData?.pType === "PREMIUM") {
       e.preventDefault(); // stop default link behavior
       console.log("object");
       router.push("/subscription-plan");
@@ -44,7 +44,7 @@ export default function PostCard(data: any) {
         {/* Spot image */}
         <div className="h-48 bg-gray-200 rounded-t-lg relative overflow-hidden">
           <Image
-            src={postData.postImages[0].file_path}
+            src={postData?.postImages[0]?.file_path}
             alt="Post image"
             fill
             className="object-cover object-center"
