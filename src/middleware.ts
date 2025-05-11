@@ -4,27 +4,41 @@ import localConfig from "./config";
 import { UserRole } from "./types";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request, secret: localConfig.next_auth_secret });
+  const token = await getToken({
+    req: request,
+    secret: localConfig.next_auth_secret as string,
+    secureCookie: localConfig.NODE_ENV === "production"
+  });
+ 
+  // Protected routes
+  const protectedRoutes = ["/admin", "/user/dashboard", "/subscription/verify"];
 
-  // Check if the route is protected
-  const isProtectedRoute = ["/admin", "/user/dashboard", "/subscription/verify"].some(() =>
-    request.nextUrl.pathname.replace(/\/+$/, "")
-  );
+  const isProtectedRoute = protectedRoutes.some((path) => request.nextUrl.pathname.startsWith(path));
 
-  // If it's a protected route and there's no token, redirect to login
+  // Redirect to login if protected route and no token
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Check specific role restrictions (for admin routes)
+  // Admin route protection
   if (request.nextUrl.pathname.startsWith("/admin") && token?.role !== UserRole.ADMIN) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // User route protection
+  if (
+    request.nextUrl.pathname.startsWith("/user") &&
+    token?.role !== UserRole.USER &&
+    token?.role !== UserRole.PREMIUM_USER
+  ) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
 }
 
-//protected routes
 export const config = {
-  matcher: ["/admin", "/admin/:path*", "/user/dashboard", "/user/dashboard/:path*", "/subscription/verify"]
+  matcher: ["/admin/:path*", "/user/dashboard/:path*", "/subscription/verify"]
 };
