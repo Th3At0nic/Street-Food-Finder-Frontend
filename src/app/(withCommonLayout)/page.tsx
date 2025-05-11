@@ -1,4 +1,4 @@
-"use client"
+"use client";
 // app/page.tsx
 import PostCard from "@/components/modules/post/PostCard";
 import SearchBox from "@/components/shared/Search";
@@ -9,16 +9,18 @@ import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
-  const { posts, loading} = usePostFeed();
-  console.log(posts,loading);
+  const { posts, loading } = usePostFeed();
+  console.log(posts, loading);
   const trendingPosts = [...posts].sort((a, b) => {
-    const aScore = a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
-    const bScore = b._count.comments * 2 + b._count.votes * 1 + (b.averageRating ?? 0) * 3;
+    const aScore =
+      a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
+    const bScore =
+      b._count.comments * 2 + b._count.votes * 1 + (b.averageRating ?? 0) * 3;
     return bScore - aScore;
-  })
+  });
 
   if (loading) {
-    return <Skeleton></Skeleton>
+    return <Skeleton></Skeleton>;
   }
   return (
     <div className="min-h-screen">
@@ -40,7 +42,10 @@ export default function HomePage() {
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold ">Trending Posts</h2>
-            <Link href="/posts" className="text-orange-600 hover:text-orange-700 flex items-center">
+            <Link
+              href="/posts"
+              className="text-orange-600 hover:text-orange-700 flex items-center"
+            >
               See all
               <ChevronRight className="h-4 w-4 ml-1" />
             </Link>
@@ -48,7 +53,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {trendingPosts.map((item) => (
-              <PostCard data={item} key={item.pId}/>
+              <PostCard data={item} key={item.pId} />
             ))}
           </div>
         </section>
@@ -57,7 +62,7 @@ export default function HomePage() {
         <section className="bg-orange-300 rounded-xl p-8">
           <div className="flex items-center gap-4 mb-6">
             <Sparkles className="h-8 w-8 text-orange-600" />
-            <h2 className="text-2xl font-semibold ">Premium Spots</h2>
+            <h2 className="text-2xl font-semibold ">Premium Posts</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -78,9 +83,12 @@ export default function HomePage() {
             </div>
 
             <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
-              <h3 className="text-xl font-semibold mb-2">Become a Premium Food Explorer</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Become a Premium Food Explorer
+              </h3>
               <p className="text-sm mb-4 opacity-90">
-                Get access to exclusive street food spots, premium reviews, and special discounts.
+                Get access to exclusive street food spots, premium reviews, and
+                special discounts.
               </p>
               <Button className="bg-white text-orange-600 hover:bg-gray-100">
                 Upgrade Now
@@ -89,7 +97,6 @@ export default function HomePage() {
           </div>
         </section>
       </div>
-
     </div>
   );
 }
