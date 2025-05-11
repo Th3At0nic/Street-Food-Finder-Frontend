@@ -199,12 +199,12 @@ export const authOptions: NextAuthOptions = {
   secret: config.next_auth_secret,
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production"
+        secure: config.NODE_ENV === "production"
       }
     }
   }
