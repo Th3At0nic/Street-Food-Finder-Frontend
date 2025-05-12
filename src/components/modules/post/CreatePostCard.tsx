@@ -47,6 +47,7 @@ export function CreatePostCard() {
   };
 
   const handleCategoryChange = (value: string) => {
+    console.log("ekhane category value: ", value);
     setFormData((prev) => ({ ...prev, categoryId: value }));
   };
 
@@ -135,7 +136,10 @@ export function CreatePostCard() {
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] p-0 flex flex-col">
-              <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+              <form
+                onSubmit={handleSubmit}
+                className="flex-1 flex flex-col overflow-hidden"
+              >
                 <DialogHeader className="p-6 pb-2">
                   <DialogTitle>Share a post</DialogTitle>
                   <DialogDescription>
@@ -171,7 +175,9 @@ export function CreatePostCard() {
 
                   <div className="grid gap-2">
                     <Label htmlFor="category">Category</Label>
-                    <PostCategorySelect handleCategoryChange={handleCategoryChange} />
+                    <PostCategorySelect
+                      handleCategoryChange={handleCategoryChange}
+                    />
                   </div>
 
                   <div className="grid gap-2">
@@ -229,7 +235,10 @@ export function CreatePostCard() {
                     />
                     <div className="grid grid-cols-4 gap-2">
                       {formData.images.map((image, index) => (
-                        <div key={index} className="h-16 w-16 rounded overflow-hidden">
+                        <div
+                          key={index}
+                          className="h-16 w-16 rounded overflow-hidden"
+                        >
                           <Image
                             src={URL.createObjectURL(image)}
                             alt={`Upload ${index + 1}`}
@@ -255,7 +264,7 @@ export function CreatePostCard() {
 
         <Separator className="my-4" />
 
-        <div className="flex justify-between">
+        <div className="flex flex-wrap justify-between">
           <Button
             variant="ghost"
             size="sm"
