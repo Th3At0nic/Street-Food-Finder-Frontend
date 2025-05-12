@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Check, Search } from "lucide-react";
+import { Shield, Check, Search, Edit, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -20,18 +20,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { updatePostType } from "@/components/services/PostModerationByAdmin";
+import { updatePost, updatePostType } from "@/components/services/PostModerationByAdmin";
 import { fetchPosts } from "@/app/actions/post-actions";
 import { IMeta, PostStatus, PostType, TPost } from "@/types";
 import { toast } from "sonner";
 import NoPost from "@/components/shared/noPost";
 import { TableSkeleton } from "@/components/shared/TableSkeleton";
 import { PaginationComponent } from "@/components/shared/PaginationComponent";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import PostCategorySelect from "@/components/modules/post/PostCategorySelect";
 
 const POSTS_PER_PAGE = 7;
-export default function ModerationPage() {
+export default function PostModerationPage() {
   const [posts, setPosts] = useState<TPost[]>([]);
-  const [filterType, setFilterType] = useState<PostType | undefined>(undefined);
+  const [filterType, setFilterType] = useState<PostType | undefined>(PostType.NORMAL);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<IMeta>({
@@ -42,6 +50,10 @@ export default function ModerationPage() {
   });
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loadingPostId, setLoadingPostId] = useState<string | null>(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [newCategory, setNewCategory] = useState<string>("");
 
   // Debounce search
   useEffect(() => {
@@ -87,10 +99,19 @@ export default function ModerationPage() {
       pType: PostType.PREMIUM;
     }
   ) => {
-    const result = await updatePostType(postId, body.pType);
-    console.log(result);
-    if (typeof result !== "string" && result.statusCode === 200) {
-      toast.success("Post has been made premium successfully!");
+    setLoadingPostId(postId);
+    try {
+      const result = await updatePostType(postId, body.pType);
+      console.log(result);
+      if (typeof result !== "string" && result.statusCode === 200) {
+        toast.success("Post has been made premium successfully!");
+        await getApprovedPosts();
+      }
+    } catch (error) {
+      console.log({postUpdateError: error});
+      toast.error("Failed to update post type");
+    } finally {
+      setLoadingPostId(null);
     }
   };
 
@@ -100,12 +121,41 @@ export default function ModerationPage() {
       pType: PostType.NORMAL;
     }
   ) => {
-    const result = await updatePostType(postId, body.pType);
-    if (typeof result !== "string" && result.statusCode === 200) {
-      toast.success("Post type changed to normal successfully");
+    setLoadingPostId(postId);
+    try {
+      const result = await updatePostType(postId, body.pType);
+      if (typeof result !== "string" && result.statusCode === 200) {
+        toast.success("Post type changed to normal successfully");
+        await getApprovedPosts();
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update post type");
+    } finally {
+      setLoadingPostId(null);
     }
   };
-  console.log({ isLoading });
+
+  const openCategoryModal = (postId: string) => {
+    setSelectedPostId(postId);
+    setCategoryModalOpen(true);
+  };
+
+  const handleCategoryChange = async () => {
+    try {
+      await updatePost({
+        postId: selectedPostId!,
+        categoryId: newCategory
+      })
+      toast.success("Post category updated successfully");
+      setCategoryModalOpen(false);
+      await getApprovedPosts();
+    } catch (error) {
+      console.log({ catUpdateError: error });
+      toast.error("Failed to update category");
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -195,7 +245,17 @@ export default function ModerationPage() {
                     </Badge>
                   </TableCell>
 
-                  <TableCell className="flex justify-end gap-2">
+                  <TableCell className="flex flex-wrap justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openCategoryModal(post.pId)}
+                      className="cursor-pointer"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Category
+                    </Button>
+
                     {post.pType === PostType.NORMAL ? (
                       <Button
                         size="sm"
@@ -205,9 +265,14 @@ export default function ModerationPage() {
                             pType: PostType.PREMIUM,
                           })
                         }
+                        disabled={loadingPostId === post.pId}
                         className="cursor-pointer"
                       >
-                        <Check className="h-4 w-4 mr-2" />
+                        {loadingPostId === post.pId ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4 mr-2" />
+                        )}
                         Make Premium
                       </Button>
                     ) : (
@@ -219,9 +284,14 @@ export default function ModerationPage() {
                             pType: PostType.NORMAL,
                           })
                         }
+                        disabled={loadingPostId === post.pId}
                         className="cursor-pointer"
                       >
-                        <Check className="h-4 w-4 mr-2" />
+                        {loadingPostId === post.pId ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4 mr-2" />
+                        )}
                         Make Normal
                       </Button>
                     )}
@@ -232,6 +302,28 @@ export default function ModerationPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Category Edit Modal */}
+      <Dialog open={categoryModalOpen} onOpenChange={setCategoryModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Post Category</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <PostCategorySelect
+              handleCategoryChange={setNewCategory}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCategoryChange}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Pagination Controls */}
       <PaginationComponent

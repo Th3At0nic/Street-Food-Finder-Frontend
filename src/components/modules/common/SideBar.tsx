@@ -13,7 +13,6 @@ import {
     FileText,
     // Lock,
     BadgeDollarSign,
-    DollarSign,
     ChevronDown,
     ChevronRight,
 } from "lucide-react";
@@ -25,6 +24,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { fetchPosts } from "@/app/actions/post-actions";
 import { fetchAllComments } from "@/components/services/CommentServices";
 import { CommentStatus } from "@/types/comments.types";
+import { BsFillFileEarmarkPostFill } from "react-icons/bs";
 
 type NavItem = {
     title: string;
@@ -114,9 +114,9 @@ export function SideBar({ role }: { role: TRole }) {
                     count: pendingPostCount
                 },
                 {
-                    title: "Manage Premium",
-                    href: "/admin/dashboard/make-premium",
-                    icon: <DollarSign className="h-4 w-4" />
+                    title: "Manage Posts",
+                    href: "/admin/dashboard/manage-posts",
+                    icon: <BsFillFileEarmarkPostFill className="h-4 w-4" />
                 },
                 {
                     title: "Comment Mod.",
