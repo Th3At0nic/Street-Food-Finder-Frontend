@@ -8,7 +8,8 @@ import {
   VoteResponse,
   PostType,
   IMeta,
-  IResponse
+  IResponse,
+  ITrendingPostResponse
 } from "@/types";
 import config from "@/config";
 import { authOptions } from "@/utils/authOptions";
@@ -126,7 +127,21 @@ export async function fetchPostComments(params: { postId: string; page: number; 
     throw error;
   }
 }
-
+export async function fetchTrendingPost() {
+  try {
+    const response = await fetch(`${config.backend_url}/posts/trending-posts`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const result: ITrendingPostResponse = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
 // commenting
 export async function commentOnPost(params: { postId: string; comment: string }) {
   const session = await getServerSession(authOptions);

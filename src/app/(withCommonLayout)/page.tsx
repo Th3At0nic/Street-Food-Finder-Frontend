@@ -1,26 +1,35 @@
 "use client";
-// app/page.tsx
+
 import PostCard from "@/components/modules/post/PostCard";
 import SearchBox from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePostFeed } from "@/hooks/usePostFeed";
 import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { fetchTrendingPost } from "../actions/post-actions";
+import { ITrendingPostResponse } from "@/types";
 
 export default function HomePage() {
+  const [trendingPosts, setTrendingPosts] = useState<ITrendingPostResponse | null>(null);
+  const [loading, setLoading] = useState(true)
   const { data: session } = useSession();
-  const { posts, loading } = usePostFeed();
-  
-  const trendingPosts = [...posts].sort((a, b) => {
-    const aScore =
-      a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
-    const bScore =
-      b._count.comments * 2 + b._count.votes * 1 + (b.averageRating ?? 0) * 3;
-    return bScore - aScore;
-  });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const trendingPostsData = await fetchTrendingPost();
+        setTrendingPosts(trendingPostsData);
+      } catch (error) {
+        console.error("Failed to fetch trending posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
@@ -106,7 +115,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {trendingPosts.map((item) => (
+            {trendingPosts?.data?.map((item) => (
               <PostCard data={item} key={item.pId} />
             ))}
           </div>
@@ -128,7 +137,9 @@ export default function HomePage() {
                 <p className="text-sm text-gray-700 mb-4">
                   You’ve unlocked access to premium locations only available to VIP foodies like you.
                 </p>
-                <Button variant="secondary">Explore More Premium Spots</Button>
+                <Link href="/posts">
+                  <Button variant="secondary">Explore More Premium Spots</Button>
+                </Link>
               </div>
 
               <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
@@ -136,7 +147,9 @@ export default function HomePage() {
                 <p className="text-sm mb-4 opacity-90">
                   Enjoy your premium journey — from hidden street gems to chef secrets.
                 </p>
-                <Button className="bg-white text-orange-600 hover:bg-gray-100">Share a Premium Tip</Button>
+                <Link href="/posts">
+                  <Button className="bg-white text-orange-600 hover:bg-gray-100">Share a Premium Tip</Button>
+                </Link>
               </div>
             </div>
           ) : (

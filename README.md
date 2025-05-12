@@ -6,18 +6,19 @@
 
 ## 📃 Documentation
 
-* **Live Site:** [Street-Food Frontend](https://street-bite-frontend.vercel.app/)
-* **Backend Live API:** [Street-Food Server](https://street-food-finder-backend.vercel.app/)
+- **Live Site:** [Street-Food Frontend](https://street-bite-frontend.vercel.app/)
+- **Backend Live API:** [Street-Food Server](https://street-food-finder-backend.vercel.app/)
+- **Project Presentation Video:** [StreetBite](https://www.loom.com/share/f89ee752e15f402593745aa6a6d2d9f6?sid=52f2be6a-f6c6-4c54-999b-b3be9e7e6782)
 
 ---
 
 ## 🛠 Tech Stack
 
-* **Next.js** – React Framework (Server-Side Rendering and Static Site Generation)
-* **Tailwind CSS** – Utility-First Styling Framework
-* **React Query** – Efficient Data Fetching and State Management
-* **JWT** – Client-Side Authentication Handling
-* **Vercel** – Deployment Platform
+- **Next.js** – React Framework (Server-Side Rendering and Static Site Generation)
+- **Tailwind CSS** – Utility-First Styling Framework
+- **React Query** – Efficient Data Fetching and State Management
+- **JWT** – Client-Side Authentication Handling
+- **Vercel** – Deployment Platform
 
 ---
 
@@ -25,53 +26,53 @@
 
 ### 🎨 Responsive User Interface
 
-* Global navigation with links: Home, Go-Premium Login/Signup, Dashboard
-* Mobile-first design adapting to all screen sizes
-* Accessible footer 
+- Global navigation with links: Home, Go-Premium Login/Signup, Dashboard
+- Mobile-first design adapting to all screen sizes
+- Accessible footer
 
 ### 🔎 Post Discover and Create Post
 
-* Hero section you can see Trending posts and then you can go see all page .
-* In this page you can create a post that send admin dashboard for approval .
-* After Approving by admin every user can find this post 
-* User can upvote and downvote . 
-* User can comment here but this comment will send for approval for admin . 
-* After Approval you will find all comment 
-* Admin can Approve or reject post and comment also . 
-* Admin can make a normal post premium. This premium post is only for premium users
-  * Search post by title.
+- Hero section you can see Trending posts and then you can go see all page .
+- In this page you can create a post that send admin dashboard for approval .
+- After Approving by admin every user can find this post
+- User can upvote and downvote .
+- User can comment here but this comment will send for approval for admin .
+- After Approval you will find all comment
+- Admin can Approve or reject post and comment also .
+- Admin can make a normal post premium. This premium post is only for premium users
+  - Search post by title.
 
-### 🛠️ Premium Users Management 
+### 🛠️ Premium Users Management
 
-* Admin Create Subscription Plan and admin provide it for users Subscribe 
-* When a users get or payment subscription plan they are called premium users .
+- Admin Create Subscription Plan and admin provide it for users Subscribe
+- When a users get or payment subscription plan they are called premium users .
 
 ### 🧹 Participation Workflows
 
-* **user free posts:** Instant join
-* **Premiumm users Paid Posts:** Payment integration (SSLCommerz/ShurjoPay) with Premium  status
+- **user free posts:** Instant join
+- **Premiumm users Paid Posts:** Payment integration (SSLCommerz/ShurjoPay) with Premium status
 
 ### 🢑 Users Management
 
-* Active or Blocked By admin
-* Block Users if necessary
-* View Users with status (ACTIVE,Blocked)
+- Active or Blocked By admin
+- Block Users if necessary
+- View Users with status (ACTIVE,Blocked)
 
 ### 🛡️ User Dashboard
 
-* **Post Activity:** CRUD operations, Post management 
-* **Payment History:** If users buy subscription plan their payment history is here
-* **Settings:** Profile updates, notifications, and account management
+- **Post Activity:** CRUD operations, Post management
+- **Payment History:** If users buy subscription plan their payment history is here
+- **Settings:** Profile updates, notifications, and account management
 
 ### ⭐ Reviews and Ratings
 
-* Post review and rating system
-* Aggregated reviews displayed on Posts pages
+- Post review and rating system
+- Aggregated reviews displayed on Posts pages
 
 ### 🛠 Admin Controls
 
-* Delete inappropriate Posts comment or users
-* Admin dashboard with activity logs for monitoring
+- Delete inappropriate Posts comment or users
+- Admin dashboard with activity logs for monitoring
 
 ---
 
@@ -120,17 +121,17 @@ bun run start
 
 ## 📋 Additional Notes
 
-* **Testing Admin Features:**
+- **Testing Admin Features:**
   Email: `admin@gmail.com`
   Password: `AdminPassword`
 
-* **Deployment:**
+- **Deployment:**
   Deployed on [Vercel](https://vercel.com). Set environment variables in Vercel’s dashboard.
 
-* **Styling:**
+- **Styling:**
   Tailwind CSS is used. Customize via `tailwind.config.js`.
 
-* **Linting & Formatting:**
+- **Linting & Formatting:**
   ESLint and Prettier are configured.
   Run:
 
@@ -147,7 +148,6 @@ For issues or inquiries, please contact:
 
 ---
 
-
 ---
 
 ## 🧰 Repository Stats
@@ -156,8 +156,8 @@ For issues or inquiries, please contact:
 | --------------- | -------------- |
 | 🌟 Stars        | 1              |
 | 👀 Watchers     | 1              |
-| 🍜 Forks        | 0           |
-| 🚀 Contributors | 4            |
+| 🍜 Forks        | 0              |
+| 🚀 Contributors | 4              |
 | 📦 Releases     | None Published |
 | 📦 Packages     | None Published |
 
@@ -165,15 +165,14 @@ For issues or inquiries, please contact:
 
 ## 👥 Contributors
 
-* [@alamshuvo](https://github.com/alamshuvo)
-
+- [@alamshuvo](https://github.com/alamshuvo)
 
 ---
 
 ## 🛠️ Languages Used
 
-* **TypeScript** – 99.1%
-* **Other** – 0.9%
+- **TypeScript** – 99.1%
+- **Other** – 0.9%
 
 ---
 
