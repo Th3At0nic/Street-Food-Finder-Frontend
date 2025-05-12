@@ -26,10 +26,14 @@ export const getAllPosts = async () => {
   }
 };
 
-export const updatePost = async (params: { postId: string; status: PostStatus; rejectReason?: string }) => {
+export const updatePost = async (params: { postId: string; status?: PostStatus; rejectReason?: string, categoryId?: string  }) => {
   const session = await getServerSession(authOptions);
-  const { postId, status, rejectReason } = params;
+  const { postId, status, rejectReason, categoryId } = params;
   const payload: Partial<TPost> = { status };
+  
+  if (categoryId) {
+    payload["categoryId"] = categoryId;
+  }
   if (rejectReason && status === PostStatus.REJECTED) {
     payload["rejectReason"] = rejectReason;
   }
@@ -52,11 +56,11 @@ export const updatePost = async (params: { postId: string; status: PostStatus; r
   }
 };
 
-export const updatePostType = async (userId: string, payload: string): Promise<PostsResponse | string> => {
+export const updatePostType = async (postId: string, payload: string): Promise<PostsResponse | string> => {
   const session = await getServerSession(authOptions);
 
   try {
-    const res = await fetch(`${config.backend_url}/posts/${userId}`, {
+    const res = await fetch(`${config.backend_url}/posts/${postId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

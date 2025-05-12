@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Check, X, Search } from "lucide-react";
+import { Shield, Check, X, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useCallback } from "react";
 import { updatePost } from "@/components/services/PostModerationByAdmin";
@@ -29,6 +29,7 @@ export default function ModerationPage() {
   const [posts, setPosts] = useState<TPost[]>([]);
   const [currentPost, setCurrentPost] = useState<TPost | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<IMeta>({
     page,
@@ -76,7 +77,6 @@ export default function ModerationPage() {
     };
   }, [searchInput, searchTerm]);
 
-  // Fetch posts when page or search term changes
   useEffect(() => {
     getPosts();
   }, [getPosts]);
@@ -91,7 +91,9 @@ export default function ModerationPage() {
       return;
     }
 
+    setActionLoadingId(postId);
     const toastId = toast.loading('Updating post status...');
+
     try {
       const result = await updatePost({ postId, status, rejectReason });
       if (result?.success) {
@@ -104,8 +106,21 @@ export default function ModerationPage() {
       }
     } catch (error) {
       toast.error(`Error: ${error instanceof Error ? error.message : "Something went wrong"}`, { id: toastId });
+    } finally {
+      setActionLoadingId(null);
+      setNewStatus(undefined);
     }
   }, [getPosts]);
+
+  const handleApprove = useCallback((post: TPost) => {
+    setCurrentPost(post);
+    handleStatusUpdate(post.pId, PostStatus.APPROVED);
+  }, [handleStatusUpdate]);
+
+  const handleRejectClick = useCallback((post: TPost) => {
+    setCurrentPost(post);
+    setIsRejectModalOpen(true);
+  }, []);
 
   // Handle status change when newStatus and rejectReason are set
   useEffect(() => {
@@ -208,26 +223,29 @@ export default function ModerationPage() {
                       <Button
                         size="sm"
                         variant="default"
-                        onClick={() => {
-                          setCurrentPost(post);
-                          setNewStatus(PostStatus.APPROVED);
-                        }}
+                        onClick={() => handleApprove(post)}
+                        disabled={actionLoadingId === post.pId}
                         className="cursor-pointer"
                       >
-                        <Check className="h-4 w-4 mr-2" />
+                        {actionLoadingId === post.pId && currentPost?.pId === post.pId && newStatus === PostStatus.APPROVED ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4 mr-2" />
+                        )}
                         Approve
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => {
-                          setCurrentPost(post);
-                          setNewStatus(PostStatus.REJECTED);
-                          setIsRejectModalOpen(true);
-                        }}
+                        onClick={() => handleRejectClick(post)}
+                        disabled={actionLoadingId === post.pId}
                         className="cursor-pointer"
                       >
-                        <X className="h-4 w-4 mr-2" />
+                        {actionLoadingId === post.pId && currentPost?.pId === post.pId && newStatus === PostStatus.REJECTED ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <X className="h-4 w-4 mr-2" />
+                        )}
                         Reject
                       </Button>
                     </TableCell>
@@ -253,12 +271,13 @@ export default function ModerationPage() {
         onClose={() => setIsRejectModalOpen(false)}
         onConfirm={(reason) => {
           setRejectReason(reason);
+          setNewStatus(PostStatus.REJECTED);
         }}
         title="Reject Post"
         description="Please provide a reason for rejecting this post."
         confirmText="Submit Rejection"
         cancelText="Cancel"
-        isLoading={false}
+        isLoading={actionLoadingId === currentPost?.pId}
       />
     </div>
   );
