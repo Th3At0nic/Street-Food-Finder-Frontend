@@ -14,6 +14,7 @@ import { Comment } from '@/types';
 import { Loader2 } from 'lucide-react';
 import { fetchPostComments } from '@/app/actions/post-actions';
 import { CommentItem } from '../CommentItem';
+import { LoadingPosts } from '../LoadingPosts';
 
 interface CommentDialogProps {
     postId: string;
@@ -158,7 +159,7 @@ export function CommentDialog({
                                 {isLoading && (
                                     <div className="flex items-center">
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        <span>Loading more comments...</span>
+                                        <LoadingPosts/>
                                     </div>
                                 )}
                             </div>

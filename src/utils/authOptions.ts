@@ -59,16 +59,16 @@ export const authOptions: NextAuthOptions = {
     CredentialProvider({
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async authorize(credentials, req) {
         const res = await fetch(`${config.backend_url}/auth/login`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(credentials)
+          body: JSON.stringify(credentials),
         });
         const setCookieHeader = res.headers.get("set-cookie");
         let refreshToken = null;
@@ -94,17 +94,17 @@ export const authOptions: NextAuthOptions = {
           return {
             ...(userDecoded as User),
             accessToken: result.data.accessToken,
-            refreshToken: refreshToken || result.data.refreshToken
+            refreshToken: refreshToken || result.data.refreshToken,
           };
         }
         return null;
-      }
+      },
     }),
 
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
-    })
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
   ],
   callbacks: {
     async signIn({ user, account }) {
@@ -115,7 +115,7 @@ export const authOptions: NextAuthOptions = {
         name: user.name,
         profilePhoto: user.image,
         provider: account?.provider,
-        password: `${account?.provider}${account?.access_token}`
+        password: `${account?.provider}${account?.access_token}`,
       };
       console.log({ accountData });
       const formData = new FormData();
@@ -123,7 +123,7 @@ export const authOptions: NextAuthOptions = {
       try {
         const res = await fetch(`${config.backend_url}/users`, {
           method: "POST",
-          body: formData
+          body: formData,
         });
         const result = await res.json();
 
@@ -191,21 +191,23 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as TRole;
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: "/login"
+    signIn: "/login",
   },
   secret: config.next_auth_secret,
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: process.env.NODE_ENV === "production"?
+        `__Secure-next-auth.session-token` :
+        `next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production"
-      }
-    }
-  }
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
 };

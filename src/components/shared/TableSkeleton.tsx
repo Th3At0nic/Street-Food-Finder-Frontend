@@ -32,7 +32,7 @@ export const TableSkeleton = ({
                     {Array.from({ length: cols }).map((_, colIndex) => (
                         <TableCell key={colIndex}>
                             <Skeleton
-                                className={`h-4 ${cellWidths[colIndex] || defaultWidths[colIndex] || "w-full"
+                                className={`h-4 ${cellWidths[colIndex] || defaultWidths[colIndex] || "w-full " || colIndex === cols - 1 ? "text-right" : ""
                                     }`}
                             />
                         </TableCell>

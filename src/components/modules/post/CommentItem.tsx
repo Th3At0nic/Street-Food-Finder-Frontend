@@ -17,7 +17,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input'; // Or use Textarea if multiline
+import { Input } from '@/components/ui/input';
 
 interface CommentItemProps {
     comment: Comment;
@@ -26,13 +26,12 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment, onDelete, onEdit }: CommentItemProps) {
-    const { data } = useSession();
+    const { data: userSession } = useSession();
     const [openDelete, setOpenDelete] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [editedComment, setEditedComment] = useState(comment.comment);
 
-    const canModifyComment =
-        data?.user?.id === comment.commenterId || data?.user.role === 'ADMIN';
+    const canModifyComment = userSession?.user?.id && userSession?.user?.id === comment.commenterId;
 
     const handleDelete = () => {
         onDelete(comment.cId);
