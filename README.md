@@ -6,8 +6,8 @@
 
 ## 📃 Documentation
 
-* **Live Site:** [Street-Food Frontend]()
-* **Backend API:** [Street-Food Server](https://street-food-finder-backend.vercel.app/)
+* **Live Site:** [Street-Food Frontend](https://street-bite-frontend.vercel.app/)
+* **Backend Live API:** [Street-Food Server](https://street-food-finder-backend.vercel.app/)
 
 ---
 
