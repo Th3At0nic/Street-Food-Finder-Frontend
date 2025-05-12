@@ -30,17 +30,10 @@ export default function PostCard(data: any) {
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (postData?.pType === "PREMIUM") {
-      e.preventDefault(); // stop default link behavior
-      console.log("object");
-      router.push("/subscription-plan");
-    }
-  };
 
   return (
-    <Link href={`/posts/${postData.pId}`} onClick={handleClick}>
-      <div className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow ${postData.pType === "PREMIUM" ? "blur-sm cursor-pointer" : ""}`}>
+    <Link href={`/posts/${postData.pId}`}>
+      <div className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow`}>
         {/* Spot image */}
         <div className="h-48 bg-gray-200 rounded-t-lg relative overflow-hidden">
           <Image
