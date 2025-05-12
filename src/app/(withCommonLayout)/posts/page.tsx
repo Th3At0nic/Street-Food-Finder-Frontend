@@ -204,7 +204,7 @@ export default function AllSpotsPage() {
               </div>
               <div>
                 <h3 className="text-sm font-medium mb-2">Category</h3>
-                <PostCategorySelect handleCategoryChange={setSelectedCategory} />
+                <PostCategorySelect handleCategoryChange={setSelectedCategory} insideModal={true}/>
               </div>
 
               {activeFilters > 0 && (
@@ -256,7 +256,7 @@ export default function AllSpotsPage() {
               <AccordionItem value="category" className="border-b border-gray-200">
                 <AccordionTrigger className="text-sm font-medium py-3">Category</AccordionTrigger>
                 <AccordionContent>
-                  <PostCategorySelect handleCategoryChange={setSelectedCategory} />
+                  <PostCategorySelect handleCategoryChange={setSelectedCategory} insideModal={true} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

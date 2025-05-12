@@ -11,9 +11,11 @@ type SelectOption = {
 
 interface PostCategorySelectProps {
     handleCategoryChange: (value: string) => void
+    insideModal?: boolean
 }
 
-export default function PostCategorySelect({ handleCategoryChange }: PostCategorySelectProps) {
+export default function PostCategorySelect({ handleCategoryChange, insideModal }: PostCategorySelectProps) {
+    
     const {
         items: postCategories,
         observerRef,
@@ -46,7 +48,7 @@ export default function PostCategorySelect({ handleCategoryChange }: PostCategor
         },
         [observerRef, loading, meta]
     );
-
+    
     return (
         <Select
             onChange={(newValue) => {
@@ -58,6 +60,8 @@ export default function PostCategorySelect({ handleCategoryChange }: PostCategor
             placeholder="Select category"
             isSearchable
             className="w-full"
+            menuPortalTarget={insideModal ? document.body : null}
+            menuPosition={insideModal? 'fixed' : 'absolute'}
             styles={{
                 menuPortal: (base) => ({ ...base, zIndex: 9999 }),
             }}

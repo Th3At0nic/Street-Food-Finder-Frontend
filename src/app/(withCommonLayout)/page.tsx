@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePostFeed } from "@/hooks/usePostFeed";
 import { MapPin, ChevronRight, Sparkles } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function HomePage() {
+  const { data: session } = useSession();
   const { posts, loading } = usePostFeed();
-  console.log(posts, loading);
+  
   const trendingPosts = [...posts].sort((a, b) => {
     const aScore =
       a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
@@ -114,39 +116,65 @@ export default function HomePage() {
         <section className="bg-orange-300 rounded-xl p-8">
           <div className="flex items-center gap-4 mb-6">
             <Sparkles className="h-8 w-8 text-orange-600" />
-            <h2 className="text-2xl font-semibold ">Premium Posts</h2>
+            <h2 className="text-2xl font-semibold">
+              {session?.user.role === "PREMIUM_USER" ? "Your Premium Access" : "Premium Posts"}
+            </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-100 rounded-lg shadow-sm p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="h-20 w-20 bg-gray-200 rounded-lg"></div>
-                <div>
-                  <h3 className="font-medium mb-1">Secret BBQ Stall</h3>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mr-1.5 text-orange-600" />
-                    Hidden Location
+          {session?.user.role === "PREMIUM_USER" ? (
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-xl font-semibold mb-2">Exclusive BBQ Spot</h3>
+                <p className="text-sm text-gray-700 mb-4">
+                  You’ve unlocked access to premium locations only available to VIP foodies like you.
+                </p>
+                <Button variant="secondary">Explore More Premium Spots</Button>
+              </div>
+
+              <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
+                <h3 className="text-xl font-semibold mb-2">Thanks for Supporting Us!</h3>
+                <p className="text-sm mb-4 opacity-90">
+                  Enjoy your premium journey — from hidden street gems to chef secrets.
+                </p>
+                <Button className="bg-white text-orange-600 hover:bg-gray-100">Share a Premium Tip</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-gray-100 rounded-lg shadow-sm p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="h-20 w-20 bg-gray-200 rounded-lg"></div>
+                  <div>
+                    <h3 className="font-medium mb-1">Secret BBQ Stall</h3>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MapPin className="h-4 w-4 mr-1.5 text-orange-600" />
+                      Hidden Location
+                    </div>
                   </div>
                 </div>
+                <Link href="/subscription-plan">
+                  <Button variant="outline" className="w-full">
+                    Unlock Premium Spot
+                  </Button>
+                </Link>
               </div>
-              <Button variant="outline" className="w-full">
-                Unlock Premium Spot
-              </Button>
-            </div>
 
-            <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
-              <h3 className="text-xl font-semibold mb-2">
-                Become a Premium Food Explorer
-              </h3>
-              <p className="text-sm mb-4 opacity-90">
-                Get access to exclusive street food spots, premium reviews, and
-                special discounts.
-              </p>
-              <Button className="bg-white text-orange-600 hover:bg-gray-100">
-                Upgrade Now
-              </Button>
+              <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
+                <h3 className="text-xl font-semibold mb-2">
+                  Become a Premium Food Explorer
+                </h3>
+                <p className="text-sm mb-4 opacity-90">
+                  Get access to exclusive street food spots, premium reviews, and special discounts.
+                </p>
+                <Link href="/subscription-plan">
+
+                  <Button className="bg-white text-orange-600 hover:bg-gray-100">
+                    Upgrade Now
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
         </section>
       </div>
     </div>
