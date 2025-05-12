@@ -126,7 +126,24 @@ export async function fetchPostComments(params: { postId: string; page: number; 
     throw error;
   }
 }
-
+export async function fetchTrendingPost() {
+  try {
+    const response = await fetch(
+      `https://street-bite-backend.vercel.app/api/posts/trending-posts`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    const result = await response.json();
+    console.log({ result });
+    return result;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
 // commenting
 export async function commentOnPost(params: { postId: string; comment: string }) {
   const session = await getServerSession(authOptions);
