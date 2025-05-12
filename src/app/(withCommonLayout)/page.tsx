@@ -4,23 +4,40 @@ import PostCard from "@/components/modules/post/PostCard";
 import SearchBox from "@/components/shared/Search";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePostFeed } from "@/hooks/usePostFeed";
 import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { fetchTrendingPost } from "../actions/post-actions";
 
 export default function HomePage() {
+  const [trendingPosts, setTrendingPosts] = useState<{ data: { pId: string; [key: string]: any }[] } | null>(null);
+  const [loading,setLoading]=useState(true)
   const { data: session } = useSession();
-  const { posts, loading } = usePostFeed();
+  // const { posts, loading } = usePostFeed();
   
-  const trendingPosts = [...posts].sort((a, b) => {
-    const aScore =
-      a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
-    const bScore =
-      b._count.comments * 2 + b._count.votes * 1 + (b.averageRating ?? 0) * 3;
-    return bScore - aScore;
-  });
+  // const trendingPosts = [...posts].sort((a, b) => {
+  //   const aScore =
+  //     a._count.comments * 2 + a._count.votes * 1 + (a.averageRating ?? 0) * 3;
+  //   const bScore =
+  //     b._count.comments * 2 + b._count.votes * 1 + (b.averageRating ?? 0) * 3;
+  //   return bScore - aScore;
+  // });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const trendingPostsData = await fetchTrendingPost();
+        setTrendingPosts(trendingPostsData); 
+      } catch (error) {
+        console.error("Failed to fetch trending posts:", error);
+      } finally {
+        setLoading(false); 
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
@@ -106,7 +123,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {trendingPosts.map((item) => (
+            {trendingPosts?.data?.map((item) => (
               <PostCard data={item} key={item.pId} />
             ))}
           </div>
