@@ -20,9 +20,11 @@ import { registerUser } from "@/components/services/AuthService";
 import { registrationSchema } from "./registerValidation";
 import { signIn } from "next-auth/react";
 import Logo from "@/components/shared/Logo";
+import { useRouter } from "next/navigation";
 
 
 export default function RegisterForm() {
+  const router = useRouter();
   const form = useForm({
     resolver: zodResolver(registrationSchema),
   });
@@ -47,6 +49,7 @@ export default function RegisterForm() {
       console.log(res);
       if (res?.success) {
         toast.success(res?.message);
+        setTimeout(() => router.push("/login"), 2000);
       } else {
         toast.error(res?.message);
       }

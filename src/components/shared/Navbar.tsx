@@ -19,7 +19,7 @@ export default function Navbar() {
   const canUserSeePremiumButton = data?.user.role !== UserRole.ADMIN && data?.user.role !== UserRole.PREMIUM_USER;
 
   return (
-    <nav className="shadow-sm bg-white dark:bg-accent sticky top-0">
+    <nav className="shadow-sm bg-white dark:bg-accent sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         
         {/* Left: Logo */}

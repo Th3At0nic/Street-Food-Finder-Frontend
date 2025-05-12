@@ -27,6 +27,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PRICE_RANGE_LOW = 0;
 const PRICE_RANGE_HIGH = 100000;
@@ -74,6 +75,82 @@ export default function AllSpotsPage() {
     setPriceRange([PRICE_RANGE_LOW, PRICE_RANGE_HIGH]);
     setSelectedCategory("");
   };
+
+  // Replace the current skeleton loader with this enhanced version
+  if (loading && posts.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Mobile search and filter skeleton */}
+        <div className="lg:hidden mb-4 flex items-center justify-between">
+          <Skeleton className="h-10 w-full mr-2 rounded-full" />
+          <Skeleton className="h-10 w-10 rounded-md" />
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Desktop Sidebar Skeleton */}
+          <aside className="hidden lg:block w-72 flex-shrink-0">
+            <div className="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
+              <Skeleton className="h-10 w-full rounded-full mb-6" />
+
+              {/* Price Range Skeleton */}
+              <div className="mb-4">
+                <Skeleton className="h-6 w-24 mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-10" />
+                  <Skeleton className="h-4 w-10" />
+                </div>
+              </div>
+
+              {/* Category Skeleton */}
+              <div className="mt-6">
+                <Skeleton className="h-6 w-24 mb-4" />
+                <Skeleton className="h-10 w-full rounded-md" />
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content Skeleton */}
+          <main className="flex-1">
+            {/* Create Post Card Skeleton */}
+            <div className="bg-white shadow-sm rounded-xl p-6 border border-gray-100 mb-6 max-w-[800px]">
+              <Skeleton className="h-10 w-full mb-4 rounded-md" />
+              <Skeleton className="h-20 w-full rounded-md" />
+            </div>
+
+            {/* Post Cards Skeleton */}
+            <div className="space-y-6 max-w-[800px]">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-white shadow-sm rounded-xl p-6 border border-gray-100 space-y-4"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-48 w-full rounded-lg" />
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="flex space-x-2">
+                      <Skeleton className="h-8 w-16 rounded-full" />
+                      <Skeleton className="h-8 w-16 rounded-full" />
+                    </div>
+                    <Skeleton className="h-8 w-24 rounded-md" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

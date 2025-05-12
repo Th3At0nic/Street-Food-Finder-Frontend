@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { MessageCircle, Share2, Send, MapPin, DollarSign, Star, ArrowBigUp, ArrowBigDown } from 'lucide-react';
+import { MessageCircle, Share2, Send, MapPin, DollarSign, Star, ArrowBigUp, ArrowBigDown, Check } from 'lucide-react';
 import { TPost, VoteType, Comment } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { useSession } from 'next-auth/react';
@@ -19,32 +19,33 @@ import { toast } from 'sonner';
 import { CommentDialog } from './AllComments/CommentDialog';
 import { Rating as ReactRating } from '@smastrom/react-rating'
 import { usePostRating } from '@/hooks/ usePostRating';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatPrice } from '@/utils/helperFunctions';
 
 interface PostCardFeedProps {
     post: TPost;
 }
 
 export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
-    // Use state to manage post data so we can update it after commenting
+    const { data: session } = useSession();
     const [post, setPost] = useState<TPost>(initialPost);
     const [isCommenting, setIsCommenting] = useState(false);
     const [commentText, setCommentText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { data: session } = useSession();
     const { toggleVote, isUpVoted, isDownVoted, upVoteCount, downVoteCount } = useVote(post);
     const { myPostRating, setMyPostRating } = usePostRating(post);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(`${window.location.href}/posts/${post.pId}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     // Update post state when initialPost changes
     useEffect(() => {
         setPost(initialPost);
     }, [initialPost]);
-
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(price);
-    };
 
     const formatTime = (date: Date) => {
         try {
@@ -164,8 +165,8 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
 
     // Determine how many comments to show in the card
     // Usually we'd show the initial 3 comments
-    const displayedComments = post.comments?.slice(0, 3) || [];
-     const totalComments = post?._count?.comments || 0;
+    const displayedComments = post.comments || [];
+    const totalComments = post?._count?.comments || 0;
     const hasMoreComments = totalComments > displayedComments.length;
 
     return (
@@ -229,7 +230,21 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                         <div className='flex justify-center items-center'><ArrowBigDown className="h-4 w-4" />{downVoteCount} </div>
                     </div>
 
-                    <ReactRating style={{ maxWidth: 100 }} value={myPostRating ?? 0} onChange={setMyPostRating} />
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div>
+                                <ReactRating
+                                    style={{ maxWidth: 100 }}
+                                    value={myPostRating ?? 0}
+                                    onChange={setMyPostRating}
+                                    isDisabled={session?.user.role === 'ADMIN' || !session?.user}
+                                />
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{session?.user ? "Rate this post" : "Log in to rate"}</p>
+                        </TooltipContent>
+                    </Tooltip>
 
                     {averageRating > -1 && (
                         <div className="flex items-center">
@@ -239,17 +254,15 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                     )}
 
                     <div>
-                        {hasMoreComments && (
-                            <CommentDialog
-                                postId={post.pId}
-                                initialComments={displayedComments}
-                                totalComments={totalComments}
-                                onEdit={handleCommentEdit}
-                                onDelete={handleCommentDelete}
-                            >
-                                <span className="mr-2 cursor-pointer">{post._count.comments || 0} comments</span>
-                            </CommentDialog>
-                        )}
+                        <CommentDialog
+                            postId={post.pId}
+                            initialComments={displayedComments}
+                            totalComments={totalComments}
+                            onEdit={handleCommentEdit}
+                            onDelete={handleCommentDelete}
+                        >
+                            <span className="mr-2 cursor-pointer">{totalComments || 0} comments</span>
+                        </CommentDialog>
 
                     </div>
 
@@ -259,42 +272,94 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
 
                 <div className="flex justify-between w-full">
                     <div className="flex items-center space-x-4 text-sm">
-                        <Button
-                            disabled={!session?.user || session?.user.role === 'ADMIN'}
-                            variant={isUpVoted ? "default" : "ghost"}
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => toggleVote(VoteType.UPVOTE)}
-                        >
-                            <ArrowBigUp className={`h-4 w-4 ${isUpVoted ? "text-white" : ""}`} />
-                            {isUpVoted ? 'Upvoted' : 'Upvote'}
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                               <div>
+                                    <Button
+                                        disabled={!session?.user || session?.user.role === "ADMIN"}
+                                        variant={isUpVoted ? "default" : "ghost"}
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={() => toggleVote(VoteType.UPVOTE)}
+                                    >
+                                        <ArrowBigUp className={`h-4 w-4 ${isUpVoted ? "text-white" : ""}`} />
+                                        {isUpVoted ? "Upvoted" : "Upvote"}
+                                    </Button>
+                               </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{!session?.user ? "Log in to vote" : session.user.role === "ADMIN" ? "Admins can't vote" : "Upvote this post"}</p>
+                            </TooltipContent>
+                        </Tooltip>
+
                         <Separator orientation="vertical" />
-                        <Button
-                            disabled={!session?.user || session?.user.role === 'ADMIN'}
-                            variant={isDownVoted ? "default" : "ghost"}
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => toggleVote(VoteType.DOWNVOTE)}
-                        >
-                            <ArrowBigDown className={`h-4 w-4 ${isDownVoted ? "text-white" : ""}`} />
-                            {isDownVoted ? 'Downvoted' : 'Downvote'}
-                        </Button>
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div>
+                                    <Button
+                                        disabled={!session?.user || session?.user.role === "ADMIN"}
+                                        variant={isDownVoted ? "default" : "ghost"}
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={() => toggleVote(VoteType.DOWNVOTE)}
+                                    >
+                                        <ArrowBigDown className={`h-4 w-4 ${isDownVoted ? "text-white" : ""}`} />
+                                        {isDownVoted ? "Downvoted" : "Downvote"}
+                                    </Button>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{!session?.user ? "Log in to vote" : session.user.role === "ADMIN" ? "Admins can't vote" : "Downvote this post"}</p>
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
-                    <Button
-                        disabled={!session?.user || session?.user.role === 'ADMIN'}
-                        variant="ghost"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => setIsCommenting(!isCommenting)}
-                    >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Comment
-                    </Button>
-                    <Button variant="ghost" size="sm" className="flex-1">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Share
-                    </Button>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div>
+                                <Button
+                                    disabled={!session?.user || session?.user.role === "ADMIN"}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex-1"
+                                    onClick={() => setIsCommenting(!isCommenting)}
+                                >
+                                    <MessageCircle className="h-4 w-4 mr-2" />
+                                    Comment
+                                </Button>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{!session?.user ? "Log in to comment" : session.user.role === "ADMIN" ? "Admins can't comment" : "Add a comment"}</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-auto px-2"
+                                onClick={handleCopy}
+                            >
+                                {copied ? (
+                                    <>
+                                        <Check className="h-4 w-4 mr-1 text-green-500" />
+                                        Copied
+                                    </>
+                                ) : (
+                                    <>
+                                        <Share2 className="h-4 w-4 mr-1" />
+                                        Share
+                                    </>
+                                )}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Copy post link</p>
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
 
                 {isCommenting && (
@@ -335,9 +400,9 @@ export function PostCardFeed({ post: initialPost }: PostCardFeedProps) {
                 {displayedComments.length > 0 && (
                     <div className="mt-4 space-y-3 w-full">
                         <Separator />
-                        {displayedComments.map((comment) => (
+                        {displayedComments.map((comment, idx) => (
                             <CommentItem
-                                key={comment.cId}
+                                key={`${comment.cId}_${idx}`}
                                 comment={comment}
                                 onEdit={handleCommentEdit}
                                 onDelete={handleCommentDelete}
