@@ -8,10 +8,10 @@ import {
     Shield,
     Users,
     List,
-    AlertCircle,
+    // AlertCircle,
     Settings,
     FileText,
-    Lock,
+    // Lock,
     BadgeDollarSign,
     DollarSign,
     ChevronDown,
@@ -126,27 +126,27 @@ export function SideBar({ role }: { role: TRole }) {
                 },
             ]
         },
-        {
-            title: "Content Audit",
-            href: "/admin/dashboard/audit",
-            icon: <FileText className="h-4 w-4" />
-        },
-        {
-            title: "Reports",
-            href: "/admin/dashboard/analytics",
-            icon: <AlertCircle className="h-4 w-4" />,
-            count: 3
-        },
-        {
-            title: "Permissions",
-            href: "/admin/dashboard/permissions",
-            icon: <Lock className="h-4 w-4" />
-        },
-        {
-            title: "Admin Settings",
-            href: "/admin/dashboard/settings",
-            icon: <Settings className="h-4 w-4" />
-        }
+        // {
+        //     title: "Content Audit",
+        //     href: "/admin/dashboard/audit",
+        //     icon: <FileText className="h-4 w-4" />
+        // },
+        // {
+        //     title: "Reports",
+        //     href: "/admin/dashboard/analytics",
+        //     icon: <AlertCircle className="h-4 w-4" />,
+        //     count: 3
+        // },
+        // {
+        //     title: "Permissions",
+        //     href: "/admin/dashboard/permissions",
+        //     icon: <Lock className="h-4 w-4" />
+        // },
+        // {
+        //     title: "Admin Settings",
+        //     href: "/admin/dashboard/settings",
+        //     icon: <Settings className="h-4 w-4" />
+        // }
     ];
 
     const userNavItems: NavItem[] = [

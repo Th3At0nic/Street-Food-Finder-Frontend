@@ -21,6 +21,7 @@ import {
   Star,
   ArrowBigUp,
   ArrowBigDown,
+  Check,
 } from "lucide-react";
 import { TPost, VoteType, Comment } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,8 @@ import { toast } from "sonner";
 import { CommentDialog } from "./AllComments/CommentDialog";
 import { Rating as ReactRating } from "@smastrom/react-rating";
 import { usePostRating } from "@/hooks/ usePostRating";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatPrice } from "@/utils/helperFunctions";
 
 interface PostCardFeedProps {
   post: TPost;

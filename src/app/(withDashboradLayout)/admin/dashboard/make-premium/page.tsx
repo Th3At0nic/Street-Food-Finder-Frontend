@@ -58,6 +58,7 @@ export default function ModerationPage() {
   }, [searchInput, searchTerm]);
 
   const getApprovedPosts = async () => {
+    setIsLoading(true);
     try {
       const result = await fetchPosts({
         page,
@@ -104,6 +105,7 @@ export default function ModerationPage() {
       toast.success("Post type changed to normal successfully");
     }
   };
+  console.log({ isLoading });
   return (
     <div className="space-y-8">
       {/* Pending Posts Section */}
@@ -143,93 +145,91 @@ export default function ModerationPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {posts?.length === 0 ? (
-            <div className="flex justify-center items-center py-10">
-              <NoPost h="h-20" w="w-20" title="No Approved Post Yet" />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Post Title</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Price Range</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Post Type</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? <TableSkeleton cols={7} /> : posts?.map((post) => (
-                  <TableRow key={post.pId}>
-                    <TableCell className="font-medium">{post.title}</TableCell>
-                    <TableCell>{post.author?.userDetails?.name}</TableCell>
-                    <TableCell>{post.category?.name}</TableCell>
-                    <TableCell>
-                      {post.priceRangeStart}-{post.priceRangeEnd}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          post.status === PostStatus.PENDING
-                            ? "destructive"
-                            : "outline"
-                        }
-                        className="capitalize"
-                      >
-                        {post.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          post.pType === PostType.NORMAL
-                            ? "destructive"
-                            : "outline"
-                        }
-                        className="capitalize"
-                      >
-                        {post.pType}
-                      </Badge>
-                    </TableCell>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Post Title</TableHead>
+                <TableHead>Author</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Price Range</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Post Type</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? <TableSkeleton cols={7} /> : posts?.length === 0 ? (
+                <div className="flex justify-center items-center py-10">
+                  <NoPost h="h-20" w="w-20" title="No Approved Post Yet" />
+                </div>
+              ) : posts?.map((post) => (
+                <TableRow key={post.pId}>
+                  <TableCell className="font-medium">{post.title}</TableCell>
+                  <TableCell>{post.author?.userDetails?.name}</TableCell>
+                  <TableCell>{post.category?.name}</TableCell>
+                  <TableCell>
+                    {post.priceRangeStart}-{post.priceRangeEnd}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        post.status === PostStatus.PENDING
+                          ? "destructive"
+                          : "outline"
+                      }
+                      className="capitalize"
+                    >
+                      {post.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        post.pType === PostType.NORMAL
+                          ? "destructive"
+                          : "outline"
+                      }
+                      className="capitalize"
+                    >
+                      {post.pType}
+                    </Badge>
+                  </TableCell>
 
-                    <TableCell className="flex justify-end gap-2">
-                      {post.pType === PostType.NORMAL ? (
-                        <Button
-                          size="sm"
-                          variant="default"
-                          onClick={() =>
-                            handlePremium(post.pId, {
-                              pType: PostType.PREMIUM,
-                            })
-                          }
-                          className="cursor-pointer"
-                        >
-                          <Check className="h-4 w-4 mr-2" />
-                          Make Premium
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() =>
-                            handleNormal(post.pId, {
-                              pType: PostType.NORMAL,
-                            })
-                          }
-                          className="cursor-pointer"
-                        >
-                          <Check className="h-4 w-4 mr-2" />
-                          Make Normal
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+                  <TableCell className="flex justify-end gap-2">
+                    {post.pType === PostType.NORMAL ? (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() =>
+                          handlePremium(post.pId, {
+                            pType: PostType.PREMIUM,
+                          })
+                        }
+                        className="cursor-pointer"
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        Make Premium
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          handleNormal(post.pId, {
+                            pType: PostType.NORMAL,
+                          })
+                        }
+                        className="cursor-pointer"
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        Make Normal
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 

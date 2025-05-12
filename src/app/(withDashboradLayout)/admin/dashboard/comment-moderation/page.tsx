@@ -24,7 +24,6 @@ import { CommentStatus, IComment } from "@/types/comments.types";
 import { Search, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Skeleton } from "@/components/ui/skeleton";
 import { NoDataFound } from "@/components/modules/common/NoDataFound";
 import { formatDate } from "date-fns";
 import { PaginationComponent } from "@/components/shared/PaginationComponent";
@@ -38,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateComment } from "@/app/actions/post-actions";
+import { TableSkeleton } from "@/components/shared/TableSkeleton";
 
 export default function CommentModerationPage() {
   const [comments, setComments] = useState<IComment[]>([]);
@@ -46,7 +46,7 @@ export default function CommentModerationPage() {
   const [meta, setMeta] = useState<IMeta>({ page, limit, total: 0, totalPages: 1 });
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<CommentStatus | undefined>(undefined);
+  const [filterStatus, setFilterStatus] = useState<CommentStatus | undefined>(CommentStatus.PENDING);
   const [isTableLoading, setIsTableLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -54,6 +54,7 @@ export default function CommentModerationPage() {
 
 
   const getAllComments = async () => {
+    setIsTableLoading(true);
     try {
       const result = await fetchAllComments({ page, limit, status: filterStatus, searchTerm })
       setComments(result.data.data);
@@ -65,9 +66,9 @@ export default function CommentModerationPage() {
       setIsTableLoading(false);
     }
   }
-   
+
   useEffect(() => {
-    getAllComments();               
+    getAllComments();
   }, [page, limit, filterStatus, searchTerm]);
 
   const handleUpdateCommentStatus = async (comment: IComment, status: CommentStatus) => {
@@ -109,20 +110,6 @@ export default function CommentModerationPage() {
       clearTimeout(handler);
     };
   }, [searchInput]);
-
-  const TableSkeleton = () => {
-    return Array.from({ length: limit }).map((_, index) => (
-      <TableRow key={index}>
-        <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-        <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-        <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-        <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-        <TableCell className="text-right">
-          <Skeleton className="h-8 w-8 ml-auto" />
-        </TableCell>
-      </TableRow>
-    ));
-  };
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -178,7 +165,7 @@ export default function CommentModerationPage() {
             <TableBody>
               {
                 isTableLoading ? (
-                  <TableSkeleton />
+                  <TableSkeleton cols={6} />
                 ) : comments.length ? (
                   comments.map((comment) => (
                     <TableRow key={comment.cId}>

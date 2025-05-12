@@ -12,11 +12,11 @@ export const getAllUsers = async () => {
   try {
     const res = await fetch(`${config.backend_url}/users`, {
       headers: {
-        Authorization: `Bearer ${session?.user.accessToken}` // ✅ Added Bearer here
+        Authorization: `Bearer ${session?.user.accessToken}`,
       },
       next: {
-        tags: ["users"]
-      }
+        tags: ["users"],
+      },
     });
 
     // if (!res.ok) {
@@ -35,11 +35,11 @@ export const getSingleUser = async () => {
   try {
     const res = await fetch(`${config.backend_url}/users/me`, {
       headers: {
-        Authorization: `Bearer ${session?.user.accessToken}`
+        Authorization: `Bearer ${session?.user.accessToken}`,
       },
       next: {
-        tags: ["users"] // 👈 cache tag for the specific user
-      }
+        tags: ["users"],
+      },
     });
 
     if (!res.ok) {
@@ -60,9 +60,9 @@ export const updateUsers = async (userId: string, payload: string) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`
+        Authorization: `Bearer ${session?.user.accessToken}`,
       },
-      body: JSON.stringify({ status: payload })
+      body: JSON.stringify({ status: payload }),
     });
     revalidateTag("users");
     return res.json();
@@ -78,8 +78,8 @@ export const fetchUsersByRole = async (role: string) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`
-      }
+        Authorization: `Bearer ${session?.user.accessToken}`,
+      },
     });
     const data: IResponse<{
       data: TUser[];
@@ -88,7 +88,7 @@ export const fetchUsersByRole = async (role: string) => {
     return data;
   } catch (error) {
     console.error("Error fetching users by role:", error);
-    throw error; // Re-throw so caller can catch if needed
+    throw error;
   }
 };
 
@@ -96,15 +96,15 @@ export const changePassword = async (oldPassword: string, newPassword: string) =
   const session = await getServerSession(authOptions);
   try {
     const response = await fetch(`${config.backend_url}/auth/change-password`, {
-      method: "POST", // usually password updates use PATCH
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`
+        Authorization: `Bearer ${session?.user.accessToken}`,
       },
       body: JSON.stringify({
         oldPassword,
-        newPassword
-      })
+        newPassword,
+      }),
     });
 
     if (!response.ok) {
@@ -112,10 +112,10 @@ export const changePassword = async (oldPassword: string, newPassword: string) =
     }
 
     const data = await response.json();
-    return data; // or data.message if your API sends a success message
+    return data;
   } catch (error) {
     console.error("Error changing password:", error);
-    throw error; // Re-throw so caller can catch if needed
+    throw error;
   }
 };
 
