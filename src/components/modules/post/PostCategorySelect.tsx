@@ -58,8 +58,6 @@ export default function PostCategorySelect({ handleCategoryChange }: PostCategor
             placeholder="Select category"
             isSearchable
             className="w-full"
-            menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-            menuPosition="fixed"
             styles={{
                 menuPortal: (base) => ({ ...base, zIndex: 9999 }),
             }}

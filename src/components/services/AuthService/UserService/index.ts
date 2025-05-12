@@ -1,7 +1,7 @@
 "use server";
 
 import config from "@/config";
-import { IMeta, IResponse, TUser } from "@/types";
+import { IMeta, IResponse, TUser, UserRole } from "@/types";
 import { authOptions } from "@/utils/authOptions";
 import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
@@ -71,10 +71,15 @@ export const updateUsers = async (userId: string, payload: string) => {
   }
 };
 
-export const fetchUsersByRole = async (role: string) => {
+export const fetchUsersByRole = async (params:{ role: UserRole, page?: number, limit?: number }) => {
+  const {role, page, limit} = params
   const session = await getServerSession(authOptions);
+  let apiURL = `${config.backend_url}/users?role=${role}`;
+  if(page && limit){
+    apiURL += `&page=${page}&limit=${limit}`
+  }
   try {
-    const response = await fetch(`${config.backend_url}/users?role=${role}`, {
+    const response = await fetch(apiURL, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
