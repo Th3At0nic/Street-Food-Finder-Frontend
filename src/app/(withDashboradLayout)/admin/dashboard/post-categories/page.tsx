@@ -129,7 +129,6 @@ export default function PostCategoryPage() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header Section */}

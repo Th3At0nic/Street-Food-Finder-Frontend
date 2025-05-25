@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import PostCard from "@/components/modules/post/PostCard";
@@ -8,13 +9,27 @@ import { MapPin, ChevronRight, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fetchTrendingPost } from "../actions/post-actions";
-import { ITrendingPostResponse } from "@/types";
+import {
+  fetchPostCategories,
+  fetchTrendingPost,
+} from "../actions/post-actions";
+import { IMeta, ITrendingPostResponse, TPostCategory } from "@/types";
+import { CategoryCard } from "@/components/modules/post/categoryCard";
 
 export default function HomePage() {
-  const [trendingPosts, setTrendingPosts] = useState<ITrendingPostResponse | null>(null);
-  const [loading, setLoading] = useState(true)
+  const [trendingPosts, setTrendingPosts] =
+    useState<ITrendingPostResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
+  const [postCategories, setPostCategories] = useState<TPostCategory[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(7);
+  const [meta, setMeta] = useState<IMeta>({
+    page,
+    limit,
+    total: 0,
+    totalPages: 1,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +45,25 @@ export default function HomePage() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const getPostCategories = async () => {
+      setLoading(true);
+      try {
+        const result = await fetchPostCategories({
+          page,
+          limit,
+        });
+        setMeta(result.meta);
+        setPostCategories(result.categories);
+      } catch (err) {
+        console.log("Failed to fetch post categories", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getPostCategories();
+  }, [page, limit]);
 
   if (loading) {
     return (
@@ -120,35 +154,58 @@ export default function HomePage() {
             ))}
           </div>
         </section>
+        {/* Post Category Section */}
+        <section className="mb-16">
+          <div className="mb-10">
+            <h2 className="text-2xl font-semibold ">Post Categories</h2>
+          </div>
+          <div className=" grid grid-cols-4 gap-4">
+            {postCategories?.map((item) => (
+              <CategoryCard category={item} key={item?.catId}></CategoryCard>
+            ))}
+          </div>
+        </section>
 
         {/* Premium Section */}
         <section className="bg-orange-300 rounded-xl p-8">
           <div className="flex items-center gap-4 mb-6">
             <Sparkles className="h-8 w-8 text-orange-600" />
             <h2 className="text-2xl font-semibold">
-              {session?.user.role === "PREMIUM_USER" ? "Your Premium Access" : "Premium Posts"}
+              {session?.user.role === "PREMIUM_USER"
+                ? "Your Premium Access"
+                : "Premium Posts"}
             </h2>
           </div>
 
           {session?.user.role === "PREMIUM_USER" ? (
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-xl font-semibold mb-2">Exclusive BBQ Spot</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Exclusive BBQ Spot
+                </h3>
                 <p className="text-sm text-gray-700 mb-4">
-                  You’ve unlocked access to premium locations only available to VIP foodies like you.
+                  You’ve unlocked access to premium locations only available to
+                  VIP foodies like you.
                 </p>
                 <Link href="/posts">
-                  <Button variant="secondary">Explore More Premium Spots</Button>
+                  <Button variant="secondary">
+                    Explore More Premium Spots
+                  </Button>
                 </Link>
               </div>
 
               <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-6 text-white">
-                <h3 className="text-xl font-semibold mb-2">Thanks for Supporting Us!</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Thanks for Supporting Us!
+                </h3>
                 <p className="text-sm mb-4 opacity-90">
-                  Enjoy your premium journey — from hidden street gems to chef secrets.
+                  Enjoy your premium journey — from hidden street gems to chef
+                  secrets.
                 </p>
                 <Link href="/posts">
-                  <Button className="bg-white text-orange-600 hover:bg-gray-100">Share a Premium Tip</Button>
+                  <Button className="bg-white text-orange-600 hover:bg-gray-100">
+                    Share a Premium Tip
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -177,10 +234,10 @@ export default function HomePage() {
                   Become a Premium Food Explorer
                 </h3>
                 <p className="text-sm mb-4 opacity-90">
-                  Get access to exclusive street food spots, premium reviews, and special discounts.
+                  Get access to exclusive street food spots, premium reviews,
+                  and special discounts.
                 </p>
                 <Link href="/subscription-plan">
-
                   <Button className="bg-white text-orange-600 hover:bg-gray-100">
                     Upgrade Now
                   </Button>
