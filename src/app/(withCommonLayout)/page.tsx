@@ -159,7 +159,7 @@ export default function HomePage() {
           <div className="mb-10">
             <h2 className="text-2xl font-semibold ">Post Categories</h2>
           </div>
-          <div className=" grid grid-cols-4 gap-4">
+          <div className=" grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2  gap-4">
             {postCategories?.map((item) => (
               <CategoryCard category={item} key={item?.catId}></CategoryCard>
             ))}
