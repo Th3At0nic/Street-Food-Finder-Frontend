@@ -55,6 +55,7 @@ export default function LoginForm() {
   const handleAdminLogin = async (email: string, password: string) => {
     form.setValue("email", email);
     form.setValue("password", password);
+    
     try {
       const res = await signIn("credentials", {
         redirect: false,
